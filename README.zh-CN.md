@@ -314,3 +314,13 @@ npm run build     # 改了 src/ 之后，重新打包 skills/answer-me-with-html
 ## License
 
 [MIT](LICENSE)
+## Star 历史
+
+<a href="https://star-history.com/#QingYunA/answer-me-with-html&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=QingYunA/answer-me-with-html&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=QingYunA/answer-me-with-html&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=QingYunA/answer-me-with-html&type=Date" />
+  </picture>
+</a>
+

@@ -312,3 +312,13 @@ To refresh the demo video: serve [docs/demo/demo.html](docs/demo/demo.html) next
 ## License
 
 [MIT](LICENSE)
+## Star History
+
+<a href="https://star-history.com/#QingYunA/answer-me-with-html&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=QingYunA/answer-me-with-html&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=QingYunA/answer-me-with-html&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=QingYunA/answer-me-with-html&type=Date" />
+  </picture>
+</a>
+
