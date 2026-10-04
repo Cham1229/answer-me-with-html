@@ -291,7 +291,8 @@ async function cmdPatch(htmlArg, fromArg, opts, ctx) {
         fail(`✗ voice 的值 "${voice}" 无效，可选：${VOICES.join(' | ')}`);
         return 2;
       }
-      result = await buildVideo(patched, voice, opts, config, ctx);
+      // 视频页同样沿用原页面的主题与明暗（例如 3b1b），本次命令行参数优先。
+      result = await buildVideo(patched, voice, { ...opts, theme: overrides.theme, mode: overrides.mode }, config, ctx);
     } else {
       result = renderDoc(patched, overrides, { theme, mode, style });
     }
@@ -305,7 +306,9 @@ async function cmdPatch(htmlArg, fromArg, opts, ctx) {
   writeFileSync(file, result.html);
   const comps = Object.entries(result.stats.components).map(([k, v]) => `${k}×${v}`).join(' ');
   print(`✓ ${file}`);
-  print(`  ${result.meta.template} · ${result.meta.theme} · ${result.stats.panels} 面板${comps ? ` · ${comps}` : ''}`);
+  print(video
+    ? `  video · ${result.meta.theme} · ${result.stats.panels} 场景 · ${result.beats} 句旁白 · ${result.duration.toFixed(1)}s · 配音：${result.voiceName}（同名 MP4 不会自动更新，需要时用 am video --mp4 重新导出）`
+    : `  ${result.meta.template} · ${result.meta.theme} · ${result.stats.panels} 面板${comps ? ` · ${comps}` : ''}`);
   printWarnings(result.warnings, print, result.meta.style);
   return finish(file, opts, config, ctx);
 }

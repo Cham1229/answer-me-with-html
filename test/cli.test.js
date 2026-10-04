@@ -251,3 +251,14 @@ test('cli patch: 沿用原页面的主题与模板；本次 --theme 优先', asy
   await run(['patch', 'keep.html', '--panel', 'A', '--theme', 'blueprint'], { stdin: '改主题\n' });
   assert.match(readFileSync(join(dir, 'keep.html'), 'utf8'), /data-theme="blueprint"/);
 });
+
+test('cli patch: 视频页沿用原主题（3b1b），输出视频摘要', async () => {
+  const src = '## 场景\n```flow\nA -> B\n```\n> [A] 连到 B。\n';
+  assert.equal((await run(['video', '-', '--voice', 'off', '--theme', '3b1b', '-o', 'v3b.html'], { stdin: src })).code, 0);
+  const r = await run(['patch', 'v3b.html', '--panel', '场景', '--voice', 'off'], { stdin: '> 新旁白。\n```flow\nA -> C\n```\n' });
+  assert.equal(r.code, 0, r.err);
+  assert.match(r.out, /video · 3b1b · 1 场景 · 1 句旁白/);
+  const html = readFileSync(join(dir, 'v3b.html'), 'utf8');
+  assert.match(html, /data-theme="3b1b" data-mode="dark" data-video/);
+  assert.match(html, /新旁白/);
+});
