@@ -28,7 +28,7 @@ Once installed, ask questions the way you always do:
 
 The agent writes a short Markdown draft and hands it to the CLI that ships with the skill. About 50 ms later you have a page:
 
-https://github.com/user-attachments/assets/1f13b1fe-70a9-4c39-8530-b12e553e17ea
+https://github.com/user-attachments/assets/d3063a28-5dfd-4c44-a562-be901c49b249
 
 <p align="center"><sub>24-second demo. Turn the sound on for the music.</sub></p>
 
