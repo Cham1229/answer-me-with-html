@@ -6,7 +6,7 @@ import { parseArgs } from "node:util";
 import { readFileSync as readFileSync4, writeFileSync as writeFileSync5, mkdirSync as mkdirSync4 } from "node:fs";
 
 // src/assets.js
-var VERSION = "0.4.1";
+var VERSION = "0.4.2";
 var BASE_CSS = '/* Answer me with HTML base \u2014 \u53EA\u5F15\u7528\u4E3B\u9898\u53D8\u91CF\uFF0C\u7981\u6B62\u5199\u6B7B\u989C\u8272\uFF08\u4E3B\u9898 token \u89C1 themes/index.js\uFF09 */\n*, *::before, *::after { box-sizing: border-box; }\nhtml, body { margin: 0; padding: 0; }\nbody {\n  background: var(--bg); color: var(--ink);\n  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;\n  -webkit-font-smoothing: antialiased;\n}\ncode, pre, kbd { font-family: var(--font-mono); }\n\n/* \u2500\u2500 \u5DE5\u5177\u680F \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-toolbar {\n  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;\n}\n.am-btn {\n  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);\n  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;\n}\n.am-btn:hover { border-color: var(--ink-3); }\n.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }\n\n/* \u2500\u2500 \u9875\u5934 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-head { margin: 0 0 20px; padding-right: 260px; }\n.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }\n.am-sub { margin: 4px 0 0; color: var(--ink-2); }\n.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }\n.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }\n.am-intro { margin-top: 12px; max-width: 80ch; }\n\n/* \u2500\u2500 sheet \u56FE\u7EB8\u677F \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }\n.am-frame { position: relative; }\n.am-grid {\n  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));\n  gap: 20px; align-items: start;\n}\n.am-ruler { display: none; }\nhtml[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }\nhtml[data-theme="blueprint"] .am-frame::before {\n  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;\n}\nhtml[data-theme="blueprint"] .am-ruler {\n  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);\n}\n.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }\n.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }\n.am-ruler--top { top: 0; }\n.am-ruler--bottom { bottom: 0; }\n.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }\n.am-ruler--left { left: 0; }\n.am-ruler--right { right: 0; }\n.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }\n.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }\n\n/* \u2500\u2500 \u9762\u677F \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-panel {\n  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);\n  box-shadow: var(--shadow); min-width: 0; overflow: hidden;\n}\n.am-panel-head {\n  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;\n}\n.am-panel-id {\n  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;\n  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;\n}\nhtml[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }\nhtml[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }\n.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }\n.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }\n.am-panel-body { padding: 14px 16px 16px; }\n.am-panel-body > * + * { margin-top: 12px; }\n\n/* \u2500\u2500 Markdown \u6B63\u6587 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-md > :first-child { margin-top: 0; }\n.am-md > :last-child { margin-bottom: 0; }\n.am-md p { margin: 0 0 8px; }\n.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }\n.am-md li + li { margin-top: 3px; }\n.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }\n.am-md a { color: var(--accent); }\n.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }\n.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }\n.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }\n.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }\n.am-md th {\n  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;\n  padding: 6px 10px; border-bottom: 1px solid var(--line-2);\n}\n.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }\n.am-md tbody tr:nth-child(even) td { background: var(--fill); }\n.am-table-wrap { overflow-x: auto; }\n.am-code {\n  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);\n  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;\n}\n\n/* \u2500\u2500 \u72B6\u6001\u5FBD\u7AE0 ok / no / warn \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-status { white-space: nowrap; font-weight: 500; }\n.am-status--ok { color: var(--ok); }\n.am-status--no { color: var(--err); }\n.am-status--warn { color: var(--warn); }\n.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }\n\n/* \u2500\u2500 callout \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-callout {\n  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);\n  padding: 10px 14px; border-radius: var(--radius);\n}\n.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }\n.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }\n.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }\n.am-callout-title { font-weight: 600; margin-bottom: 4px; }\n\n/* \u2500\u2500 kv \u6807\u9898\u680F\u683C \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-kv {\n  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;\n  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);\n}\n.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }\n.am-kv-cell--wide { grid-column: 1 / -1; }\n.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }\n.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }\n.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }\nhtml[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }\n\n/* \u2500\u2500 timeline \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-timeline { list-style: none; margin: 0; padding: 0; }\n.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }\n.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }\n.am-timeline--h li::before {\n  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);\n}\n.am-timeline--h li:first-child::before { left: 50%; }\n.am-timeline--h li:last-child::before { right: 50%; }\n.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }\n.am-tl-dot {\n  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;\n  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);\n}\n.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }\n.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }\n.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }\n.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }\n.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }\n.am-timeline--v li:last-child::before { display: none; }\n.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }\n.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }\n.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }\n.am-timeline--v .am-tl-text { margin-top: 2px; }\n\n/* \u2500\u2500 annot \u53E5\u5B50\u6807\u6CE8 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }\n.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }\n.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }\n.am-annot-scroll { overflow-x: auto; }\n.am-annot-line {\n  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);\n  padding-bottom: calc(var(--rows, 0) * 17px + 14px);\n}\n.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }\n.am-annot-line--wrap .am-seg { white-space: nowrap; }\n.am-seg { position: relative; }\n.am-seg::after {\n  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;\n  border: 1px solid var(--accent); border-top: 0;\n}\n.am-seg-n {\n  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);\n  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;\n}\n.am-seg--err { color: var(--err); }\n.am-seg--err::after { border-color: var(--err); }\n.am-seg--err .am-seg-n { color: var(--err); }\n.am-annot-caption { font-size: 12px; color: var(--ink-2); }\n\n/* \u2500\u2500 limits \u9650\u503C\u6761 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-lim + .am-lim { margin-top: 14px; }\n.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }\n.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }\n.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }\n.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }\n.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }\n.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }\n.am-lim.is-over .am-lim-val { color: var(--err); }\n.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }\n.am-lim-ticks span { position: absolute; transform: translateX(-50%); }\n.am-lim-ticks span:first-child { transform: none; }\n.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }\n\n/* \u2500\u2500 tree \u7ED3\u6784\u6811 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-tree { font-size: 13px; }\n.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }\n.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }\n.am-tree-root--solo { padding-bottom: 12px; }\n.am-tree-root--solo::after { display: none; }\n.am-tree-box {\n  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;\n  border-radius: var(--radius); font-weight: 600;\n}\n.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }\n.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }\n.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }\n.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }\n.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }\n.am-tree-col:first-child::before { left: 50%; }\n.am-tree-col:last-child::before { right: 50%; }\n.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }\n.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }\n.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }\n.am-tree-list ul { margin-left: 16px; }\n.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }\n.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }\n.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }\n.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }\n.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }\n.am-tree code { font: 12px var(--font-mono); }\n.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }\n.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }\n\n/* \u2500\u2500 \u56FE\uFF08flow / sequence\uFF09\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-diagram { margin: 0; overflow-x: auto; text-align: center; }\n.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans); }\n.am-diagram text { fill: var(--ink); font-size: 13px; }\n.am-node-shape { fill: var(--paper); stroke: var(--line); stroke-width: var(--bw); }\n.am-node--hi .am-node-shape { fill: var(--accent-bg); stroke: var(--accent); }\n.am-node--hi text { fill: var(--accent); font-weight: 600; }\n.am-edge { fill: none; stroke: var(--ink-2); stroke-width: 1.3; }\n.am-edge--dashed { stroke-dasharray: 5 4; }\n.am-arrow { fill: var(--ink-2); }\n.am-edge-label rect { fill: var(--paper); }\n.am-diagram .am-edge-label text { fill: var(--accent); font-size: 11.5px; }\n.am-cluster { fill: var(--fill); stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 4 3; }\n.am-diagram .am-cluster-label { fill: var(--ink-2); font: 11px var(--font-mono); }\n.am-lifeline { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 4 4; }\n.am-actor { fill: var(--paper); stroke: var(--line); stroke-width: var(--bw); }\n.am-note { fill: var(--warn-bg); stroke: var(--warn); stroke-width: 1; }\n.am-diagram .am-step { fill: var(--ink-3); font: 10px var(--font-mono); }\n\n/* \u2500\u2500 doc \u7EBF\u6027\u8BB2\u89E3 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }\n.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }\n.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }\n.am-toc { position: sticky; top: 24px; font-size: 13px; }\n.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }\n.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }\n.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }\n\n/* \u2500\u2500 \u54CD\u5E94\u5F0F\u4E0E\u6253\u5370 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n@media (max-width: 1100px) {\n  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n  .am-grid > .am-panel { grid-column: auto !important; }\n  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }\n}\n@media (max-width: 760px) {\n  .am-sheet, .am-doc { padding: 56px 12px 24px; }\n  .am-head { padding-right: 0; }\n  .am-grid { grid-template-columns: minmax(0, 1fr); }\n  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }\n  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }\n  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }\n  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }\n  .am-toc { position: static; }\n  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }\n  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }\n}\n.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }\n\n@media print {\n  .am-toolbar { display: none; }\n  body { background: var(--paper); }\n  .am-panel { break-inside: avoid; box-shadow: none; }\n}\n.am-panel--bare { border: 0; background: transparent; box-shadow: none; }\n.am-panel--bare > .am-panel-body { padding: 0; }\n.am-panel--bare .am-kv { background: var(--paper); }\n';
 var RUNTIME_JS = `(() => {
   const root = document.documentElement;
@@ -95,7 +95,7 @@ function parseFrontmatter(lines, base, allowed) {
   if (end === -1) throw new ParseError("frontmatter \u672A\u95ED\u5408\uFF1A\u7F3A\u5C11\u7ED3\u675F\u884C ---", 1);
   const entries = {};
   for (let i = 1; i < end; i++) {
-    const raw = lines[i].replace(/\s+#.*$/, "").trim();
+    const raw = stripLineComment(lines[i]).trim();
     if (!raw || raw.startsWith("#")) continue;
     const m = raw.match(/^([\w-]+)\s*:\s*(.*)$/);
     if (!m) throw new ParseError(`frontmatter \u65E0\u6CD5\u89E3\u6790\uFF1A"${lines[i]}"\uFF0C\u5E94\u4E3A key: value`, i + 1);
@@ -203,6 +203,22 @@ function assignIds(panels) {
 function unquote(v) {
   const s = v.trim();
   return /^(["']).*\1$/.test(s) ? s.slice(1, -1) : s;
+}
+function stripLineComment(line) {
+  let quote = "";
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (quote) {
+      if (c === quote) quote = "";
+      continue;
+    }
+    if (c === '"' || c === "'") {
+      quote = c;
+      continue;
+    }
+    if (c === "#" && (i === 0 || /\s/.test(line[i - 1]))) return line.slice(0, i);
+  }
+  return line;
 }
 function coerce(key, value) {
   if (NUMERIC_KEYS.has(key) && /^\d+$/.test(value)) return Number(value);
@@ -1842,6 +1858,7 @@ function liHtml(n) {
 var NICE_MAX = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
 var NICE_STEP = [1, 2, 2.5, 5, 10];
 function niceScale(peak) {
+  if (!Number.isFinite(peak) || peak <= 0) return { max: 1, step: 1 };
   const target = peak * 1.4;
   const pow = 10 ** Math.floor(Math.log10(target));
   const integral = Number.isInteger(peak);
@@ -1885,7 +1902,9 @@ function rowHtml({ label, value, limit, unit, note }) {
   const over = value !== null && value > limit;
   const valText = `${value !== null ? `${value} / ` : ""}max ${limit}${unit ? ` ${unit}` : ""}`;
   const ticks = [];
-  for (let v = 0; v <= max + 1e-9; v += step) ticks.push(`<span style="left: ${pct(round(v), max)}">${round(v)}</span>`);
+  if (step > 0 && max > 0) {
+    for (let v = 0; v <= max + 1e-9; v += step) ticks.push(`<span style="left: ${pct(round(v), max)}">${round(v)}</span>`);
+  }
   return `<div class="am-lim${over ? " is-over" : ""}">
 <div class="am-lim-head"><span>${esc(label)}${note ? `<span class="am-lim-note">${esc(note)}</span>` : ""}</span><span class="am-lim-val">${esc(valText)}</span></div>
 <div class="am-lim-track"><div class="am-lim-fill" style="width: ${pct(shown, max)}"></div><div class="am-lim-mark" style="left: ${pct(limit, max)}"></div></div>
@@ -5011,8 +5030,12 @@ function captionHtml(raw) {
     return m ? `<b>${esc(m[1])}</b>` : esc(part);
   }).join("");
 }
+function formatClock(seconds) {
+  const total = Math.max(0, Math.round(Number(seconds) || 0));
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+}
 function titleScene(meta, introHtml, { scenes, duration }) {
-  const mmss = `${Math.floor(duration / 60)}:${String(Math.round(duration % 60)).padStart(2, "0")}`;
+  const mmss = formatClock(duration);
   const cells = [["DRAWN", "Answer me with HTML"], ["DATE", timestamp().slice(0, 10)], ["SCENES", String(scenes)], ["DURATION", mmss]];
   const block2 = `<div class="amv-titleblock">${cells.map(([k2, v]) => `<div><b>${k2}</b><span>${esc(v)}</span></div>`).join("")}</div>`;
   return `<section class="amv-scene amv-scene--title" data-i="0">
@@ -5535,6 +5558,75 @@ function resetConfig(key, env = process.env) {
   writeStored(next, env);
 }
 
+// src/patch.js
+var SOURCE_RE = /<textarea id="am-source"[^>]*>([\s\S]*?)<\/textarea>/;
+var ATTR_BLOCK2 = /\s*\{([^{}]*)\}\s*$/;
+var PatchError = class extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "PatchError";
+  }
+};
+function extractSource(html) {
+  const m = String(html).match(SOURCE_RE);
+  if (!m) return null;
+  return unescapeHtml(m[1]);
+}
+function unescapeHtml(s) {
+  return s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
+}
+function normalizePanelQuery(query) {
+  let q3 = String(query ?? "").trim();
+  if (q3.startsWith("##")) q3 = q3.replace(/^##\s*/, "");
+  q3 = q3.replace(ATTR_BLOCK2, "").trim();
+  return q3;
+}
+function panelKeys(panel) {
+  const title = panel.title.trim();
+  const id = String(panel.id || "").trim();
+  const keys = /* @__PURE__ */ new Set([title]);
+  if (id) {
+    keys.add(id);
+    if (title) keys.add(`${id} ${title}`);
+  }
+  return keys;
+}
+function findPanel(doc2, query) {
+  const q3 = normalizePanelQuery(query);
+  if (!q3) throw new PatchError("\u7F3A\u5C11 --panel \u6807\u9898");
+  const matches = doc2.panels.filter((p) => panelKeys(p).has(q3));
+  if (matches.length === 0) throw new PatchError(`\u6CA1\u6709\u627E\u5230\u6807\u9898\u4E3A "${query}" \u7684\u9762\u677F`);
+  if (matches.length > 1) throw new PatchError(`\u6807\u9898 "${query}" \u5339\u914D\u5230\u591A\u4E2A\u9762\u677F`);
+  return matches[0];
+}
+function asSinglePanelMarkdown(replacement) {
+  const text = String(replacement).replace(/\r\n?/g, "\n");
+  if (!text.trim()) throw new PatchError("\u65B0\u9762\u677F\u7A3F\u4EF6\u4E3A\u7A7A");
+  const looksLikeHeading = /^\s*##\s+/.test(text);
+  const doc2 = parseDoc(looksLikeHeading ? text : `## _
+${text}`);
+  if (doc2.panels.length !== 1) throw new PatchError("\u65B0\u9762\u677F\u7A3F\u4EF6\u5FC5\u987B\u53EA\u5305\u542B\u4E00\u4E2A ## \u9762\u677F");
+  return { text, looksLikeHeading };
+}
+function pageSettings(html) {
+  const attr = (name) => String(html).match(new RegExp(`<html[^>]*\\s${name}="([^"]+)"`))?.[1];
+  const template = /<main class="am-doc\b/.test(html) ? "doc" : /<main class="am-sheet\b/.test(html) ? "sheet" : void 0;
+  return { template, theme: attr("data-theme"), mode: attr("data-mode") };
+}
+function replacePanel(source, query, replacement) {
+  const doc2 = parseDoc(source);
+  const panel = findPanel(doc2, query);
+  const idx = doc2.panels.indexOf(panel);
+  const lines = String(source).replace(/\r\n?/g, "\n").split("\n");
+  const start = panel.line - 1;
+  const end = doc2.panels[idx + 1] ? doc2.panels[idx + 1].line - 1 : lines.length;
+  const { text, looksLikeHeading } = asSinglePanelMarkdown(replacement);
+  const section = looksLikeHeading ? text : `${lines[start]}
+${text.replace(/^\n+/, "")}`;
+  const newLines = section.replace(/\n$/, "").split("\n");
+  return [...lines.slice(0, start), ...newLines, ...lines.slice(end)].join("\n");
+}
+
 // src/cli.js
 var MAX_LISTED_WARNINGS = 20;
 var USAGE = `Answer me with HTML ${VERSION} \u2014 \u628A Markdown \u5185\u5BB9\u7A3F\u6E32\u67D3\u6210\u5355\u6587\u4EF6 HTML \u89E3\u91CA\u9875
@@ -5542,6 +5634,8 @@ var USAGE = `Answer me with HTML ${VERSION} \u2014 \u628A Markdown \u5185\u5BB9\
 \u7528\u6CD5:
   am render <file|->  [-o \u8F93\u51FA\u8DEF\u5F84] [--no-open] [--theme blueprint|shadcn]
                       [--template sheet|doc] [--style off|80|strict] [--mode auto|light|dark]
+  am patch  <html> --panel <\u6807\u9898> [file|-] [--from file] [--theme \u2026] [--no-open]
+                                                  \u66FF\u6362\u5DF2\u6709\u9875\u9762\u4E2D\u7684\u4E00\u4E2A ## \u9762\u677F\uFF0C\u539F\u5730\u8986\u76D6\u8BE5 HTML
   am video  <file|->  [-o \u8F93\u51FA\u8DEF\u5F84] [--voice auto|elevenlabs|system|off] [--mp4] [--no-open]
                       [--theme blueprint|shadcn|3b1b] [--mode light|dark]
                                                   \u628A\u89C6\u9891\u7A3F\u6E32\u67D3\u6210 3b1b \u98CE\u683C\u7684\u89E3\u91CA\u89C6\u9891\u64AD\u653E\u9875\uFF08--mp4 \u53E6\u5B58\u89C6\u9891\u6587\u4EF6\uFF09
@@ -5549,11 +5643,12 @@ var USAGE = `Answer me with HTML ${VERSION} \u2014 \u628A Markdown \u5185\u5BB9\
   am config [set <\u952E> <\u503C> | get <\u952E> | reset [\u952E]] \u67E5\u770B\u6216\u4FEE\u6539\u914D\u7F6E
   am clean  [--days 30] [--all] [--dry-run]       \u6E05\u7406\u65E7\u9875\u9762\u3001\u65E7\u89C6\u9891\u548C\u914D\u97F3\u7F13\u5B58
   am list                                         \u5217\u51FA\u6A21\u677F\u3001\u4E3B\u9898\u3001\u7EC4\u4EF6
-  am help [\u7EC4\u4EF6\u540D|format|video]                    \u67E5\u770B\u7EC4\u4EF6\u8BED\u6CD5 / \u9875\u9762\u7A3F\u683C\u5F0F / \u89C6\u9891\u7A3F\u683C\u5F0F
+  am help [\u7EC4\u4EF6\u540D|format|video|patch]              \u67E5\u770B\u7EC4\u4EF6\u8BED\u6CD5 / \u9875\u9762\u7A3F\u683C\u5F0F / \u89C6\u9891\u7A3F\u683C\u5F0F / patch \u7528\u6CD5
 
 - \u6587\u4EF6\u53C2\u6570\u5199 - \u8868\u793A\u4ECE stdin \u8BFB\u53D6\uFF08\u9002\u5408 heredoc\uFF1Aam render - <<'EOF' ... EOF\uFF09\u3002
 - \u9ED8\u8BA4\u8F93\u51FA\u5230 ~/.answer-me-with-html/pages/\uFF08\u53EF\u7528\u73AF\u5883\u53D8\u91CF AM_HOME \u4FEE\u6539\uFF09\u3002
-- \u662F\u5426\u81EA\u52A8\u6253\u5F00\u6D4F\u89C8\u5668\u3001\u9ED8\u8BA4\u4E3B\u9898\u7B49\u7528 am config \u8BBE\u7F6E\uFF1B--open / --no-open \u53EA\u5F71\u54CD\u8FD9\u4E00\u6B21\u3002`;
+- \u662F\u5426\u81EA\u52A8\u6253\u5F00\u6D4F\u89C8\u5668\u3001\u9ED8\u8BA4\u4E3B\u9898\u7B49\u7528 am config \u8BBE\u7F6E\uFF1B--open / --no-open \u53EA\u5F71\u54CD\u8FD9\u4E00\u6B21\u3002
+- am patch \u4ECE\u9875\u9762\u9690\u85CF\u7684 #am-source \u53D6\u56DE\u6E90\u7A3F\uFF0C\u53EA\u6539 --panel \u5BF9\u5E94\u7684 ## \u5C0F\u8282\uFF0C\u518D\u6309\u539F\u8DEF\u5F84\u5199\u56DE\u3002`;
 var FORMAT = `\u7A3F\u4EF6\u683C\u5F0F\uFF08\u6269\u5C55 Markdown\uFF09
 
 ---
@@ -5643,6 +5738,8 @@ async function main(argv, io = {}) {
         mode: { type: "string" },
         voice: { type: "string" },
         mp4: { type: "boolean" },
+        panel: { type: "string" },
+        from: { type: "string" },
         days: { type: "string" },
         all: { type: "boolean" },
         "dry-run": { type: "boolean" },
@@ -5662,6 +5759,8 @@ ${USAGE}`);
   switch (cmd) {
     case "render":
       return withSource(arg, io, fail, (src) => cmdRender(src, opts, { print, fail, env, io }));
+    case "patch":
+      return cmdPatch(arg, rest[0], opts, { print, fail, env, io });
     case "video":
       return withSource(arg, io, fail, (src) => cmdVideo(src, opts, { print, fail, env, io }));
     case "lint":
@@ -5724,6 +5823,75 @@ function cmdRender(src, opts, ctx) {
     return reportError(e, fail);
   }
   const file = writeOutput(result.html, "pages", result.meta.title, opts, ctx);
+  const comps = Object.entries(result.stats.components).map(([k2, v]) => `${k2}\xD7${v}`).join(" ");
+  print(`\u2713 ${file}`);
+  print(`  ${result.meta.template} \xB7 ${result.meta.theme} \xB7 ${result.stats.panels} \u9762\u677F${comps ? ` \xB7 ${comps}` : ""}`);
+  printWarnings(result.warnings, print, result.meta.style);
+  return finish(file, opts, config, ctx);
+}
+var PATCH_HELP = `\u539F\u5730\u66FF\u6362\u5DF2\u6E32\u67D3\u9875\u9762\u4E2D\u7684\u4E00\u4E2A\u9762\u677F
+
+\u7528\u6CD5:
+  am patch <html-file> --panel <\u6807\u9898> < new-panel.md
+  am patch <html-file> --panel <\u6807\u9898> --from new-panel.md
+  am patch <html-file> --panel <\u6807\u9898> -
+
+- \u4ECE <html-file> \u91CC\u9690\u85CF\u7684 <textarea id="am-source"> \u53D6\u56DE\u6E90\u7A3F\u3002
+- --panel \u5339\u914D ## \u5C0F\u8282\u7684\u6807\u9898\u3001\u5B57\u6BCD ID\uFF0C\u6216 "ID \u6807\u9898"\u3002
+- \u65B0\u7A3F\u4EF6\u4ECE stdin \u6216 --from / \u7B2C\u4E8C\u4E2A\u6587\u4EF6\u53C2\u6570\u8BFB\u53D6\uFF1A\u53EF\u5E26 ## \u6807\u9898\uFF0C\u4E5F\u53EF\u53EA\u5199\u9762\u677F\u6B63\u6587\u3002
+- \u7528\u73B0\u6709 renderer \u91CD\u6E32\u540E\u8986\u76D6\u540C\u4E00\u4E2A HTML \u8DEF\u5F84\uFF0C\u4E0D\u53E6\u5199\u5E26\u65F6\u95F4\u6233\u7684\u65B0\u6587\u4EF6\u3002
+- \u627E\u4E0D\u5230\u8BE5\u9762\u677F\uFF0C\u6216\u9875\u9762\u6CA1\u6709 #am-source\uFF0C\u9000\u51FA\u7801\u975E 0 \u4E14\u4E0D\u6539\u6587\u4EF6\u3002`;
+async function cmdPatch(htmlArg, fromArg, opts, ctx) {
+  const { print, fail, io } = ctx;
+  if (!htmlArg || htmlArg === "-") {
+    fail(htmlArg ? "\u2717 patch \u9700\u8981\u5DF2\u6709 HTML \u6587\u4EF6\u8DEF\u5F84\uFF0C\u4E0D\u80FD\u4ECE stdin \u8BFB\u9875\u9762" : "\u2717 \u7F3A\u5C11 HTML \u6587\u4EF6\u8DEF\u5F84");
+    return 2;
+  }
+  if (!opts.panel || !String(opts.panel).trim()) {
+    fail("\u2717 \u7F3A\u5C11 --panel <\u6807\u9898>");
+    return 2;
+  }
+  const cwd = io.cwd ?? process.cwd();
+  const file = resolve(cwd, htmlArg);
+  let html;
+  try {
+    html = readFileSync4(file, "utf8");
+  } catch (e) {
+    fail(`\u2717 \u65E0\u6CD5\u8BFB\u53D6 HTML\uFF1A${e.message}`);
+    return 2;
+  }
+  const source = extractSource(html);
+  if (source == null) {
+    fail("\u2717 \u9875\u9762\u91CC\u6CA1\u6709 #am-source\uFF0C\u65E0\u6CD5\u53D6\u56DE\u6E90\u7A3F");
+    return 1;
+  }
+  const from = opts.from ?? fromArg;
+  let replacement;
+  try {
+    replacement = !from || from === "-" ? await readStream(io.stdin ?? process.stdin) : readFileSync4(resolve(cwd, from), "utf8");
+  } catch (e) {
+    fail(`\u2717 \u65E0\u6CD5\u8BFB\u53D6\u65B0\u9762\u677F\u7A3F\u4EF6\uFF1A${e.message}`);
+    return 2;
+  }
+  let patched;
+  try {
+    patched = replacePanel(source, opts.panel, replacement);
+  } catch (e) {
+    if (!(e instanceof PatchError)) return reportError(e, fail);
+    fail(`\u2717 ${e.message}`);
+    return 1;
+  }
+  const config = loadConfig(ctx);
+  const { theme, mode, style } = config.values;
+  const page = pageSettings(html);
+  const overrides = { template: opts.template ?? page.template, theme: opts.theme ?? page.theme, mode: opts.mode ?? page.mode, style: opts.style };
+  let result;
+  try {
+    result = renderDoc(patched, overrides, { theme, mode, style });
+  } catch (e) {
+    return reportError(e, fail);
+  }
+  writeFileSync5(file, result.html);
   const comps = Object.entries(result.stats.components).map(([k2, v]) => `${k2}\xD7${v}`).join(" ");
   print(`\u2713 ${file}`);
   print(`  ${result.meta.template} \xB7 ${result.meta.theme} \xB7 ${result.stats.panels} \u9762\u677F${comps ? ` \xB7 ${comps}` : ""}`);
@@ -5917,10 +6085,11 @@ function cmdHelp(name, { print, fail }) {
   if (!name) return print(USAGE), 0;
   if (name === "format") return print(FORMAT), 0;
   if (name === "video") return print(VIDEO_FORMAT), 0;
+  if (name === "patch") return print(PATCH_HELP), 0;
   if (name === "html" || name === "svg") return print(RAW_HELP.replace(/LANG/g, name)), 0;
   const comp = COMPONENTS.get(name);
   if (!comp) {
-    fail(`\u2717 \u6CA1\u6709\u7EC4\u4EF6 "${name}"\u3002\u53EF\u7528\uFF1A${[...COMPONENTS.keys()].join(", ")}, html, svg, format, video`);
+    fail(`\u2717 \u6CA1\u6709\u7EC4\u4EF6 "${name}"\u3002\u53EF\u7528\uFF1A${[...COMPONENTS.keys()].join(", ")}, html, svg, format, video, patch`);
     return 2;
   }
   print(`${comp.name} \u2014 ${comp.summary}
