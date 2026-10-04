@@ -57,6 +57,8 @@ test('中文虚动词：进行优化 → 优化；进行中不误报', () => {
 
 test('中文“的”字连用与套话', () => {
   assert.deepEqual(rules(lint('## A\n我的朋友的同事的电脑坏了。')), ['de-chain']);
+  assert.deepEqual(rules(lint('## A\n基本的には具体的で効果的な手順を選ぶ。')), []);
+  assert.deepEqual(rules(lint('## A\nこの文はとても長くて、四十五文字をこえるようにわざと言葉をたくさん足して書いた説明の文章になっている。')), ['sentence-length'], '日文仍查句长');
   assert.deepEqual(rules(lint('## A\n这一步至关重要。')), ['cliche']);
 });
 
@@ -88,4 +90,11 @@ test('intro 导语也参与检查', () => {
 test('formatWarning: 行号 + 规则 + 信息 + 建议', () => {
   const s = formatWarning({ line: 4, rule: 'word', message: '不推荐 "utilize"', suggestion: 'use' });
   assert.equal(s, 'L4 [word] 不推荐 "utilize" → use');
+});
+
+test('中文句子里夹一个片假名词，仍按中文规则检查', async () => {
+  const { lintDoc } = await import('../src/lint/ste.js');
+  const { parseDoc } = await import('../src/parse.js');
+  const w = lintDoc(parseDoc('## A\n我们的团队的项目的《ワンピース》很重要。\n'));
+  assert.ok(w.some((x) => x.rule === 'de-chain'));
 });
