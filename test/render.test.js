@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { renderDoc, RenderError, detectLang } from '../src/render.js';
 import { ParseError } from '../src/parse.js';
+import { THEMES } from '../src/themes/index.js';
 
 const SRC = `---
 title: 测试页
@@ -38,6 +39,33 @@ test('render: 零外部依赖——无 http(s) 引用的脚本、样式、字体
   assert.doesNotMatch(html, /<script[^>]+src=/);
   assert.doesNotMatch(html, /<link[^>]+href=/);
   assert.doesNotMatch(html, /@import|url\(\s*['"]?https?:/);
+});
+
+test('render: flow / sequence 的 SVG 样式在主题上下文丢失时有 fallback', () => {
+  const { html } = renderDoc('## 图\n```flow\nA -> *B: 请求\ngroup 服务: B\n```\n```sequence num\nA -> B: 请求\nnote A, B: 校验\n```');
+  // 预览器提取 body 后，html[data-theme] 不再匹配。逐条检查实际内嵌的 SVG 样式，
+  // 防止遗漏高亮、箭头、标签、分组或 sequence 共用样式中的变量。
+  const selectors = [
+    '.am-diagram svg', '.am-diagram text', '.am-node-shape',
+    '.am-node--hi .am-node-shape', '.am-node--hi text', '.am-edge', '.am-arrow',
+    '.am-edge-label rect', '.am-diagram .am-edge-label text', '.am-cluster',
+    '.am-diagram .am-cluster-label', '.am-lifeline', '.am-actor', '.am-note',
+    '.am-diagram .am-step',
+  ];
+  const tokens = { ...THEMES.blueprint.common, ...THEMES.blueprint.light };
+  for (const selector of selectors) {
+    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const rule = html.match(new RegExp(`${escaped} \\{([^}]+)\\}`))?.[1];
+    assert.ok(rule, `${selector} 样式已内嵌`);
+    const vars = [...rule.matchAll(/var\(([^)]+)\)/g)];
+    assert.ok(vars.length > 0);
+    for (const [, value] of vars) {
+      assert.match(value, /^--[\w-]+,\s*\S/, `${selector} 的 ${value} 需要 fallback`);
+      // 颜色和线宽的 fallback 抄自 blueprint 浅色主题；主题 token 改了，这里必须同步。
+      const [name, fallback] = value.split(/,\s*/);
+      if (/^[#\d]/.test(fallback)) assert.equal(fallback, tokens[name], `${selector} 的 ${name} fallback 要等于 blueprint 浅色 token`);
+    }
+  }
 });
 
 test('render: 面板 ID、标题、meta、span 生效', () => {
