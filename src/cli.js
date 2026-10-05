@@ -28,7 +28,7 @@ const USAGE = `Answer me with HTML ${VERSION} — 把 Markdown 内容稿渲染�
                       [--template sheet|doc] [--style off|80|strict] [--mode auto|light|dark]
   am patch  <html> --panel <标题> [file|-] [--from file] [--theme …] [--no-open]
                                                   替换已有页面中的一个 ## 面板，原地覆盖该 HTML
-  am video  <file|->  [-o 输出路径] [--voice auto|elevenlabs|system|off] [--mp4] [--no-open]
+  am video  <file|->  [-o 输出路径] [--voice auto|elevenlabs|local|system|off] [--mp4] [--no-open]
                       [--theme blueprint|shadcn|3b1b] [--mode light|dark]
                                                   把视频稿渲染成 3b1b 风格的解释视频播放页（--mp4 另存视频文件）
   am lint   <file|->  [--style off|80|strict]     只做 STE 受控写作检查
@@ -107,8 +107,15 @@ Client -> Server: ACK
   旁白多于步数时，多出的前几句当开场白，不出新内容。
 - 旁白里写 [名字]：镜头推近同名元素并高亮，字幕里该词变黄。
 - 相邻场景里同名的节点 / 参与者会从旧位置平滑移到新位置（跨场景变形）。
-- 配音：--voice auto（默认，有 ELEVENLABS_API_KEY 用 ElevenLabs，否则用系统 TTS）| elevenlabs | system | off。
+- 配音：--voice auto（默认，有 ELEVENLABS_API_KEY 用 ElevenLabs，否则用系统 TTS）| elevenlabs | local | system | off。
   ElevenLabs 声音可用环境变量 ELEVENLABS_VOICE_ID 指定。
+  local 调用本地 OpenAI 兼容的语音服务（POST /v1/audio/speech，返回 16 位 PCM WAV）：
+  AM_TTS_URL（必填，服务根地址）、AM_TTS_MODEL、AM_TTS_VOICE（服务没有默认值时必填），
+  AM_TTS_API_KEY 有值时作为 Bearer 令牌发送；AM_TTS_EXTRA 写模型专用参数（JSON 对象）；AM_TTS_MODEL / AM_TTS_VOICE 覆盖其中的同名字段，
+  input、response_format、stream 总由 am 决定。时长明显不对的句子会重新合成，
+  每句最多 AM_TTS_ATTEMPTS 次（默认 3，设为 1 关闭）。
+  例：AM_TTS_URL=http://127.0.0.1:8000 AM_TTS_MODEL=mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-4bit \
+      AM_TTS_VOICE=vivian am video draft.md --voice local
 - 输出到 ~/.answer-me-with-html/videos/；--mp4 另存同名 .mp4（需要 Chrome 与 ffmpeg，Node 22+）。`;
 
 export async function main(argv, io = {}) {
@@ -284,8 +291,9 @@ async function cmdPatch(htmlArg, fromArg, opts, ctx) {
   let result;
   try {
     if (video) {
-      // 原页用 --voice off 出的无声视频，patch 时不要按配置重配音，除非用户显式传 --voice。
-      const voice = opts.voice ?? (page.voiced ? config.values.voice : 'off');
+      // 有配音的页面沿用原来的配音方式（data-voice，旧页面没有时用配置）；--voice off 出的无声视频保持无声。
+      // 用户显式传 --voice 时以它为准。
+      const voice = opts.voice ?? (page.voiced ? page.voice ?? config.values.voice : 'off');
       if (!validVoice(voice, fail)) return 2;
       // 视频页同样沿用原页面的主题、明暗与 STE 严格度（例如 3b1b / --style off），本次命令行参数优先。
       result = await buildVideo(patched, voice, { ...opts, theme: overrides.theme, mode: overrides.mode, style: overrides.style }, config, ctx);
