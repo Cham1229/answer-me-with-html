@@ -109,13 +109,13 @@ const PARTS = {
     ),
 };
 
-const commandFiles = () => readdirSync(join(ROOT, 'commands')).filter((f) => f.endsWith('.md')).map((f) => join('commands', f));
+const commandFiles = () => readdirSync(join(ROOT, 'commands')).filter((f) => f.endsWith('.md')).map((f) => `commands/${f}`);
 
 // Every file under a directory whose name matches `re`.
 const filesIn = (dir, re) =>
   readdirSync(join(ROOT, dir), { recursive: true })
     .filter((f) => re.test(f))
-    .map((f) => join(dir, f));
+    .map((f) => `${dir}/${f.replaceAll('\\', '/')}`); // repo-relative POSIX paths, so EXCEPTIONS match on Windows too
 const JS = /\.m?js$/;
 const JS_CSS = /\.(m?js|css)$/;
 
@@ -132,7 +132,7 @@ const SCOPE = [
     files: () => [...['src', 'bin', 'scripts'].flatMap((d) => filesIn(d, JS_CSS)), ...['plugins', 'bench', 'docs/demo'].flatMap((d) => filesIn(d, JS))],
     part: 'comments',
   },
-  { files: () => readdirSync(join(ROOT, 'test')).filter((f) => f.endsWith('.test.js')).map((f) => join('test', f)), part: 'testText' },
+  { files: () => readdirSync(join(ROOT, 'test')).filter((f) => f.endsWith('.test.js')).map((f) => `test/${f}`), part: 'testText' },
 ];
 
 // Markdown spans where Chinese is the subject, not the medium. They are removed before the check.
