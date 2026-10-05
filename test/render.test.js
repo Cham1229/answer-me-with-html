@@ -221,3 +221,36 @@ test('table: headers of right-aligned / centered columns follow align instead of
   assert.match(html, /\.am-md th\[align="right"\] \{ text-align: right; \}/);
   assert.match(html, /\.am-md th\[align="center"\] \{ text-align: center; \}/);
 });
+
+test('render: diagram lightbox and pan-zoom viewer has complete styles, runtime, print rules and zero external deps', () => {
+  const src = `---
+title: Diagram test
+---
+## Flow
+\`\`\`flow LR
+(Client) -> (Gateway): request
+(Gateway) -> (Service): forward
+\`\`\`
+
+## Sequence
+\`\`\`sequence
+Alice -> Bob: hello
+Bob --> Alice: reply
+\`\`\`
+`;
+  const { html } = renderDoc(src);
+  assert.match(html, /\.am-diagram-expand\b/);
+  assert.match(html, /\.am-lightbox\b/);
+  assert.match(html, /\.am-lightbox-stage\b/);
+  assert.match(html, /\.am-lightbox-bar\b/);
+  assert.match(html, /\.am-lightbox-scale\b/);
+  assert.doesNotMatch(html, /<script[^>]+src=/);
+  assert.doesNotMatch(html, /<link[^>]+href=/);
+  assert.match(html, /@media print\s*\{[^}]*\.am-diagram-expand/);
+  assert.match(html, /@media print\s*\{[^}]*\.am-lightbox/);
+  assert.match(html, /display:\s*none\s*!important/);
+  assert.match(html, /am-diagram-expand/);
+  assert.match(html, /am-lightbox-stage/);
+  assert.match(html, /setPointerCapture/);
+});
+
