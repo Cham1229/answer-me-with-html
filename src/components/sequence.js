@@ -151,5 +151,5 @@ function layout({ participants: ps, steps }, { num, id }) {
       + `<g data-key="${esc(p)}"><rect class="am-actor" x="${f(x - actorW[i] / 2)}" y="${TOP}" width="${f(actorW[i])}" height="${ACTOR_H}" rx="2"/>`
       + `${textLines([p], x, TOP + ACTOR_H / 2, LH, ' font-weight="600"')}</g>`;
   });
-  return `${svgOpen(width, height, `时序图：${ps.join('、')}`)}${arrowDefs(id)}${actors.join('')}${body.join('')}</svg>`; // lang-ok: page aria-label, viewer-facing
+  return `${svgOpen(width, height, `时序图：${ps.join('、')}`)}${arrowDefs(id)}${actors.join('')}${body.join('')}</svg>`; // lang-ok: known gap, page aria-label is always Chinese (tracked in #47)
 }

@@ -64,32 +64,32 @@ test('niceScale: the axis maximum is rounded up with headroom, at most 7 ticks',
   }
 });
 
-test('limits: 值 / 上限 → 填充宽度、上限标记、单位', () => {
+test('limits: value / limit → fill width, limit mark, unit', () => {
   const html = render('limits', '程序性句子 | 13 / 20 | words');
   assert.match(html, /am-lim-fill" style="width: 43.33%"/);
   assert.match(html, /am-lim-mark" style="left: 66.67%"/);
   assert.match(html, /am-lim-val">13 \/ max 20 words/);
 });
 
-test('limits: 只有上限时填充到上限；支持 max 前缀', () => {
+test('limits: a limit alone fills to the limit; the max prefix is supported', () => {
   const html = render('limits', '名词簇 | max 3 | words');
   assert.match(html, /am-lim-fill" style="width: 60%"/);
   assert.match(html, /am-lim-val">max 3 words/);
 });
 
-test('limits: 超限标红，第四列为备注', () => {
+test('limits: over the limit is marked red; the fourth column is a note', () => {
   const html = render('limits', '段落句数 | 8 / 6 | 句 | 例外：列表');
   assert.match(html, /am-lim is-over/);
   assert.match(html, /am-lim-note">例外：列表/);
 });
 
-test('limits: 刻度包含 0 与上限', () => {
+test('limits: the scale includes 0 and the limit', () => {
   const html = render('limits', 'x | 20');
   assert.match(html, /<span style="left: 0%">0<\/span>/);
   assert.match(html, /<span style="left: 100%">30<\/span>/);
 });
 
-test('limits: 0 / 0 与 max 0 能渲染，刻度步长大于 0', { timeout: 2000 }, () => {
+test('limits: 0 / 0 and max 0 render, and the scale step is greater than 0', { timeout: 2000 }, () => {
   assert.deepEqual(niceScale(0), { max: 1, step: 1 });
   assert.equal(niceScale(-3).step > 0, true);
   assert.match(render('limits', 'x | 0 / 0'), /am-lim/);
@@ -97,16 +97,16 @@ test('limits: 0 / 0 与 max 0 能渲染，刻度步长大于 0', { timeout: 2000
   assert.doesNotMatch(render('limits', 'x | 0 / 0'), /NaN|Infinity/);
 });
 
-test('limits: 非数字或缺列报错', () => {
+test('limits: a non-number or a missing column is an error', () => {
   throwsAt(() => render('limits', 'a | 1 / 2\nb | 很多'), 2);
   throwsAt(() => render('limits', '只有标签'), 1);
 });
 
-test('niceScale: 整数上限只用整数刻度', () => {
+test('niceScale: an integer limit uses only integer ticks', () => {
   assert.deepEqual(niceScale(1), { max: 2, step: 1 });
   assert.deepEqual(niceScale(2), { max: 3, step: 1 });
 });
 
-test('tree: 整个标签都是行内代码时保持代码样式', () => {
+test('tree: a label that is all inline code keeps the code style', () => {
   assert.match(render('tree', '根\n  `bin/am.js` | 入口\n  `src/`', 'list'), /<span class="am-tree-label"><code>bin\/am.js<\/code><\/span>/);
 });

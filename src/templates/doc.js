@@ -5,7 +5,7 @@ import { esc } from '../svg/text.js';
 export function doc({ meta, introHtml, panels }) {
   const withToc = panels.length >= 3;
   const toc = withToc
-    ? `<nav class="am-toc" aria-label="目录">${panels.map((p) => `<a href="#panel-${esc(p.id)}">${esc(p.id)} · ${esc(p.title)}</a>`).join('')}</nav>`
+    ? `<nav class="am-toc" aria-label="目录">${panels.map((p) => `<a href="#panel-${esc(p.id)}">${esc(p.id)} · ${esc(p.title)}</a>`).join('')}</nav>` // lang-ok: known gap, page aria-label is always Chinese (tracked in #47)
     : '';
   return `<main class="am-doc">
 ${headHtml(meta, introHtml)}

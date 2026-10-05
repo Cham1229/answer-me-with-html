@@ -188,7 +188,7 @@ function layout({ nodes, edges, groups }, rankdir, id) {
   });
 
   const { width, height } = g.graph();
-  const label = `流程图：${[...nodes.keys()].slice(0, 8).join('、')}`; // lang-ok: page aria-label, viewer-facing
+  const label = `流程图：${[...nodes.keys()].slice(0, 8).join('、')}`; // lang-ok: known gap, page aria-label is always Chinese (tracked in #47)
   return `${svgOpen(width, height, label)}${arrowDefs(id)}<g>${clusters.join('')}</g><g>${edgeSvg.join('')}</g><g>${nodeSvg.join('')}</g></svg>`;
 }
 
