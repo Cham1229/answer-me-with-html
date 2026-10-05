@@ -128,3 +128,10 @@ test('planning a long page stays fast', () => {
   assert.deepEqual(order(result), panels.map((_, i) => i));
   assert.ok(performance.now() - t0 < 1500, `took ${performance.now() - t0} ms`);
 });
+
+test('the page script is page.js plus the planner and the DOM adapter, and it parses', async () => {
+  const { RUNTIME_JS } = await import('../src/assets.js');
+  assert.match(RUNTIME_JS, /function planLayout\(/);
+  assert.ok(!/^export /m.test(RUNTIME_JS));
+  assert.doesNotThrow(() => new Function(RUNTIME_JS));
+});
