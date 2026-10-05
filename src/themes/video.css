@@ -1,7 +1,7 @@
-/* 视频播放页：1920×1080 舞台按窗口等比缩放。颜色全部来自主题变量：
-   blueprint / shadcn 沿用页面主题；3b1b 是视频专用的深色主题（深底、蓝线、黄色强调）。 */
+/* Video player: the 1920×1080 stage scales to the window. All colors come from theme variables:
+   blueprint / shadcn reuse the page themes; 3b1b is a video-only dark theme (dark ground, blue lines, yellow accents). */
 html[data-video] {
-  /* 播放控件不进入画面，也不随主题变化，固定用一组深色 token */
+  /* Player controls stay out of the picture and ignore the theme: one fixed set of dark tokens */
   --v-ctl-bg: #0b0d11; --v-ctl-line: #1d2330; --v-ctl-fg: #c9d1dc; --v-ctl-muted: #5b6576;
   --v-ctl-btn: #141922; --v-ctl-btn-line: #2a3240; --v-ctl-accent: #58c4dd; --v-ctl-white: #fff;
   --v-letterbox: #000;
@@ -25,7 +25,7 @@ html[data-video][data-theme="3b1b"] {
   --v-title-font: "CMU Serif", "Latin Modern Roman", "Iowan Old Style", "Palatino", "Songti SC", "STSong", "Noto Serif CJK SC", serif;
   --v-glow: drop-shadow(0 0 6px rgba(247, 217, 111, 0.55));
 }
-/* blueprint：图纸底加细网格 */
+/* blueprint: drawing-sheet ground with a fine grid */
 html[data-video][data-theme="blueprint"] {
   --v-stage: linear-gradient(var(--line-2) 1px, transparent 1px) 0 0 / 40px 40px,
              linear-gradient(90deg, var(--line-2) 1px, transparent 1px) 0 0 / 40px 40px, var(--paper);
@@ -48,7 +48,7 @@ html[data-video] body { font-size: 22px; }
 .amv-ghost { position: absolute; left: 0; top: 0; transform-origin: 0 0; margin: 0; }
 .amv-ghost svg { display: block; max-width: none; overflow: visible; }
 
-/* ── 图纸外框（blueprint）── */
+/* ── Sheet frame (blueprint) ── */
 .amv-sheet { display: none; }
 html[data-theme="blueprint"] .amv-sheet {
   display: block; position: absolute; inset: 24px; border: 1.5px solid var(--line); pointer-events: none;
@@ -67,7 +67,7 @@ html[data-theme="blueprint"] .amv-sheet::before {
 .amv-ruler--top span + span, .amv-ruler--bottom span + span { border-left: 1px solid var(--line); }
 .amv-ruler--left span + span, .amv-ruler--right span + span { border-top: 1px solid var(--line); }
 
-/* ── 场景 ── */
+/* ── Scenes ── */
 .amv-scene { position: absolute; inset: 0; visibility: hidden; }
 .amv-scene-head {
   position: absolute; left: 72px; right: 72px; top: 72px; height: 64px; visibility: hidden;
@@ -82,7 +82,7 @@ html[data-theme="blueprint"] .amv-sheet::before {
 .amv-scene-meta { display: flex; align-items: center; padding: 0 22px; font: 16px var(--font-mono); color: var(--ink-2); letter-spacing: 0.06em; }
 html[data-theme="shadcn"] .amv-scene-n { margin: 12px 0 12px 14px; min-width: 40px; border-radius: 8px; font-size: 22px; }
 html[data-theme="shadcn"] .amv-scene-head { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
-/* 3b1b：标题浮在左上角，不要边框 */
+/* 3b1b: title floats top left, no frame */
 html[data-theme="3b1b"] .amv-scene-head { left: 96px; top: 56px; border: 0; background: none; align-items: baseline; gap: 22px; }
 html[data-theme="3b1b"] .amv-scene-n { background: none; color: var(--line); padding: 0; min-width: 0; font: 500 30px var(--font-mono); }
 html[data-theme="3b1b"] .amv-scene-title { padding: 0; font-weight: 400; font-size: 46px; }
@@ -96,7 +96,7 @@ html[data-theme="3b1b"] .amv-scene-meta { display: none; }
 .amv-fit table { font-size: 24px; }
 .amv-fit th { font-size: 17px; }
 
-/* ── 片头 ── */
+/* ── Title card ── */
 .amv-scene--title { display: grid; place-items: center; text-align: center; }
 .amv-title-wrap { max-width: 1500px; display: flex; flex-direction: column; align-items: center; }
 .amv-title { margin: 0; font: 700 96px/1.15 var(--v-title-font); color: var(--ink); letter-spacing: -0.01em; text-wrap: balance; }
@@ -114,7 +114,7 @@ html[data-theme="3b1b"] .amv-title { font-weight: 400; font-size: 104px; letter-
 html[data-theme="3b1b"] .amv-subtitle { color: var(--line); }
 html[data-theme="3b1b"] .amv-titleblock { display: none; }
 
-/* ── 字幕 ── */
+/* ── Captions ── */
 .amv-caption {
   position: absolute; left: 0; right: 0; bottom: 76px; display: flex; justify-content: center; pointer-events: none;
 }
@@ -128,7 +128,7 @@ html[data-theme="3b1b"] .amv-caption span { text-shadow: 0 2px 8px rgba(0, 0, 0,
 .amv-caption span:empty { display: none; }
 .amv-caption b { color: var(--accent); font-weight: 700; }
 
-/* ── 旁白点名时的高亮；连线标签平时用灰色，被点名才变色 ── */
+/* ── Highlight when narration names an element; edge labels stay grey until named ── */
 html[data-video] .am-diagram .am-edge-label text { fill: var(--ink-2); }
 .amv-hl .am-node-shape, .amv-hl .am-actor {
   stroke: var(--accent); stroke-width: 3; fill: var(--accent-bg); filter: var(--v-glow);
@@ -139,7 +139,7 @@ html[data-video] .am-diagram .amv-hl text, html[data-video] .am-diagram text.amv
   color: var(--accent); outline: 2.5px solid var(--accent); outline-offset: 4px; border-radius: 4px;
 }
 
-/* ── 播放控件（不进入画面）── */
+/* ── Player controls (outside the picture) ── */
 .amv-bigplay {
   position: absolute; left: 50%; top: 50%; width: 132px; height: 132px; margin: -66px 0 0 -66px; border-radius: 50%;
   border: 2px solid var(--v-ctl-white); background: rgba(0, 0, 0, 0.55); color: var(--v-ctl-white); font-size: 54px; cursor: pointer;
@@ -158,7 +158,7 @@ html[data-video] .am-diagram .amv-hl text, html[data-video] .am-diagram text.amv
 .amv-marks i { position: absolute; top: 0; width: 2px; height: 6px; background: var(--v-ctl-accent); }
 .amv-brand { color: var(--v-ctl-muted); font-size: 12px; white-space: nowrap; }
 
-/* 导出模式：只留舞台，1:1 无缩放 */
+/* Export mode: stage only, 1:1, no scaling */
 html[data-export] .amv-controls, html[data-export] .amv-bigplay { display: none; }
 html[data-export] .amv-viewport { inset: 0; }
 html[data-export] .amv-stage { left: 0; top: 0; transform: none !important; }

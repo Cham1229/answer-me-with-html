@@ -2,9 +2,9 @@
   const D = JSON.parse(document.getElementById('amv-data').textContent);
   const W = 1920;
   const H = 1080;
-  const T = 0.9;     // 场景切换时长，与 TIMING.transition 一致
-  const R = 0.6;     // 单步出现时长
-  const CAM = 0.8;   // 镜头移动时长
+  const T = 0.9;     // scene transition, matches TIMING.transition
+  const R = 0.6;     // one step appearing
+  const CAM = 0.8;   // camera move
   const root = document.documentElement;
   const stage = document.querySelector('.amv-stage');
   const camera = document.querySelector('.amv-camera');
@@ -17,7 +17,7 @@
   const lerp = (a, b, p) => a + (b - a) * p;
   const STEP_SEL = '.am-tl-item, .am-lim, .am-seg, tbody tr, .am-kv-cell, .am-md > ul > li, .am-md > ol > li, .am-md > p, .am-md > blockquote, .am-callout';
 
-  // ── 1. 让每个场景的内容适配画面 ──
+  // ── 1. Fit each scene's content to the frame ──
   for (const sc of scenes) {
     const fit = sc.querySelector('.amv-fit');
     if (!fit || !fit.children.length) continue;
@@ -25,14 +25,14 @@
     fit.style.transform = `scale(${s})`;
   }
 
-  // 场景标题放在镜头之外：镜头推近时标题保持不动。
+  // Scene titles sit outside the camera, so they stay put when it zooms.
   const heads = scenes.map((sc) => {
     const h = sc.querySelector('.amv-scene-head');
     if (h) stage.insertBefore(h, camera.nextSibling);
     return h;
   });
 
-  // 以舞台为坐标系测量元素（此时镜头为单位变换）。
+  // Measure elements in stage coordinates (the camera is the identity transform here).
   const sr = stage.getBoundingClientRect();
   const k = sr.width / W;
   const rectOf = (el) => {
@@ -40,7 +40,7 @@
     return { x: (r.left - sr.left) / k, y: (r.top - sr.top) / k, w: r.width / k, h: r.height / k };
   };
 
-  // ── 2. 分步：组件自带 data-step 时按它分组，否则按行/条目自动分步 ──
+  // ── 2. Steps: group by data-step when a component sets it, else one step per row / item ──
   const items = [];   // { el, at, paths: [{ el, len }] }
   scenes.forEach((sc, i) => {
     if (i === 0) return;
@@ -66,7 +66,7 @@
     const B = beats.length;
     const perBeat = new Map();
     groups.forEach((g, gi) => {
-      // 旁白比步数多时，多出的句子当开场白：步骤对齐到最后几句。
+      // With more beats than steps, the extra beats open the scene: steps align to the last beats.
       const b = S <= B ? gi + (B - S) : Math.floor((gi * B) / S);
       const rank = perBeat.get(b) ?? 0;
       perBeat.set(b, rank + 1);
@@ -82,7 +82,7 @@
     });
   });
 
-  // ── 3. 跨场景变形：前后两个场景里同名（data-key）的元素 ──
+  // ── 3. Morphs: elements with the same data-key in consecutive scenes ──
   const morphs = [];  // { scene, from, to, ghost, a, b }
   const keyed = (sc) => {
     const m = new Map();
@@ -93,14 +93,14 @@
     const prev = keyed(scenes[i - 1]);
     for (const [key, to] of keyed(scenes[i])) {
       const from = prev.get(key);
-      // 只在同类元素之间变形（SVG 对 SVG、HTML 对 HTML），否则形状对不上。
+      // Morph only like with like (SVG to SVG, HTML to HTML); otherwise the shapes do not match.
       if (!from || (from instanceof SVGElement) !== (to instanceof SVGElement)) continue;
       try {
         const ghost = makeGhost(from);
         overlay.append(ghost.node);
         morphs.push({ scene: i, from, to, ghost: ghost.node, a: ghost.place(rectOf(from)), b: ghost.place(rectOf(to)) });
       } catch {
-        // 变形只是锦上添花：个别元素测量失败时直接跳过，不影响播放。
+        // Morphs are a nicety: skip an element whose measurement fails; playback is unaffected.
       }
     }
   }
@@ -142,7 +142,7 @@
     return { node: wrap, place: (r) => ({ x: r.x, y: r.y, s: r.w / w0 }) };
   }
 
-  // ── 4. 镜头：旁白里 [名字] 对应的元素 ──
+  // ── 4. Camera: the element named by [name] in the narration ──
   const findKey = (sc, key) => {
     const all = [...sc.querySelectorAll('[data-key]')];
     const norm = (s) => s.replace(/[`*]/g, '').trim().toLowerCase();
@@ -151,8 +151,8 @@
       ?? [...sc.querySelectorAll(`${STEP_SEL}, text`)].find((el) => norm(el.textContent).includes(norm(key)));
   };
   const IDENT = { s: 1, x: 0, y: 0 };
-  // 推近但不裁切：放大后整张图仍要留在标题与字幕之间的安全区里。
-  const SAFE = { left: 60, right: W - 60, top: 150, bottom: H - 200 }; // 下边留出字幕的位置
+  // Zoom without cropping: the whole diagram must stay in the safe area between title and captions.
+  const SAFE = { left: 60, right: W - 60, top: 150, bottom: H - 200 }; // leave room for captions at the bottom
   function focusCam(r, sc) {
     const fit = sc.querySelector('.amv-fit');
     const c = fit ? rectOf(fit) : { x: 0, y: 0, w: W, h: H };
@@ -177,7 +177,7 @@
   });
   const hlTargets = new Set(camEvents.map((e) => e.hl).filter(Boolean));
 
-  // 场景与标题的淡入淡出。标题不交叠：旧标题在切换前半段淡出，新标题在后半段淡入。
+  // Scene and title fades. Titles never overlap: the old one fades out in the first half of the transition, the new one fades in in the second half.
   const show = (el, op) => {
     el.style.opacity = op;
     el.style.visibility = op > 0 ? 'visible' : 'hidden';
@@ -197,7 +197,7 @@
     });
   }
 
-  // 逐步出现：连线一笔画出，其余元素淡入并轻微上移。
+  // Steps appear: edges draw in one stroke, other elements fade in and rise slightly.
   function drawSteps(t) {
     for (const it of items) {
       if (carried.has(it.el)) continue;
@@ -215,8 +215,8 @@
     }
   }
 
-  // 跨场景变形：切换期间用替身从旧位置移到新位置，真身暂时隐藏。
-  // 一个元素可能既是上一场变形的终点、又是下一场变形的起点；先汇总"该藏"的元素再统一设置，避免互相覆盖。
+  // Morphs: during the transition a stand-in moves from the old to the new position while the real elements are hidden.
+  // An element can end one morph and start the next; collect the elements to hide first, then apply, so the two do not overwrite each other.
   const morphed = [...new Set(morphs.flatMap((m) => [m.from, m.to]))];
   function drawMorphs(t) {
     const hidden = new Set();
@@ -235,7 +235,7 @@
     for (const el of morphed) el.style.visibility = hidden.has(el) ? 'hidden' : '';
   }
 
-  // 镜头与高亮：在上一个镜头位置和当前目标之间插值。
+  // Camera and highlight: interpolate between the previous camera position and the current target.
   function drawCamera(t) {
     const ev = camEvents.findLastIndex((e) => t >= e.t);
     const e = ev >= 0 ? camEvents[ev] : null;
@@ -258,7 +258,7 @@
     caption.style.opacity = b ? clamp((t - b.start) / 0.2) : 0;
   }
 
-  // ── 5. 确定性渲染：同一时刻永远画出同一帧 ──
+  // ── 5. Deterministic rendering: the same time always draws the same frame ──
   function render(time) {
     const t = clamp(time, 0, D.duration);
     drawScenes(t);
@@ -269,7 +269,7 @@
     updateUi(t);
   }
 
-  // ── 6. 播放器 ──
+  // ── 6. Player ──
   const audio = document.getElementById('amv-audio');
   const seek = document.querySelector('.amv-seek');
   const timeEl = document.querySelector('.amv-time');
@@ -358,7 +358,7 @@
   }
   window.addEventListener('resize', fitStage);
 
-  // 导出：把舞台 1:1 摆在左上角，逐帧调用 render(t)。
+  // Export: place the stage 1:1 at the top left and call render(t) frame by frame.
   window.render = render;
   window.__amv = {
     duration: D.duration,
@@ -366,7 +366,7 @@
     exportMode() { root.setAttribute('data-export', ''); stage.style.transform = ''; },
   };
   fitStage();
-  // 封面：显示完全淡入后的片头，但播放仍从 0 开始。
+  // Poster: show the fully faded-in title card, but playback still starts at 0.
   render(Math.min(1, segs[0].end));
   updateUi(0);
 })();

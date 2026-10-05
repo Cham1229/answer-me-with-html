@@ -97,14 +97,10 @@ function commentText(src) {
 }
 
 // Every JavaScript and CSS file under a directory; their comments must be English.
-// Exempt: assets inlined verbatim into rendered pages and videos. Their comments are part of the output,
-// so translating them would change every page (pages must stay byte-identical).
-const INLINED_ASSETS = ['src/themes/base.css', 'src/themes/video.css', 'src/runtime/page.js', 'src/runtime/video.js'];
 const sourceFiles = (dir) =>
   readdirSync(join(ROOT, dir), { recursive: true })
     .filter((f) => /\.(m?js|css)$/.test(f))
-    .map((f) => join(dir, f))
-    .filter((f) => !INLINED_ASSETS.includes(f));
+    .map((f) => join(dir, f));
 
 // Files whose string literals are text the CLI prints: output, errors, help and notices.
 const cliTextFiles = () => [
