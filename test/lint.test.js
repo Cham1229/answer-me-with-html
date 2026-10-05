@@ -88,8 +88,8 @@ test('intro 导语也参与检查', () => {
 });
 
 test('formatWarning: 行号 + 规则 + 信息 + 建议', () => {
-  const s = formatWarning({ line: 4, rule: 'word', message: '不推荐 "utilize"', suggestion: 'use' });
-  assert.equal(s, 'L4 [word] 不推荐 "utilize" → use');
+  const s = formatWarning({ line: 4, rule: 'word', message: 'not recommended: "utilize"', suggestion: 'use' });
+  assert.equal(s, 'L4 [word] not recommended: "utilize" → use');
 });
 
 test('中文句子里夹一个片假名词，仍按中文规则检查', async () => {
@@ -97,4 +97,38 @@ test('中文句子里夹一个片假名词，仍按中文规则检查', async ()
   const { parseDoc } = await import('../src/parse.js');
   const w = lintDoc(parseDoc('## A\n我们的团队的项目的《ワンピース》很重要。\n'));
   assert.ok(w.some((x) => x.rule === 'de-chain'));
+});
+
+test('messages: English word rule quotes the flagged word and names the replacement', () => {
+  const [w] = lint('## A\nUtilize the tool.');
+  assert.equal(formatWarning(w), 'L2 [word] not recommended: "Utilize" → use');
+});
+
+test('messages: Chinese light verb quotes the span and the Chinese replacement', () => {
+  const [w] = lint('## A\n我们对接口进行优化。');
+  assert.equal(formatWarning(w), 'L2 [word] light verb "进行优化" (进行) → use "优化"');
+});
+
+test('messages: sentence length names the unit, the limit and a preview', () => {
+  const [zh] = lint(`## A\n${'这'.repeat(46)}。`);
+  assert.equal(zh.message, `sentence has 46 characters (max 45): "${'这'.repeat(24)}…"`);
+  const [en] = lint(`## A\n1. ${Array.from({ length: 21 }, () => 'go').join(' ')}.`);
+  assert.equal(en.message, 'step has 21 words (max 20): "go go go go go go go go …"');
+});
+
+test('messages: paragraph length names the count and the limit', () => {
+  const [w] = lint('## A\n一。二。三。\n四。五。六。七。');
+  assert.equal(w.message, 'paragraph has 7 sentences (max 6)');
+});
+
+test('messages: passive voice quotes the verb phrase', () => {
+  const [w] = lint('## A\nThe valve is closed by the operator.');
+  assert.deepEqual([w.message, w.suggestion], ['possible passive voice: "is closed"', 'use active voice']);
+});
+
+test('messages: chained 的 and clichés quote the Chinese text', () => {
+  const [de] = lint('## A\n我的朋友的同事的电脑坏了。');
+  assert.deepEqual([de.message, de.suggestion], ['chained "的": 我的朋友的同事的电脑坏了。', 'split the sentence or remove extra "的"']);
+  const [c] = lint('## A\n这一步至关重要。');
+  assert.deepEqual([c.message, c.suggestion], ['cliché "至关重要"', 'delete it or state a concrete fact']);
 });

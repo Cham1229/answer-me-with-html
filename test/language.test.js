@@ -15,6 +15,10 @@ const commandFiles = () => readdirSync(join(ROOT, 'commands')).filter((f) => f.e
 const PARTS = {
   whole: (text) => text,
   frontmatter: (text) => text.match(/^---\n([\s\S]*?)\n---\n/)?.[1] ?? '',
+  // Writing-check warning text: the literal parts of every `message:` / `suggestion:` value, one per line.
+  // Interpolations and "quoted" spans are dropped: they hold the flagged Chinese text, which is the subject.
+  lintMessages: (text) =>
+    [...text.matchAll(/\b(?:message|suggestion):\s*(`[^`]*`|'[^']*')/g)].map((m) => m[1].slice(1, -1).replace(/\$\{[^}]*\}|"[^"]*"/g, '')).join('\n'),
 };
 
 // The single scope list: every file that must be English, and which part of it is checked.
@@ -23,6 +27,7 @@ const SCOPE = [
   { files: () => ['.claude-plugin/plugin.json', '.claude-plugin/marketplace.json'], part: 'whole' },
   { files: () => ['plugins/answer-me-with-html-always/.claude-plugin/plugin.json'], part: 'whole' },
   { files: commandFiles, part: 'frontmatter' },
+  { files: () => ['src/lint/ste.js'], part: 'lintMessages' },
 ];
 
 // Spans where Chinese is the subject, not the medium. They are removed before the check.
