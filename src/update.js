@@ -1,5 +1,5 @@
-// 新版本提示：每周在后台子进程里读一次 GitHub 上的 package.json，结果写进 state.json；
-// 下次渲染时若有新版本，打印一行 "! 更新提示" 给 Agent，由 Agent 询问用户。从不自动更新。
+// New-version notice: once a week a background child process reads package.json on GitHub and writes the result into state.json;
+// on the next render, if a new version exists, print one "! Update hint" line for the Agent, which asks the user. Never updates automatically.
 import { spawn } from 'node:child_process';
 import { DAY, writeState } from './state.js';
 
@@ -17,7 +17,7 @@ export function parseVersion(v) {
   return m ? m.slice(1, 4).map(Number) : null;
 }
 
-// a 是否比 b 新。任一方不是 x.y.z 格式时返回 false。
+// Whether a is newer than b. Returns false when either is not in x.y.z format.
 export function newer(a, b) {
   const pa = parseVersion(a);
   const pb = parseVersion(b);
@@ -26,7 +26,7 @@ export function newer(a, b) {
   return i !== -1 && pa[i] > pb[i];
 }
 
-// 按安装方式给出更新命令。scriptPath 是正在运行的 am 脚本路径。
+// Give the update command for the install method. scriptPath is the path of the running am script.
 export function updateCommand(scriptPath = '') {
   if (/[\\/]\.claude[\\/]plugins[\\/]/.test(scriptPath)) {
     return 'run claude plugin update answer-me-with-html@answer-me-with-html in a terminal (or click Update now on the Installed tab of /plugin), then /reload-plugins';
@@ -37,7 +37,7 @@ export function updateCommand(scriptPath = '') {
   return 'run npx skills update answer-me-with-html -y';
 }
 
-// update_check off、CI、AM_NO_UPDATE_CHECK 同时关掉后台检查和更新提示。
+// update_check off, CI and AM_NO_UPDATE_CHECK each turn off both the background check and the update notice.
 export const updateEnabled = (env, config) => !(config.update_check === false || env.CI || env.AM_NO_UPDATE_CHECK);
 
 export function updateHint(state, current, scriptPath, now = Date.now()) {
@@ -58,11 +58,11 @@ export function spawnUpdateCheck(home, scriptPath) {
       .on('error', () => {})
       .unref();
   } catch {
-    // 后台检查失败不影响正常使用。
+    // A failed background check does not affect normal use.
   }
 }
 
-// 只接受 x.y.z 格式的版本号，其余一律忽略，避免把远端的任意文本带进 Agent 的上下文。
+// Accept only x.y.z version numbers and ignore anything else, so arbitrary remote text never reaches the Agent's context.
 export async function runUpdateCheck(home, fetchImpl = fetch) {
   try {
     const res = await fetchImpl(UPDATE.url, { signal: AbortSignal.timeout(UPDATE.timeoutMs) });

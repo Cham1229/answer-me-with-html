@@ -1,4 +1,4 @@
-// 在源稿里替换一个 ## 面板。源稿由 page.js 的 readPage 从页面取回；写回由 CLI 覆盖原路径。
+// Replace one ## panel in the source draft. page.js readPage recovers the source from the page; the CLI writes back over the original path.
 
 import { parseDoc } from './parse.js';
 

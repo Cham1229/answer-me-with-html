@@ -1,4 +1,4 @@
-// 句子标注（配图 B）：等宽字体排句子，被标注片段下方画括号线，注释按横向位置自动错行避免重叠。
+// Sentence annotation (figure B): monospace sentence, bracket lines under annotated spans, notes wrap onto rows by horizontal position to avoid overlap.
 import { esc, measure } from '../svg/text.js';
 import { ComponentError, contentLines, fields } from './error.js';
 
@@ -78,7 +78,7 @@ function sentenceHtml(sentence, line) {
   return `<div class="am-annot-line${wrapCls}" style="--rows: ${rows.length}">${out}</div>`;
 }
 
-// 贪心放置：取第一个与已有注释不重叠的行。
+// Greedy placement: take the first row that does not overlap an existing note.
 function placeNote(rows, start, end) {
   const idx = rows.findIndex((ranges) => ranges.every(([s, e]) => end <= s || start >= e));
   if (idx !== -1) {

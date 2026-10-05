@@ -1,4 +1,4 @@
-// doc：线性讲解。单栏阅读，面板 ≥ 3 个时左侧给出目录。
+// doc: linear explanation. Single-column reading, with a table of contents on the left when there are 3 or more panels.
 import { panelHtml, headHtml } from './panel.js';
 import { esc } from '../svg/text.js';
 

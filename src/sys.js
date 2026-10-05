@@ -1,4 +1,4 @@
-// 与操作系统打交道的小工具。
+// Small helpers that deal with the operating system.
 import { spawnSync } from 'node:child_process';
 
 export function hasCommand(cmd) {

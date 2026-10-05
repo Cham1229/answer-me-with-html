@@ -1,4 +1,4 @@
-// 组件注册表：围栏块语言名 → 组件。每个组件导出 { name, summary, syntax, example, render(text, ctx) }。
+// Component registry: fenced-block language name → component. Each component exports { name, summary, syntax, example, render(text, ctx) }.
 import callout from './callout.js';
 import kv from './kv.js';
 import timeline from './timeline.js';

@@ -20,6 +20,7 @@ const PARTS = {
   // Interpolations and "quoted" spans are dropped: they hold the flagged Chinese text, which is the subject.
   lintMessages: (text) =>
     [...text.matchAll(/\b(?:message|suggestion):\s*(`[^`]*`|'[^']*')/g)].map((m) => m[1].slice(1, -1).replace(/\$\{[^}]*\}|"[^"]*"/g, '')).join('\n'),
+  comments: commentText,
 };
 
 // JavaScript string and template-literal text only; comments, regex literals and code are blanked
@@ -54,6 +55,46 @@ function stringLiterals(src) {
   return out;
 }
 
+// Comment text only (JavaScript and CSS): strings, template literals, regex literals and code are blanked
+// (line breaks kept, so line numbers still match).
+function commentText(src) {
+  const blank = (s) => s.replace(/[^\n]/g, ' ');
+  const stack = [{ tpl: false, depth: 0 }];
+  let out = '';
+  let last = '';
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    const top = stack[stack.length - 1];
+    if (top.tpl) {
+      if (c === '\\') { out += blank(src.slice(i, i + 2)); i++; } else if (c === '`') { stack.pop(); out += ' '; last = '`'; } else if (c === '$' && src[i + 1] === '{') { stack.push({ tpl: false, depth: 0 }); out += '  '; i++; } else out += blank(c);
+      continue;
+    }
+    const end = (re) => { re.lastIndex = i; re.exec(src); return re.lastIndex || src.length; };
+    if (c === '/' && src[i + 1] === '/') { const j = src.indexOf('\n', i); const k = j === -1 ? src.length : j; out += src.slice(i, k); i = k - 1; continue; }
+    if (c === '/' && src[i + 1] === '*') { const k = src.indexOf('*/', i + 2) + 2; out += src.slice(i, k); i = k - 1; continue; }
+    if (c === '/' && (!last || /[(,=:[!&|?{};+\-*%<>~^]/.test(last) || /\b(return|typeof)\s*$/.test(src.slice(Math.max(0, i - 12), i)))) {
+      const k = end(/\/(?:\\.|\[(?:\\.|[^\]\\])*\]|[^/\\\n])+\/[a-z]*/y); out += blank(src.slice(i, k)); i = k - 1; last = ')'; continue;
+    }
+    if (c === '"' || c === "'") { const k = end(c === '"' ? /"(?:\\.|[^"\\\n])*"/y : /'(?:\\.|[^'\\\n])*'/y); out += blank(src.slice(i, k)); i = k - 1; last = c; continue; }
+    if (c === '`') { stack.push({ tpl: true }); out += ' '; continue; }
+    if (c === '{') top.depth++;
+    if (c === '}') { if (top.depth === 0 && stack.length > 1) { stack.pop(); out += ' '; last = '}'; continue; } top.depth--; }
+    out += c === '\n' ? '\n' : ' ';
+    if (!/\s/.test(c)) last = c;
+  }
+  return out;
+}
+
+// Every JavaScript and CSS file under a directory; their comments must be English.
+// Exempt: assets inlined verbatim into rendered pages and videos. Their comments are part of the output,
+// so translating them would change every page (pages must stay byte-identical).
+const INLINED_ASSETS = ['src/themes/base.css', 'src/themes/video.css', 'src/runtime/page.js', 'src/runtime/video.js'];
+const sourceFiles = (dir) =>
+  readdirSync(join(ROOT, dir), { recursive: true })
+    .filter((f) => /\.(m?js|css)$/.test(f))
+    .map((f) => join(dir, f))
+    .filter((f) => !INLINED_ASSETS.includes(f));
+
 // Files whose string literals are text the CLI prints: output, errors, help and notices.
 const cliTextFiles = () => [
   'bin/am.js',
@@ -70,6 +111,7 @@ const SCOPE = [
   { files: commandFiles, part: 'frontmatter' },
   { files: cliTextFiles, part: 'strings' },
   { files: () => ['src/lint/ste.js'], part: 'lintMessages' },
+  { files: () => ['src', 'bin', 'scripts'].flatMap(sourceFiles), part: 'comments' },
 ];
 
 // Spans where Chinese is the subject, not the medium. They are removed before the check.

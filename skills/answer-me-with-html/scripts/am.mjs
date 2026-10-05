@@ -4616,7 +4616,7 @@ function readPage(html) {
   return {
     source: m ? unescapeHtml(m[1]) : null,
     video,
-    // 正文里的 <main class="am-doc"> 不算；模板的 <main> 总在正文之前。
+    // A <main class="am-doc"> in the body does not count; the template's <main> always comes before the body.
     template: video ? "video" : s.match(/<main class="am-(doc|sheet)\b/)?.[1],
     theme: attr("data-theme"),
     mode: attr("data-mode"),
@@ -4798,15 +4798,15 @@ function estimateSeconds(text) {
 }
 var TIMING = Object.freeze({
   title: 2.4,
-  // 无旁白时片头停留
+  // intro hold when there is no narration
   transition: 0.9,
-  // 场景切换（含跨场景变形）
+  // scene change (including cross-scene morphs)
   gap: 0.35,
-  // 两句旁白之间的停顿
+  // pause between two narration lines
   tail: 0.8,
-  // 场景最后一句之后的停留
+  // hold after a scene's last line
   outro: 1.5
-  // 片尾停留
+  // outro hold
 });
 function buildTimeline(video, durations) {
   let t = 0;
@@ -5565,15 +5565,15 @@ async function runUpdateCheck(home, fetchImpl = fetch) {
 // src/housekeeping.js
 var CLEAN = Object.freeze({
   days: 30,
-  // am clean 默认删除 30 天前的页面和视频
+  // am clean deletes pages and videos older than 30 days by default
   bigBytes: 200 * 2 ** 20,
-  // 超过 200 MB 立即提示
+  // notify at once above 200 MB
   staleDays: 30,
-  // 距上次清理超过 30 天……
+  // more than 30 days since the last cleanup…
   staleBytes: 20 * 2 ** 20,
-  // ……且超过 20 MB 时提示
+  // …and above 20 MB: notify
   hintEveryDays: 7
-  // 同一提示最多每 7 天出现一次
+  // the same notice at most once every 7 days
 });
 var DIRS2 = ["pages", "videos", "cache"];
 function walk(dir) {

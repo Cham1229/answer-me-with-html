@@ -1,6 +1,6 @@
-// 重构前后对比：固定时钟，跑 render / video / patch 组合矩阵，比较当前工作区与另一个 git ref 生成的 HTML。
-// 用法：node scripts/snapshot.mjs [ref]（默认 origin/main）
-// 输出每种组合的 HTML 是否逐字节相同。只比较，不在仓库里留下任何文件。
+// Before/after comparison for refactors: with a fixed clock, run the render / video / patch matrix and compare the HTML from the working tree with another git ref.
+// Usage: node scripts/snapshot.mjs [ref] (default origin/main)
+// Prints whether each combination's HTML is byte-identical. Compares only; leaves no files in the repository.
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -10,7 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const FIXED = new Date('2026-01-02T03:04:05Z').getTime();
 
-// 子进程模式：在给定源码目录里跑矩阵，结果写到 out/result.json。
+// Child-process mode: run the matrix in the given source directory and write the result to out/result.json.
 if (process.argv[2] === '--run') {
   const [, , , repo, out] = process.argv;
   const RealDate = Date;
@@ -43,7 +43,7 @@ async function runMatrix(repo, out) {
       const code = await run([c.cmd, src, '-o', file, '--no-open', ...c.args], home);
       if (code !== 0) { result[name] = `exit ${code}`; continue; }
       const html = readFileSync(file, 'utf8');
-      // 用第一个面板自己的原文 patch，页面应不变。
+      // Patch with the first panel's own source text; the page should not change.
       const { title, text } = firstPanel(readFileSync(src, 'utf8'));
       const patched = await run(['patch', file, '--panel', title, '--no-open'], home, text);
       const same = patched === 0 && readFileSync(file, 'utf8') === html;
@@ -102,7 +102,7 @@ try {
   const after = snapshot(ROOT, work);
   const changed = Object.keys(after).filter((k) => after[k] !== before[k]);
   const patchBroken = Object.keys(after).filter((k) => after[k].endsWith('patch changed the page -->'));
-  console.log(`${Object.keys(after).length} 种组合，与 ${ref} 不同：${changed.length}，patch 后页面变化：${patchBroken.length}`);
+  console.log(`${Object.keys(after).length} combinations, differences from ${ref}: ${changed.length}, pages changed by patch: ${patchBroken.length}`);
   changed.slice(0, 20).forEach((k) => console.log(`  ≠ ${k}`));
   process.exitCode = changed.length || patchBroken.length ? 1 : 0;
 } finally {

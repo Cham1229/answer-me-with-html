@@ -1,5 +1,5 @@
-// 用户配置：~/.answer-me-with-html/config.json（AM_HOME 可改位置）。
-// 只保存用户显式设置过的键；读取时与默认值合并，坏文件 / 非法值一律回退默认，不让配置问题挡住渲染。
+// User config: ~/.answer-me-with-html/config.json (AM_HOME moves it).
+// Only keys the user set explicitly are saved; reads merge with defaults, and a bad file / invalid value falls back to the default, so config problems never block rendering.
 
 import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -70,7 +70,7 @@ export function readConfig(env = process.env) {
     try {
       values[k] = coerce(k, v);
     } catch {
-      // 非法值保持默认。
+      // Invalid values keep the default.
     }
   }
   return { values, stored, warning, path: configPath(env) };

@@ -1,4 +1,4 @@
-// 限值条（配图 E）：填充 = 当前值（或上限本身），竖线 = 上限，超限标红。条长 ∝ 数值，刻度从 0 开始，不断轴。
+// Limit bars (figure E): fill = current value (or the limit itself), vertical line = limit, over-limit in red. Bar length ∝ value, scale starts at 0, no broken axis.
 import { esc } from '../svg/text.js';
 import { ComponentError, contentLines, fields } from './error.js';
 

@@ -1,4 +1,4 @@
-// 组件语法错误。line 是围栏块内容内的相对行号（1 起算），render.js 负责换算成源文件行号。
+// Component syntax error. line is the relative line number inside the fenced block (1-based); render.js converts it to the source line.
 export class ComponentError extends Error {
   constructor(message, line = 0) {
     super(message);
@@ -7,7 +7,7 @@ export class ComponentError extends Error {
   }
 }
 
-// 把围栏块文本切成非空行，保留相对行号；支持 # 开头的整行注释。
+// Split fenced-block text into non-empty lines, keeping relative line numbers; supports whole-line comments starting with #.
 export function contentLines(text) {
   return String(text)
     .split('\n')
@@ -15,7 +15,7 @@ export function contentLines(text) {
     .filter((l) => l.text && !l.text.startsWith('//'));
 }
 
-// 按 | 拆字段并去掉首尾空白。
+// Split fields on | and trim them.
 export function fields(text) {
   return text.split('|').map((s) => s.trim());
 }

@@ -1,4 +1,4 @@
-// 时序图：参与者横向排开，消息自上而下。间距由消息标签宽度推导，标签不会被压扁。
+// Sequence diagram: participants laid out horizontally, messages top to bottom. Spacing derives from message label widths, so labels are never squeezed.
 import { esc, measure, wrap } from '../svg/text.js';
 import { f, arrowDefs, svgOpen, textLines } from '../svg/shapes.js';
 import { ComponentError, contentLines } from './error.js';

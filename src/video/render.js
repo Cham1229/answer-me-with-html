@@ -1,5 +1,5 @@
-// 视频稿 → 单文件播放页。画面复用页面组件；时间轴由每句旁白的音频时长（或估算时长）决定；
-// 播放页里的 render(t) 是确定性的：同一时刻永远画出同一帧，导出 MP4 时逐帧调用它。
+// Video draft → single-file player page. Visuals reuse page components; the timeline comes from each narration line's audio duration (or estimated duration);
+// render(t) in the player page is deterministic: the same moment always draws the same frame, and MP4 export calls it frame by frame.
 import { renderBlocks, detectLang, htmlLang, LintError, timestamp } from '../render.js';
 import { pageCss } from '../themes/index.js';
 import { lintDoc } from '../lint/ste.js';
@@ -16,12 +16,12 @@ const UI = {
   ja: { play: '再生', pause: '一時停止', chapters: '章' },
 };
 
-// provider 为 null 时只出字幕，时长按字数估算。
+// When provider is null, only captions are produced and durations are estimated from word count.
 export async function renderVideo(source, { provider = null, cacheDir, defaults = {}, overrides = {}, onProgress } = {}) {
   const video = parseVideo(source, { defaults });
   const meta = applyOverrides(video.meta, overrides, { ...CHOICES, theme: VIDEO_THEMES });
 
-  // 旁白每行是一拍，连续多行不算"超长段落"。
+  // Each narration line is one beat; consecutive lines do not count as an "overlong paragraph".
   const warnings = meta.style === 'off' ? [] : lintDoc(video.doc).filter((w) => w.rule !== 'paragraph-length');
   if (meta.style === 'strict' && warnings.length) throw new LintError(warnings);
 
@@ -38,7 +38,7 @@ export async function renderVideo(source, { provider = null, cacheDir, defaults 
   return { html, wav, warnings, stats, meta, duration: timeline.duration, beats: beats.length };
 }
 
-// 有配音时每拍时长取音频长度；否则按字数估算。
+// With a voice-over each beat lasts as long as its audio; otherwise it is estimated from word count.
 async function voiceBeats(beats, provider, cacheDir, onProgress) {
   if (!provider) return { clips: null, durations: beats.map((b) => estimateSeconds(b.text)) };
   onProgress?.(`Voice-over: ${provider.name}, ${beats.length} line${beats.length === 1 ? '' : 's'}`);
@@ -69,7 +69,7 @@ function renderScenes(video, meta, timeline, ctx) {
 
 const beatsOf = (video, i) => (i === 0 ? video.introBeats : video.scenes[i - 1].beats);
 
-// 字幕：[名字] 变成高亮词。
+// Captions: [name] becomes a highlighted word.
 export function captionHtml(raw) {
   return raw.split(/(\[[^\]\n]+\])/).map((part) => {
     const m = part.match(/^\[([^\]]+)\]$/);
@@ -99,7 +99,7 @@ function scene(s, i, total, body) {
 </section>`;
 }
 
-// 图纸外框与坐标刻度（只在 blueprint 主题显示），固定在镜头之外。
+// Drawing frame and coordinate ticks (shown only in the blueprint theme), fixed outside the camera.
 function sheetFrame() {
   const ruler = (side, labels) => `<div class="amv-ruler amv-ruler--${side}">${labels.map((l) => `<span>${l}</span>`).join('')}</div>`;
   const nums = [1, 2, 3, 4, 5, 6, 7, 8];

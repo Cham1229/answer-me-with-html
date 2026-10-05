@@ -1,5 +1,5 @@
-// --mp4：用本机 Chrome（无头模式，经 Chrome DevTools Protocol）逐帧调用播放页的 render(t) 并截图，
-// 再交给 ffmpeg 编码 H.264 并合成旁白音轨。不依赖 Playwright / Puppeteer。
+// --mp4: local Chrome (headless, via the Chrome DevTools Protocol) calls the player page's render(t) frame by frame and screenshots it,
+// then ffmpeg encodes H.264 and muxes the narration track. No Playwright / Puppeteer dependency.
 import { spawn } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -80,7 +80,7 @@ export async function exportMp4(htmlFile, mp4File, { wav, env = process.env, onP
     let ffErr = '';
     let exited = false;
     ffmpeg.stderr.on('data', (d) => { ffErr += d; });
-    // ffmpeg 提前退出时，写入 stdin 会触发 EPIPE；这里吞掉，由 done 统一报错。
+    // When ffmpeg exits early, writing to stdin raises EPIPE; swallow it here and let done report the error.
     ffmpeg.stdin.on('error', () => {});
     const done = new Promise((resolve, reject) => {
       ffmpeg.on('error', (e) => { exited = true; reject(new ExportError(`Cannot run ffmpeg: ${e.message}`)); });
@@ -90,7 +90,7 @@ export async function exportMp4(htmlFile, mp4File, { wav, env = process.env, onP
         else reject(new ExportError(`ffmpeg failed (${code}): ${ffErr.slice(0, 300)}`));
       });
     });
-    done.catch(() => {}); // 先挂上处理器，避免帧循环期间出现未处理的 rejection
+    done.catch(() => {}); // attach the handler first, so no unhandled rejection occurs during the frame loop
 
     const frames = Math.ceil(info.duration * info.fps);
     for (let i = 0; i < frames && !exited; i++) {
@@ -116,7 +116,7 @@ export async function exportMp4(htmlFile, mp4File, { wav, env = process.env, onP
     try {
       rmSync(tmp, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
     } catch {
-      // 临时目录清理失败不影响成片。
+      // A temp-directory cleanup failure does not affect the finished video.
     }
   }
 }
@@ -137,7 +137,7 @@ function devtoolsUrl(chrome) {
   });
 }
 
-// 极简 CDP 客户端：请求/响应按 id 配对，事件按方法名一次性等待。
+// Minimal CDP client: requests/responses paired by id, events awaited once by method name.
 function connect(url) {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(url);

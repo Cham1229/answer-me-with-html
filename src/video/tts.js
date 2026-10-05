@@ -1,6 +1,6 @@
-// 旁白配音。降级顺序：ElevenLabs（有 ELEVENLABS_API_KEY 时）→ 系统 TTS（macOS say / Linux espeak-ng）→ 只出字幕。
-// --voice local 改用本地 OpenAI 兼容的 /v1/audio/speech 服务（AM_TTS_URL），只在显式指定时使用。
-// 每句合成结果是 22050 Hz 单声道 16 位 PCM，按文本 + 声音缓存在 AM_HOME/cache/tts/，重复渲染不再合成。
+// Narration voice-over. Fallback order: ElevenLabs (with ELEVENLABS_API_KEY) → system TTS (macOS say / Linux espeak-ng) → captions only.
+// --voice local uses a local OpenAI-compatible /v1/audio/speech service (AM_TTS_URL) instead, only when given explicitly.
+// Each line is synthesized as 22050 Hz mono 16-bit PCM and cached by text + voice in AM_HOME/cache/tts/, so re-renders do not synthesize again.
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync, existsSync, rmSync, mkdtempSync, renameSync } from 'node:fs';
@@ -15,10 +15,10 @@ const ELEVEN_DEFAULT_VOICE = 'JBFqnCBsd6RMkjVDRZzb';
 const ELEVEN_MODEL = 'eleven_multilingual_v2';
 const ELEVEN_TIMEOUT_MS = 60000;
 const LOCAL_TIMEOUT_MS = 300000;
-// 本地自回归 TTS（如 Qwen3-TTS）偶尔停不下来或提前截断。实际时长 / 估算时长超出这个范围就重试，最多 LOCAL_ATTEMPTS 次。
+// Local autoregressive TTS (e.g. Qwen3-TTS) sometimes fails to stop or cuts off early. When actual / estimated duration falls outside this range, retry, at most LOCAL_ATTEMPTS times.
 const LOCAL_RATIO = Object.freeze([0.5, 2]);
 const LOCAL_ATTEMPTS = 3;
-const SILENCE = 300; // 振幅低于它算静音
+const SILENCE = 300; // amplitude below this counts as silence
 
 export class TtsError extends Error {
   constructor(message) {
@@ -27,7 +27,7 @@ export class TtsError extends Error {
   }
 }
 
-// 选出实际使用的配音方式。返回 { name, synth(text) → Int16Array } 或 null（只出字幕）。
+// Pick the voice-over actually used. Returns { name, synth(text) → Int16Array } or null (captions only).
 export function pickProvider(choice, env, { platform = process.platform, which = hasCommand } = {}) {
   const eleven = () => elevenLabs(env);
   const system = () => systemVoice(platform, which);
@@ -73,10 +73,10 @@ function elevenLabs(env) {
   };
 }
 
-// OpenAI 兼容的语音接口：POST {AM_TTS_URL}/v1/audio/speech，要求返回 16 位 PCM WAV（一次返回整段，不分块流式）。
-// AM_TTS_MODEL / AM_TTS_VOICE 对应请求里的 model / voice；AM_TTS_EXTRA 是一个 JSON 对象，并入请求体（模型专用参数），
-// 但 input / response_format / stream 总由 am 决定。AM_TTS_ATTEMPTS 是每句最多合成次数，默认 3，设为 1 关闭时长检查。
-// AM_TTS_API_KEY 有值时以 Bearer 令牌发送；它不进缓存键。
+// OpenAI-compatible speech API: POST {AM_TTS_URL}/v1/audio/speech, must return 16-bit PCM WAV (whole clip at once, no chunked streaming).
+// AM_TTS_MODEL / AM_TTS_VOICE map to model / voice in the request; AM_TTS_EXTRA is a JSON object merged into the request body (model-specific parameters),
+// but am always decides input / response_format / stream. AM_TTS_ATTEMPTS is the maximum syntheses per line, default 3; 1 turns off the duration check.
+// AM_TTS_API_KEY, when set, is sent as a Bearer token; it is not part of the cache key.
 function localSpeech(env) {
   if (!env.AM_TTS_URL) throw new TtsError('voice=local needs the AM_TTS_URL environment variable (such as http://127.0.0.1:8000)');
   const url = `${env.AM_TTS_URL.replace(/\/+$/, '').replace(/\/v1$/, '')}/v1/audio/speech`;
@@ -95,7 +95,7 @@ function localSpeech(env) {
   delete body.input;
   if (env.AM_TTS_MODEL) body.model = env.AM_TTS_MODEL;
   if (env.AM_TTS_VOICE) body.voice = env.AM_TTS_VOICE;
-  // 请求了变速时，按变速后的语速估算时长，正常的慢速朗读不会被当成失控。
+  // When a speed change is requested, estimate duration at the changed rate, so normal slow reading is not taken as runaway.
   const speed = typeof body.speed === 'number' && body.speed > 0 ? body.speed : 1;
   const headers = { 'content-type': 'application/json', ...(env.AM_TTS_API_KEY ? { authorization: `Bearer ${env.AM_TTS_API_KEY}` } : {}) };
   const request = async (text) => {
@@ -131,7 +131,7 @@ function localSpeech(env) {
     id: `local:${url}:${attempts}:${stableJson(body)}`,
     concurrency: 1,
     async synth(text) {
-      // 按去掉首尾静音后的长度判断：静音填充不能让截断的句子蒙混过关。空音频和纯静音不算结果。
+      // Judge by length after trimming leading/trailing silence: silence padding cannot let a truncated line pass. Empty or all-silent audio is not a result.
       const expected = estimateSeconds(text) / speed;
       let best = null;
       for (let i = 0; i < attempts; i++) {
@@ -147,7 +147,7 @@ function localSpeech(env) {
   };
 }
 
-// 键按字母序排列的 JSON，同样的参数换个顺序写也得到同一个缓存键。
+// JSON with keys in alphabetical order, so the same parameters in another order give the same cache key.
 function stableJson(value) {
   if (Array.isArray(value)) return `[${value.map(stableJson).join(',')}]`;
   if (value && typeof value === 'object') {
@@ -186,12 +186,12 @@ function systemVoice(platform, which) {
   return null;
 }
 
-// 按语言挑 macOS 声音：优先常见的高质量声音，其次该语言的任意声音。
+// Pick a macOS voice by language: prefer common high-quality voices, then any voice for that language.
 export function macVoices() {
   return pickMacVoices(spawnSync('say', ['-v', '?'], { encoding: 'utf8' }).stdout || '');
 }
 
-// 解析 say -v '?' 的输出。名字较长时，名字和语言代码之间可能只剩一个空格。
+// Parse the output of say -v '?'. With long names, only one space may separate the name and the language code.
 export function pickMacVoices(out) {
   const list = out.split('\n').map((l) => l.match(/^(.+?)\s+([a-z]{2}_[A-Z]{2})\s+#/)).filter(Boolean).map((m) => ({ name: m[1].trim(), locale: m[2] }));
   const base = (name) => name.replace(/\s*[(（].*$/, '');
@@ -213,7 +213,7 @@ function run(cmd, args) {
   });
 }
 
-// 旁白经文件传给 TTS 程序，以 - 开头的句子不会被当成命令行选项。
+// Narration reaches the TTS program through a file, so a line starting with - is not taken as a command-line option.
 function textFile(wavFile, text) {
   const p = `${wavFile}.txt`;
   writeFileSync(p, text);
@@ -229,7 +229,7 @@ async function withTemp(fn) {
   }
 }
 
-// 解析 16 位 PCM WAV，多声道取第一声道。返回 { rate, samples }。
+// Parse a 16-bit PCM WAV, taking the first channel of multi-channel audio. Returns { rate, samples }.
 export function readWav(buf) {
   if (buf.toString('ascii', 0, 4) !== 'RIFF' || buf.toString('ascii', 8, 12) !== 'WAVE') throw new TtsError('Not a WAV file');
   let pos = 12;
@@ -250,7 +250,7 @@ export function readWav(buf) {
   throw new TtsError('The WAV has no data chunk');
 }
 
-// 线性插值重采样到 SAMPLE_RATE。
+// Resample to SAMPLE_RATE by linear interpolation.
 function resample(input) {
   if (input instanceof Int16Array) return input;
   const { rate, samples } = input;
@@ -265,7 +265,7 @@ function resample(input) {
   return out;
 }
 
-// 合成全部旁白（带缓存与并发上限），返回与 texts 等长的 Int16Array 列表。
+// Synthesize all narration (with cache and a concurrency limit); returns a list of Int16Array as long as texts.
 export async function synthAll(texts, provider, { cacheDir } = {}) {
   if (cacheDir) mkdirSync(cacheDir, { recursive: true });
   const results = new Array(texts.length);
@@ -287,7 +287,7 @@ export async function synthAll(texts, provider, { cacheDir } = {}) {
   return results;
 }
 
-// 缓存文件损坏（空文件、奇数字节）时视为未命中，重新合成。
+// A corrupt cache file (empty, odd byte count) counts as a miss and is synthesized again.
 function readCache(file) {
   if (!existsSync(file)) return null;
   const buf = readFileSync(file);
@@ -295,14 +295,14 @@ function readCache(file) {
   return new Int16Array(buf.buffer, buf.byteOffset, buf.length / 2).slice();
 }
 
-// 先写临时文件再改名，中断时不会留下半截缓存。
+// Write a temp file then rename, so an interruption never leaves a partial cache file.
 function writeCache(file, samples) {
   const tmp = `${file}.${process.pid}.tmp`;
   writeFileSync(tmp, Buffer.from(samples.buffer, samples.byteOffset, samples.byteLength));
   renameSync(tmp, file);
 }
 
-// 去掉首尾静音，让画面节奏只由真实语音决定。
+// Trim leading/trailing silence so the visual pacing depends only on real speech.
 export function trimSilence(samples, threshold = SILENCE) {
   let a = 0;
   let b = samples.length;
@@ -312,7 +312,7 @@ export function trimSilence(samples, threshold = SILENCE) {
   return samples.slice(Math.max(0, a - pad), Math.min(samples.length, b + pad));
 }
 
-// 把各句音频按时间轴放进一条音轨，输出 WAV。
+// Put each line's audio on one track along the timeline and output a WAV.
 export function mixTrack(clips, starts, duration) {
   const total = Math.ceil(duration * SAMPLE_RATE);
   const track = new Int16Array(total);

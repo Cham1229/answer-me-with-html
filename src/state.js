@@ -1,5 +1,5 @@
-// 数据目录里的 state.json：记录首次使用、上次清理、版本检查等时间点。
-// 写入先写临时文件再改名，避免并发或中断时留下半截文件；读到坏文件时当作空状态。
+// state.json in the data directory: records times such as first use, last cleanup and version check.
+// Writes go to a temp file then rename, so concurrency or interruption never leaves a partial file; a bad file reads as empty state.
 import { readFileSync, writeFileSync, mkdirSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
 
