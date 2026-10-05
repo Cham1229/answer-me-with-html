@@ -16,6 +16,8 @@ const PARTS = {
   whole: (text) => text,
   frontmatter: (text) => text.match(/^---\n([\s\S]*?)\n---\n/)?.[1] ?? '',
   strings: stringLiterals,
+  // The whole skill except its description: the description quotes Chinese trigger phrases users type.
+  skill: (text) => text.replace(/^description:.*\n(?:[ \t]+.*\n)*/m, (m) => m.replace(/[^\n]/g, ' ')),
   // Writing-check warning text: the literal parts of every `message:` / `suggestion:` value, one per line.
   // Interpolations and "quoted" spans are dropped: they hold the flagged Chinese text, which is the subject.
   lintMessages: (text) =>
@@ -111,6 +113,8 @@ const SCOPE = [
   { files: commandFiles, part: 'frontmatter' },
   { files: cliTextFiles, part: 'strings' },
   { files: () => ['src/lint/ste.js'], part: 'lintMessages' },
+  { files: () => ['skills/answer-me-with-html/SKILL.md'], part: 'skill' },
+  { files: () => ['CONTRIBUTING.md', ...commandFiles()], part: 'whole' },
   { files: () => ['src', 'bin', 'scripts'].flatMap(sourceFiles), part: 'comments' },
 ];
 
