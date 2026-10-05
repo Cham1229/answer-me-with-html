@@ -93,7 +93,7 @@ test('cli render: style 80 打印警告但仍生成；strict 拒绝生成', asyn
   const bad = '## A\nUtilize the tool.';
   const soft = await run(['render', '-'], { stdin: bad });
   assert.equal(soft.code, 0);
-  assert.match(soft.out, /STE 1 warning[\s\S]*L2 \[word\] .*"Utilize" → use/);
+  assert.match(soft.out, /STE 1 warning[\s\S]*L2 \[word\] not recommended: "Utilize" → use/);
 
   const before = readdirSync(join(dir, 'pages')).length;
   const strict = await run(['render', '-', '--style', 'strict'], { stdin: bad });

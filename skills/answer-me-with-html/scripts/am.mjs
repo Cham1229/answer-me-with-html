@@ -4527,7 +4527,7 @@ function lintMarkdown(text, startLine, out) {
   let para = null;
   const flush = () => {
     if (para && para.count > MAX_SENTENCES) {
-      out.push({ line: para.line, rule: "paragraph-length", message: `\u6BB5\u843D ${para.count} \u53E5\uFF08\u4E0A\u9650 ${MAX_SENTENCES}\uFF09` });
+      out.push({ line: para.line, rule: "paragraph-length", message: `paragraph has ${para.count} sentences (max ${MAX_SENTENCES})` });
     }
     para = null;
   };
@@ -4569,25 +4569,25 @@ function checkUnit(text, line, kind, out) {
     const { lang, count: count2 } = sentenceLength(s);
     const limit = LIMITS[lang][kind];
     if (count2 > limit) {
-      const unit = lang === "zh" ? "\u5B57" : "words";
+      const unit = lang === "zh" ? "characters" : "words";
       const preview = s.length > 24 ? `${s.slice(0, 24)}\u2026` : s;
-      out.push({ line, rule: "sentence-length", message: `${kind === "procedural" ? "\u6B65\u9AA4" : "\u53E5\u5B50"} ${count2} ${unit}\uFF08\u4E0A\u9650 ${limit}\uFF09\uFF1A"${preview}"` });
+      out.push({ line, rule: "sentence-length", message: `${kind === "procedural" ? "step" : "sentence"} has ${count2} ${unit} (max ${limit}): "${preview}"` });
     }
     if (lang === "en" && PASSIVE.test(s)) {
-      out.push({ line, rule: "passive", message: `\u7591\u4F3C\u88AB\u52A8\u8BED\u6001\uFF1A"${s.match(PASSIVE)[0]}"`, suggestion: "\u6539\u4E3A\u4E3B\u52A8\u8BED\u6001" });
+      out.push({ line, rule: "passive", message: `possible passive voice: "${s.match(PASSIVE)[0]}"`, suggestion: "use active voice" });
     }
   }
   const lexical = [
-    ...EN_RE.flatMap(({ re: re3, suggestion }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `\u4E0D\u63A8\u8350 "${m[0]}"`, suggestion }))),
-    ...(ja ? [] : ZH_LIGHT_VERBS).flatMap(({ re: re3, label }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `\u865A\u52A8\u8BCD "${m[0]}"\uFF08${label}\uFF09`, suggestion: `\u76F4\u63A5\u7528\u300C${m[1]}\u300D` })))
+    ...EN_RE.flatMap(({ re: re3, suggestion }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `not recommended: "${m[0]}"`, suggestion }))),
+    ...(ja ? [] : ZH_LIGHT_VERBS).flatMap(({ re: re3, label }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `light verb "${m[0]}" (${label})`, suggestion: `use "${m[1]}"` })))
   ];
   out.push(...lexical.sort((a, b) => a.index - b.index).map(({ index, ...w }) => ({ line, ...w })));
   for (const s of sentences) {
     if (isJapanese(s)) continue;
-    if ((s.match(/的/g) ?? []).length >= 3) out.push({ line, rule: "de-chain", message: `"\u7684"\u5B57\u8FDE\u7528\uFF1A${s}`, suggestion: '\u62C6\u53E5\u6216\u5220\u53BB\u591A\u4F59\u7684"\u7684"' });
+    if ((s.match(/的/g) ?? []).length >= 3) out.push({ line, rule: "de-chain", message: `chained "\u7684": ${s}`, suggestion: 'split the sentence or remove extra "\u7684"' });
   }
   for (const c of ja ? [] : ZH_CLICHES) {
-    if (text.includes(c)) out.push({ line, rule: "cliche", message: `\u5957\u8BDD "${c}"`, suggestion: "\u5220\u9664\uFF0C\u6216\u6362\u6210\u5177\u4F53\u4E8B\u5B9E" });
+    if (text.includes(c)) out.push({ line, rule: "cliche", message: `clich\xE9 "${c}"`, suggestion: "delete it or state a concrete fact" });
   }
   return sentences.length;
 }

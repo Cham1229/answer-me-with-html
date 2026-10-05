@@ -55,7 +55,7 @@ function lintMarkdown(text, startLine, out) {
   let para = null;
   const flush = () => {
     if (para && para.count > MAX_SENTENCES) {
-      out.push({ line: para.line, rule: 'paragraph-length', message: `段落 ${para.count} 句（上限 ${MAX_SENTENCES}）` });
+      out.push({ line: para.line, rule: 'paragraph-length', message: `paragraph has ${para.count} sentences (max ${MAX_SENTENCES})` });
     }
     para = null;
   };
@@ -99,25 +99,25 @@ function checkUnit(text, line, kind, out) {
     const { lang, count } = sentenceLength(s);
     const limit = LIMITS[lang][kind];
     if (count > limit) {
-      const unit = lang === 'zh' ? '字' : 'words';
+      const unit = lang === 'zh' ? 'characters' : 'words';
       const preview = s.length > 24 ? `${s.slice(0, 24)}…` : s;
-      out.push({ line, rule: 'sentence-length', message: `${kind === 'procedural' ? '步骤' : '句子'} ${count} ${unit}（上限 ${limit}）："${preview}"` });
+      out.push({ line, rule: 'sentence-length', message: `${kind === 'procedural' ? 'step' : 'sentence'} has ${count} ${unit} (max ${limit}): "${preview}"` });
     }
     if (lang === 'en' && PASSIVE.test(s)) {
-      out.push({ line, rule: 'passive', message: `疑似被动语态："${s.match(PASSIVE)[0]}"`, suggestion: '改为主动语态' });
+      out.push({ line, rule: 'passive', message: `possible passive voice: "${s.match(PASSIVE)[0]}"`, suggestion: 'use active voice' });
     }
   }
   const lexical = [
-    ...EN_RE.flatMap(({ re, suggestion }) => [...text.matchAll(re)].map((m) => ({ index: m.index, rule: 'word', message: `不推荐 "${m[0]}"`, suggestion }))),
-    ...(ja ? [] : ZH_LIGHT_VERBS).flatMap(({ re, label }) => [...text.matchAll(re)].map((m) => ({ index: m.index, rule: 'word', message: `虚动词 "${m[0]}"（${label}）`, suggestion: `直接用「${m[1]}」` }))),
+    ...EN_RE.flatMap(({ re, suggestion }) => [...text.matchAll(re)].map((m) => ({ index: m.index, rule: 'word', message: `not recommended: "${m[0]}"`, suggestion }))),
+    ...(ja ? [] : ZH_LIGHT_VERBS).flatMap(({ re, label }) => [...text.matchAll(re)].map((m) => ({ index: m.index, rule: 'word', message: `light verb "${m[0]}" (${label})`, suggestion: `use "${m[1]}"` }))),
   ];
   out.push(...lexical.sort((a, b) => a.index - b.index).map(({ index, ...w }) => ({ line, ...w })));
   for (const s of sentences) {
     if (isJapanese(s)) continue;
-    if ((s.match(/的/g) ?? []).length >= 3) out.push({ line, rule: 'de-chain', message: `"的"字连用：${s}`, suggestion: '拆句或删去多余的"的"' });
+    if ((s.match(/的/g) ?? []).length >= 3) out.push({ line, rule: 'de-chain', message: `chained "的": ${s}`, suggestion: 'split the sentence or remove extra "的"' });
   }
   for (const c of ja ? [] : ZH_CLICHES) {
-    if (text.includes(c)) out.push({ line, rule: 'cliche', message: `套话 "${c}"`, suggestion: '删除，或换成具体事实' });
+    if (text.includes(c)) out.push({ line, rule: 'cliche', message: `cliché "${c}"`, suggestion: 'delete it or state a concrete fact' });
   }
   return sentences.length;
 }

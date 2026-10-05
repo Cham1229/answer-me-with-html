@@ -16,6 +16,10 @@ const PARTS = {
   whole: (text) => text,
   frontmatter: (text) => text.match(/^---\n([\s\S]*?)\n---\n/)?.[1] ?? '',
   strings: stringLiterals,
+  // Writing-check warning text: the literal parts of every `message:` / `suggestion:` value, one per line.
+  // Interpolations and "quoted" spans are dropped: they hold the flagged Chinese text, which is the subject.
+  lintMessages: (text) =>
+    [...text.matchAll(/\b(?:message|suggestion):\s*(`[^`]*`|'[^']*')/g)].map((m) => m[1].slice(1, -1).replace(/\$\{[^}]*\}|"[^"]*"/g, '')).join('\n'),
 };
 
 // JavaScript string and template-literal text only; comments, regex literals and code are blanked
@@ -65,6 +69,7 @@ const SCOPE = [
   { files: () => ['plugins/answer-me-with-html-always/.claude-plugin/plugin.json'], part: 'whole' },
   { files: commandFiles, part: 'frontmatter' },
   { files: cliTextFiles, part: 'strings' },
+  { files: () => ['src/lint/ste.js'], part: 'lintMessages' },
 ];
 
 // Spans where Chinese is the subject, not the medium. They are removed before the check.
