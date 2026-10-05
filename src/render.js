@@ -1,4 +1,4 @@
-// 稿件 → 单文件 HTML。流程：parse → STE lint → 渲染面板（markdown / 组件 / raw）→ 套模板 → 内联 CSS 与运行时。
+// Draft → single-file HTML. Pipeline: parse → STE lint → render panels (markdown / components / raw) → apply template → inline CSS and runtime.
 
 import { parseDoc, ParseError, applyOverrides } from './parse.js';
 import { md } from './markdown.js';
@@ -47,7 +47,7 @@ export const UI = {
   },
 };
 
-// <html lang> 的值。
+// The <html lang> value.
 export function htmlLang(lang) {
   return lang === 'zh' ? 'zh-CN' : lang === 'ja' ? 'ja' : 'en';
 }

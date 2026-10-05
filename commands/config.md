@@ -4,19 +4,19 @@ argument-hint: "[open|always|theme|mode|style|voice|update_check <value>] | rese
 allowed-tools: Bash(node *)
 ---
 
-## 当前配置
+## Current settings
 
 !`node "${CLAUDE_PLUGIN_ROOT}/skills/answer-me-with-html/scripts/am.mjs" config`
 
-## 你要做的
+## What to do
 
-用户参数：`$ARGUMENTS`
+User arguments: `$ARGUMENTS`
 
-CLI：`node "${CLAUDE_PLUGIN_ROOT}/skills/answer-me-with-html/scripts/am.mjs" config …`
+CLI: `node "${CLAUDE_PLUGIN_ROOT}/skills/answer-me-with-html/scripts/am.mjs" config …`
 
-- **参数为空**：用 AskUserQuestion 让用户选。一次最多问 4 项，优先问：自动打开浏览器（open）、高频模式（always）、默认主题（theme）、明暗（mode）。把当前值标在选项里。用户选完后逐项执行 `config set`。
-- **`<键> <值>`**（如 `open off`）：直接执行 `config set <键> <值>`。
-- **`reset` 或 `reset <键>`**：执行 `config reset [键]`。
-- **自然语言**（如"别再弹浏览器了"）：换算成对应的键和值再执行。
+- **No arguments**: use AskUserQuestion to let the user choose. Ask at most 4 settings at a time, these first: auto-open the browser (open), always-on mode (always), default theme (theme), light/dark (mode). Mark the current value in the options. After the user chooses, run `config set` for each setting.
+- **`<key> <value>`** (for example `open off`): run `config set <key> <value>` directly.
+- **`reset` or `reset <key>`**: run `config reset [key]`.
+- **Natural language** (for example "stop opening the browser"): convert it to the matching key and value, then run it.
 
-改完后用一两句话说明改了什么。配置立即生效；高频模式的开关从用户下一条消息开始生效。不要生成解释页。
+After the change, say in one or two sentences what changed. Settings take effect immediately; turning always-on mode on or off takes effect from the user's next message. Do not generate an explainer page.

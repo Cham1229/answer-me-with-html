@@ -1,5 +1,5 @@
-// 运行时需要的静态资源集中在这里。开发时从磁盘读取；打包（scripts/build.mjs）时整个模块被替换成内联字符串，
-// 因此产物 skills/answer-me-with-html/scripts/am.mjs 不依赖任何外部文件。
+// Static assets needed at run time, in one place. In development they are read from disk; when bundling (scripts/build.mjs) the whole module is replaced by inline strings,
+// so the bundle skills/answer-me-with-html/scripts/am.mjs depends on no external files.
 import { readFileSync } from 'node:fs';
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');

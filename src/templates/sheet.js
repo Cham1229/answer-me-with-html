@@ -1,11 +1,11 @@
-// sheet：图纸板。字母编号面板排成网格；blueprint 主题下外框带坐标刻度（纯装饰，无交互）。
+// sheet: drawing board. Letter-numbered panels in a grid; under the blueprint theme the frame has coordinate ticks (decorative only, no interaction).
 import { panelHtml, headHtml } from './panel.js';
 
 const ruler = (side, labels) =>
   `<div class="am-ruler am-ruler--${side}" aria-hidden="true">${labels.map((l) => `<span>${l}</span>`).join('')}</div>`;
 
-// 按阅读顺序模拟网格：某面板之后的剩余列放不下下一个面板时，把它拉宽填满本行，避免留下空洞。
-// 有面板使用 rows 跨行时，行的占用关系复杂，直接保留作者的布局。
+// Simulate the grid in reading order: when the columns left after a panel cannot fit the next panel, widen it to fill the row, leaving no holes.
+// When a panel spans rows, row occupancy gets complex, so the author's layout is kept as is.
 export function fillRows(panels, cols) {
   const spans = panels.map((p) => Math.max(1, Math.min(Number(p.attrs.span) || 1, cols)));
   if (panels.some((p) => Number(p.attrs.rows) > 1)) return spans;
@@ -20,10 +20,10 @@ export function fillRows(panels, cols) {
   });
 }
 
-// 宽表格和宽图在一列里放不下：表格列太多会把中文挤成一字一行，图被缩小到字看不清。
+// Wide tables and wide diagrams do not fit one column: too many table columns squeeze Chinese to one character per line, diagrams shrink until text is unreadable.
 const WIDE_TABLE_COLS = 4;
 const TABLE_COLS_PER_SPAN = 2;
-const DIAGRAM_PX_PER_SPAN = 560; // 约 0.75 倍缩放下，每多一列多放这么宽的图
+const DIAGRAM_PX_PER_SPAN = 560; // at about 0.75 scale, this much more diagram width per extra column
 const CELL_SEP = /(?<!\\)\|/;
 const DELIMITER_ROW = /^\|[\s:|-]+\|?$/;
 
@@ -37,7 +37,7 @@ function tableColumns(blocks) {
 
 const svgWidth = (html) => Math.max(0, ...[...html.matchAll(/<svg\b[^>]*?\swidth="(\d+(?:\.\d+)?)"/g)].map((m) => Number(m[1])));
 
-// 面板内容至少需要几列。作者显式写了 span 的面板不走这里。
+// How many columns the panel content needs at least. Panels with an explicit span do not go through here.
 export function minSpan(panel) {
   const tableCols = tableColumns(panel.blocks ?? []);
   const byTable = tableCols >= WIDE_TABLE_COLS ? Math.ceil(tableCols / TABLE_COLS_PER_SPAN) : 1;

@@ -1,24 +1,24 @@
-// 数据目录维护：用量统计、am clean、清理提示；渲染后汇总清理与更新两类提示。
-// 提示只打印给 Agent 看（以 "! " 开头的一行），由 Agent 询问用户要不要处理；CLI 从不自动删除。
+// Data-directory maintenance: usage stats, am clean, cleanup notice; after a render, collects the cleanup and update notices.
+// Notices are printed only for the Agent (one line starting with "! "), which asks the user whether to act; the CLI never deletes automatically.
 import { readdirSync, lstatSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { DAY, readState, writeState } from './state.js';
 import { updateEnabled, updateHint, shouldCheckUpdate, spawnUpdateCheck } from './update.js';
 
 export const CLEAN = Object.freeze({
-  days: 30,                 // am clean 默认删除 30 天前的页面和视频
-  bigBytes: 200 * 2 ** 20,  // 超过 200 MB 立即提示
-  staleDays: 30,            // 距上次清理超过 30 天……
-  staleBytes: 20 * 2 ** 20, // ……且超过 20 MB 时提示
-  hintEveryDays: 7,         // 同一提示最多每 7 天出现一次
+  days: 30,                 // am clean deletes pages and videos older than 30 days by default
+  bigBytes: 200 * 2 ** 20,  // notify at once above 200 MB
+  staleDays: 30,            // more than 30 days since the last cleanup…
+  staleBytes: 20 * 2 ** 20, // …and above 20 MB: notify
+  hintEveryDays: 7,         // the same notice at most once every 7 days
 });
 const DIRS = ['pages', 'videos', 'cache'];
 
-// 列出目录下的普通文件。软链接、读不了的条目直接跳过，统计不因个别文件出错而失败。
+// List regular files in a directory. Symlinks and unreadable entries are skipped, so stats never fail on a single file.
 function walk(dir) {
   let entries;
   try {
-    // 根入口也可能是软链接；lstat 不跟随链接，避免清理目标目录里的外部文件。
+    // The root entry may also be a symlink; lstat does not follow links, so cleanup never touches external files in the target directory.
     if (!lstatSync(dir).isDirectory()) return [];
     entries = readdirSync(dir, { withFileTypes: true });
   } catch {
@@ -46,7 +46,7 @@ export function usage(home) {
   return { ...parts, total: DIRS.reduce((n, d) => n + parts[d].bytes, 0) };
 }
 
-// 删除 days 天前的页面与视频，以及全部配音缓存（可重新生成）。all：全部删除（配置保留）。
+// Delete pages and videos older than days, plus the whole voice cache (it can be regenerated). all: delete everything (config is kept).
 export function clean(home, { days = CLEAN.days, all = false, dryRun = false, now = Date.now() } = {}) {
   const cutoff = now - days * DAY;
   const victims = [
@@ -62,7 +62,7 @@ export function clean(home, { days = CLEAN.days, all = false, dryRun = false, no
 
 export const mb = (bytes) => (bytes < 2 ** 20 ? `${Math.ceil(bytes / 1024)} KB` : `${(bytes / 2 ** 20).toFixed(bytes < 10 * 2 ** 20 ? 1 : 0)} MB`);
 
-// 需要提示清理时返回提示文本，否则返回 null。
+// Return the notice text when a cleanup notice is due, otherwise null.
 export function cleanHint(state, use, now = Date.now()) {
   if (state.lastCleanHint && now - state.lastCleanHint < CLEAN.hintEveryDays * DAY) return null;
   const since = state.lastClean ?? state.firstSeen ?? now;
@@ -76,7 +76,7 @@ export function cleanHint(state, use, now = Date.now()) {
   return `! Cleanup hint: the data directory uses ${mb(use.total)} (${parts}), ${when}. Ask the user whether to run am clean (deletes pages and videos older than ${CLEAN.days} days and empties the voice-over cache; am clean --all deletes everything).`;
 }
 
-// 每次渲染后调用：记录首次使用时间，返回要打印的提示，并按需安排后台版本检查。
+// Called after every render: record the first-use time, return the notices to print, and schedule the background version check when needed.
 export function afterRender({ home, env, config, current, scriptPath, background, now = Date.now() }) {
   let state = readState(home);
   if (!state.firstSeen) state = writeState(home, { firstSeen: now });

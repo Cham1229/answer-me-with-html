@@ -1,16 +1,16 @@
-// SVG 布局在 Node 端完成，拿不到真实字体度量，只能按字符类别估算宽度。
-// 估算偏宽比偏窄安全：宁可节点留白，也不要文字溢出边框。
+// SVG layout runs in Node without real font metrics, so widths are estimated by character class.
+// Overestimating is safer than underestimating: better spare room in a node than text overflowing its border.
 
 const CJK_RE = /[⺀-鿿가-힯豈-﫿︰-﹏＀-￯　-〿]/;
 const NARROW = new Set([...'iljtfrI.,:;|!\'`()[]{}']);
 const WIDE = new Set([...'mwMWOQGD@%&']);
 
-// 平假名、片假名。
+// Hiragana, katakana.
 export const KANA_RE = /[\u3040-\u30ff]/;
-// 判断日文看平假名：日文句子几乎都带平假名助词与词尾（の、は、を、です），
-// 中文引用外来词时出现的基本只有片假名（如《ワンピース》），不能据此判为日文。
+// Japanese is detected by hiragana: Japanese sentences almost always contain hiragana particles and endings (`の`, `は`, `を`, `です`),
+// while Chinese quoting foreign words has almost only katakana (e.g. `《ワンピース》`), so katakana cannot mark a text as Japanese.
 const HIRAGANA_RE = /[\u3040-\u309f]/;
-const HIRAGANA_SHARE = 0.05; // 片假名为主的日文短标题（TCP の3ウェイ…）也能认出
+const HIRAGANA_SHARE = 0.05; // also recognizes short katakana-heavy Japanese titles (`TCP の3ウェイ…`)
 
 export function isJapanese(text) {
   let hira = 0;
@@ -42,7 +42,7 @@ export function measure(str, size = 13, { mono = false } = {}) {
   return Math.round(units * size * 100) / 100;
 }
 
-// 切成不可再分的排版单元：一个汉字是一个单元，一段连续的非空白拉丁字符是一个单元。
+// Split into unbreakable layout units: one Han character is a unit, a run of non-space Latin characters is a unit.
 function tokenize(str) {
   return String(str).match(/[⺀-鿿가-힯豈-﫿︰-﹏＀-￯　-〿]|[^\s⺀-鿿가-힯豈-﫿︰-﹏＀-￯　-〿]+|\s+/g) ?? [];
 }

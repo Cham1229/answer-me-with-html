@@ -1,5 +1,5 @@
-// 稿件解析：frontmatter → meta；`## ` 标题 → 面板（slot）；面板体 → markdown 块与围栏块。
-// 只做结构切分，不渲染。所有行号均为 1 起算的源文件行号，供错误提示与 STE lint 使用。
+// Draft parsing: frontmatter → meta; `## ` headings → panels (slots); panel bodies → markdown blocks and fenced blocks.
+// Structure splitting only, no rendering. All line numbers are 1-based source-file lines, for error messages and the STE lint.
 
 export class ParseError extends Error {
   constructor(message, line) {
@@ -16,7 +16,7 @@ export const CHOICES = Object.freeze({
   mode: ['auto', 'light', 'dark'],
 });
 
-// 命令行参数覆盖稿件与配置里的设置：校验取值，返回新的 meta，不改动原对象。值为 undefined 的键忽略。
+// Command-line arguments override draft and config settings: validates values, returns a new meta without changing the original. Keys with undefined values are ignored.
 export function applyOverrides(meta, overrides, choices = CHOICES) {
   const set = Object.entries(overrides).filter(([, v]) => v !== undefined);
   for (const [key, value] of set) {
@@ -27,7 +27,7 @@ export function applyOverrides(meta, overrides, choices = CHOICES) {
   return { ...meta, ...Object.fromEntries(set) };
 }
 
-// 视频旁白配音的可选值（config 的 voice 与 am video --voice 共用）。
+// Allowed voice-over values for video narration (shared by config voice and am video --voice).
 export const VOICES = Object.freeze(['auto', 'elevenlabs', 'local', 'system', 'off']);
 
 const DEFAULT_META = Object.freeze({
@@ -46,8 +46,8 @@ const ATTR_BLOCK = /\s*\{([^{}]*)\}\s*$/;
 const PANEL_ID = /^([A-Z][0-9]?)\s+(.+)$/;
 const ATTR_TOKEN = /([\w-]+)(?:=("[^"]*"|'[^']*'|\S+))?/g;
 
-// defaults：用户配置提供的默认值（如 theme / mode / style），稿件 frontmatter 显式写的值优先。
-// choices 可放宽个别键的取值范围（视频稿额外允许 theme: 3b1b）。
+// defaults: default values from the user config (e.g. theme / mode / style); values set explicitly in the draft frontmatter win.
+// choices can widen the allowed values of individual keys (video drafts also allow theme: 3b1b).
 export function parseDoc(source, { defaults = {}, choices = {} } = {}) {
   const lines = String(source).replace(/\r\n?/g, '\n').split('\n');
   const { meta, bodyStart } = parseFrontmatter(lines, { ...DEFAULT_META, ...defaults }, { ...CHOICES, ...choices });
@@ -185,7 +185,7 @@ function unquote(v) {
   return /^(["']).*\1$/.test(s) ? s.slice(1, -1) : s;
 }
 
-// 去掉未加引号的行尾 # 注释；引号内的 # 保留（title: "Issue #123"）。
+// Strip an unquoted trailing # comment; a # inside quotes is kept (title: "Issue #123").
 function stripLineComment(line) {
   let quote = '';
   for (let i = 0; i < line.length; i++) {

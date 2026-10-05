@@ -1,7 +1,7 @@
-// STE 受控写作检查（只约束稿件里的说明文字）。
-// 规则：句长、段长、非推荐词、英文被动语态、中文虚动词 / "的"字连用 / 套话。全部为警告，严格度由 style 决定。
-// 含假名的日文只查句长与段长：日文的"的"是后缀（基本的、具体的），不是中文的结构助词。
-// 跳过：代码与行内代码、~~删除线~~（反例展示）、含 no 状态的表格行、标题、除 callout 外的组件。
+// STE controlled-writing check (only constrains the explanatory text in drafts).
+// Rules: sentence length, paragraph length, non-approved words, English passive voice, Chinese light verbs / `的` chains / clichés. All are warnings; strictness comes from style.
+// Japanese with kana gets only the sentence and paragraph length checks: Japanese `的` is a suffix (`基本的`, `具体的`), not the Chinese structural particle.
+// Skipped: code and inline code, ~~strikethrough~~ (counter-examples), table rows with a no status, headings, components other than callout.
 
 import { EN_WORDS } from './wordlist.en.js';
 import { ZH_LIGHT_VERBS, ZH_CLICHES } from './wordlist.zh.js';
@@ -91,7 +91,7 @@ function lintMarkdown(text, startLine, out) {
   flush();
 }
 
-// 检查一段文字（列表项 / 单元格 / 段落中的一行），返回句子数。
+// Check one piece of text (a list item / cell / one paragraph line); returns the sentence count.
 function checkUnit(text, line, kind, out) {
   const sentences = splitSentences(text);
   const ja = isJapanese(text);

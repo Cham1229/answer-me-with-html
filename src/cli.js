@@ -1,4 +1,4 @@
-// am CLI：render / patch / lint / list / help。main() 接收注入的流与环境变量，方便测试。
+// am CLI: render / patch / lint / list / help. main() takes injected streams and environment variables, for testing.
 
 import { parseArgs } from 'node:util';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -199,7 +199,7 @@ async function readStream(stream) {
   return Buffer.concat(chunks).toString('utf8');
 }
 
-// 是否自动打开：--open 强制打开 > --no-open > AM_NO_OPEN（非 0）> CI 环境 > 配置 open。
+// Whether to open automatically: --open forces it > --no-open > AM_NO_OPEN (not 0) > CI environment > config open.
 export function shouldOpen(opts, env, config) {
   if (opts.open) return true;
   if (opts['no-open']) return false;
@@ -280,8 +280,8 @@ async function cmdPatch(htmlArg, fromArg, opts, ctx) {
   }
   const config = loadConfig(ctx);
   const { theme, mode, style } = config.values;
-  // 沿用原页面的模板、主题、明暗与 STE 严格度（生成时可能用过 --theme / --style 等参数）；本次命令行参数优先。
-  // 视频页必须走 renderVideo，不能交给 renderDoc。
+  // Keep the original page's template, theme, mode and STE strictness (it may have been made with --theme / --style etc.); this command's arguments win.
+  // Video pages must go through renderVideo, not renderDoc.
   const overrides = {
     template: video ? undefined : (opts.template ?? page.template),
     theme: opts.theme ?? page.theme,
@@ -291,11 +291,11 @@ async function cmdPatch(htmlArg, fromArg, opts, ctx) {
   let result;
   try {
     if (video) {
-      // 有配音的页面沿用原来的配音方式（data-voice，旧页面没有时用配置）；--voice off 出的无声视频保持无声。
-      // 用户显式传 --voice 时以它为准。
+      // A voiced page keeps its original voice (data-voice; config when an old page has none); a silent video made with --voice off stays silent.
+      // An explicit --voice from the user wins.
       const voice = opts.voice ?? (page.voiced ? page.voice ?? config.values.voice : 'off');
       if (!validVoice(voice, fail)) return 2;
-      // 视频页同样沿用原页面的主题、明暗与 STE 严格度（例如 3b1b / --style off），本次命令行参数优先。
+      // Video pages also keep the original page's theme, mode and STE strictness (e.g. 3b1b / --style off); this command's arguments win.
       result = await buildVideo(patched, voice, { ...opts, theme: overrides.theme, mode: overrides.mode, style: overrides.style }, config, ctx);
     } else {
       result = renderDoc(patched, overrides, { theme, mode, style });
@@ -368,13 +368,13 @@ function loadConfig({ fail, env }) {
   return config;
 }
 
-// 输出路径：-o 指定时用该路径，否则放进数据目录的 pages/ 或 videos/。io.now 可注入时钟。
+// Output path: the -o path when given, otherwise pages/ or videos/ in the data directory. io.now can inject a clock.
 function outputPath(dir, title, opts, { env, io }) {
   if (opts.out) return resolve(io.cwd ?? process.cwd(), opts.out);
   return join(amHome(env), dir, `${slug(title)}-${stamp(new Date(io.now?.() ?? Date.now()))}.html`);
 }
 
-// 写出页面，打印路径、一行摘要（note 接在摘要后）和写作警告。render / video / patch 共用。
+// Write the page, print the path, a one-line summary (note follows the summary) and writing warnings. Shared by render / video / patch.
 function emit(result, file, { print }, note = '') {
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, result.html);
@@ -395,14 +395,14 @@ function summaryLine(result) {
 // "1 file", "2 files".
 const count = (n, noun) => `${n} ${noun}${n === 1 ? '' : 's'}`;
 
-// 渲染成功后的收尾：打印维护提示，按配置打开浏览器。io.open 可注入打开方式。
+// Wrap-up after a successful render: print maintenance notices, open the browser per config. io.open can inject the opener.
 function finish(file, opts, config, ctx) {
   printHints(config, ctx);
   if (shouldOpen(opts, ctx.env, config.values)) (ctx.io.open ?? openFile)(file);
   return 0;
 }
 
-// 渲染成功后附带的提示（清理、更新），给 Agent 看，由 Agent 询问用户。
+// Notices attached after a successful render (cleanup, update), for the Agent, which asks the user.
 function printHints(config, { env, io, print }) {
   try {
     const hints = afterRender({
@@ -411,7 +411,7 @@ function printHints(config, { env, io, print }) {
     });
     hints.forEach((h) => print(h));
   } catch {
-    // 维护提示出错不影响渲染结果。
+    // A maintenance-notice error does not affect the render result.
   }
 }
 
@@ -561,6 +561,6 @@ function openFile(file) {
   try {
     spawn(cmd, args, { detached: true, stdio: 'ignore' }).on('error', () => {}).unref();
   } catch {
-    // 打不开浏览器不影响产物，路径已打印。
+    // Failing to open the browser does not affect the output; the path is already printed.
   }
 }

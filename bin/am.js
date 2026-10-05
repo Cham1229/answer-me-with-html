@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { main } from '../src/cli.js';
 
-// background：允许在后台检查新版本（测试里直接调用 main 时不会触发）。
+// background: allow the background check for a new version (not triggered when tests call main directly).
 main(process.argv.slice(2), { background: true, scriptPath: process.argv[1] }).then(
   (code) => { process.exitCode = code; },
   (err) => {

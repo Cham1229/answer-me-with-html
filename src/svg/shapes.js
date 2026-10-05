@@ -1,11 +1,11 @@
-// SVG 片段生成的共用工具：数值格式化、平滑折线、箭头 marker、多行文字。
+// Shared helpers for SVG fragments: number formatting, smooth polylines, arrow markers, multi-line text.
 import { esc } from './text.js';
 
 export const f = (n) => String(Math.round(n * 10) / 10);
 
 const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
 
-// 经过各折点中点的二次曲线：首尾为直线段，拐角处平滑。
+// Quadratic curves through the midpoints of each bend: straight segments at both ends, smooth corners.
 export function smoothPath(points) {
   const [first, ...rest] = points;
   if (rest.length === 1) return `M${f(first.x)},${f(first.y)} L${f(rest[0].x)},${f(rest[0].y)}`;
@@ -25,7 +25,7 @@ export function arrowDefs(uid) {
   return `<defs><marker id="${uid}-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs>`;
 }
 
-// 以 (cx, cy) 为中心垂直居中排多行文字。
+// Lay out multi-line text vertically centred on (cx, cy).
 export function textLines(lines, cx, cy, lineHeight, attrs = '') {
   const top = cy - ((lines.length - 1) * lineHeight) / 2;
   return lines

@@ -1,11 +1,11 @@
-// 主题 = 一组 CSS 变量。组件样式（base.css）只引用变量，因此切换主题只需切换 data-theme。
-// 每个主题提供 light / dark 两套取值；auto 模式跟随系统 prefers-color-scheme。
+// Theme = a set of CSS variables. Component styles (base.css) reference only variables, so switching themes only switches data-theme.
+// Each theme provides light / dark values; auto mode follows the system prefers-color-scheme.
 
 import { BASE_CSS } from '../assets.js';
 
 const SANS = '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif';
 const MONO = 'ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace';
-// 日文页面：日文字体排在中文字体前面。点名的中文字体会盖过 lang="ja"，汉字会用中文字形（直、込）。
+// Japanese pages: Japanese fonts come before Chinese fonts. A named Chinese font overrides lang="ja", and Han characters would use Chinese glyphs (`直`, `込`).
 const JA_SANS = '-apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif';
 const JA_SERIF = '"CMU Serif", "Latin Modern Roman", "Iowan Old Style", "Palatino", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif';
 
@@ -64,8 +64,8 @@ export function themeCss() {
   }).join('\n\n') + `\n\n${JA_FONT_CSS}`;
 }
 
-// [data-theme][data-mode] 让选择器比各主题（含视频的 3b1b）更具体，放在哪里都能生效。
-// 只有 3b1b 的视频标题用衬线体，其余主题的标题跟随 --head-font，所以衬线只覆盖 3b1b。
+// [data-theme][data-mode] makes the selector more specific than every theme (including video's 3b1b), so it works wherever it is placed.
+// Only 3b1b video titles use a serif; other themes' titles follow --head-font, so the serif overrides only 3b1b.
 const JA_FONT_CSS = [
   block('html[lang="ja"][data-theme][data-mode]', { '--font-sans': JA_SANS }),
   block('html[lang="ja"][data-theme="3b1b"][data-mode]', { '--v-title-font': JA_SERIF }),

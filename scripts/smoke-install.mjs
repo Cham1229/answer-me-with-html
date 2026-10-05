@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// 真实安装冒烟测试（CI 的 install 任务调用，需要联网）：
-// 1. npx skills add <仓库> -l 能识别出 skill（YAML 头坏掉时这里会失败，见 PR #2）；
-// 2. 用临时 HOME 真正安装一次，再用装好的 am.mjs 出一页；
-// 3. claude plugin validate 校验插件市场与高频插件的清单。
+// Real-install smoke test (called by the CI install job, needs network):
+// 1. npx skills add <repo> -l recognizes the skill (fails here when the YAML header is broken, see PR #2);
+// 2. install once for real with a temporary HOME, then render a page with the installed am.mjs;
+// 3. claude plugin validate checks the manifests of the marketplace and the always-on plugin.
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, readdirSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -32,21 +32,21 @@ function find(dir, name) {
 try {
   step('npx skills add -l');
   const list = strip(sh('npx', ['-y', 'skills@latest', 'add', ROOT, '-l']));
-  // 只认关键信号，不依赖完整文案：出现跳过 / 解析错误即失败，且列表里要有 skill 名。
+  // Check only key signals, not the full wording: a skip / parse error fails, and the list must contain the skill name.
   if (/Skipped|parse error|No (valid )?skills found/i.test(list) || !/answer-me-with-html/.test(list)) {
-    throw new Error(`skills CLI 没有识别出 skill：\n${list}`);
+    throw new Error(`skills CLI did not recognize the skill:\n${list}`);
   }
-  process.stdout.write('✓ skills CLI 识别出 answer-me-with-html\n');
+  process.stdout.write('✓ skills CLI recognizes answer-me-with-html\n');
 
-  step('npx skills add -g（临时 HOME）');
+  step('npx skills add -g (temporary HOME)');
   sh('npx', ['-y', 'skills@latest', 'add', ROOT, '-g', '-a', 'claude-code', '-y', '--copy']);
   const installed = find(join(home, '.claude'), 'am.mjs');
-  if (!installed) throw new Error('安装后没有找到 am.mjs');
+  if (!installed) throw new Error('am.mjs not found after install');
   const out = sh(process.execPath, [installed, 'render', '-', '--no-open'], { input: '## A 标题\n```flow\nA -> B\n```\n' });
-  if (!/^✓ /m.test(out)) throw new Error(`装好的 am.mjs 无法出页面：\n${out}`);
-  process.stdout.write(`✓ ${installed} 可以出页面\n`);
+  if (!/^✓ /m.test(out)) throw new Error(`the installed am.mjs cannot render a page:\n${out}`);
+  process.stdout.write(`✓ ${installed} can render a page\n`);
 
-  step('claude plugin install（隔离的配置目录）');
+  step('claude plugin install (isolated config directory)');
   const cfg = join(home, '.claude-config');
   const claude = (...args) => sh('npx', ['-y', '@anthropic-ai/claude-code@latest', 'plugin', ...args], { env: { ...env, CLAUDE_CONFIG_DIR: cfg } });
   claude('marketplace', 'add', ROOT);
@@ -54,23 +54,23 @@ try {
   claude('install', 'answer-me-with-html-always@answer-me-with-html');
   const cache = join(cfg, 'plugins', 'cache', 'answer-me-with-html');
   const pluginAm = find(join(cache, 'answer-me-with-html'), 'am.mjs');
-  if (!pluginAm) throw new Error('插件安装后没有找到 am.mjs');
+  if (!pluginAm) throw new Error('am.mjs not found after plugin install');
   const out2 = sh(process.execPath, [pluginAm, 'render', '-', '--no-open'], { input: '## A 标题\n文字\n' });
-  if (!/^✓ /m.test(out2)) throw new Error(`插件里的 am.mjs 无法出页面：\n${out2}`);
+  if (!/^✓ /m.test(out2)) throw new Error(`the plugin's am.mjs cannot render a page:\n${out2}`);
   const hook = find(join(cache, 'answer-me-with-html-always'), 'remind.mjs');
-  if (!hook) throw new Error('高频插件安装后没有找到 hook 脚本');
+  if (!hook) throw new Error('hook script not found after installing the always-on plugin');
   const reminder = JSON.parse(sh(process.execPath, [hook], { input: '{}' }));
   if (!/answer-me-with-html always-on/.test(reminder.hookSpecificOutput?.additionalContext ?? '')) {
-    throw new Error(`高频插件的 hook 输出不对：${JSON.stringify(reminder)}`);
+    throw new Error(`unexpected hook output from the always-on plugin: ${JSON.stringify(reminder)}`);
   }
-  process.stdout.write('✓ 两个插件都能安装；插件里的 am.mjs 能出页面，hook 输出提醒\n');
+  process.stdout.write('✓ both plugins install; the plugin\'s am.mjs renders a page and the hook prints the reminder\n');
 
   step('claude plugin validate');
   for (const target of [ROOT, join(ROOT, 'plugins/answer-me-with-html-always')]) {
-    // 校验失败时 claude 以非零退出码结束，execFileSync 会直接抛错；不再匹配输出文案。
+    // On a validation failure claude exits non-zero and execFileSync throws; output wording is no longer matched.
     sh('npx', ['-y', '@anthropic-ai/claude-code@latest', 'plugin', 'validate', target]);
   }
-  process.stdout.write('✓ 插件市场与插件清单校验通过\n');
+  process.stdout.write('✓ marketplace and plugin manifests pass validation\n');
 } catch (e) {
   process.stderr.write(`✗ ${e.stderr ? strip(String(e.stderr)) : ''}${e.message}\n`);
   process.exitCode = 1;

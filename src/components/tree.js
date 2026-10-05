@@ -1,4 +1,4 @@
-// 结构树（配图 A）：缩进表达层级。单根且 2~4 个子节点时画成组织图，其余情况画成带连线的缩进列表。
+// Structure tree (figure A): indentation shows hierarchy. A single root with 2–4 children draws an org chart; otherwise an indented list with connectors.
 import { mdInline } from '../markdown.js';
 import { ComponentError, fields } from './error.js';
 import { esc } from '../svg/text.js';
@@ -54,10 +54,10 @@ function parseLabel(t) {
   return { label, sub, hi };
 }
 
-// 标签以行内代码开头且后面还有文字时（如 `Section 1` Words），代码部分作为灰色编号标签。
+// When a label starts with inline code followed by text (e.g. `Section 1` Words), the code part becomes a grey number tag.
 const labelHtml = (label) => mdInline(label).replace(/^<code>([^<]*)<\/code>(?=\s*\S)/, '<span class="am-tree-tag">$1</span>');
 
-// data-key / data-step 供视频模式使用：同名节点跨场景变形，按源码行逐步出现。
+// data-key / data-step are for video mode: same-named nodes morph across scenes, appearing step by step by source line.
 const vattrs = (n) => ` data-key="${esc(n.label)}" data-step="${n.step}"`;
 
 const boxInner = (n) => `${labelHtml(n.label)}${n.sub ? `<small>${mdInline(n.sub)}</small>` : ''}`;

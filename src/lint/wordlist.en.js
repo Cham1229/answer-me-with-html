@@ -1,4 +1,4 @@
-// 英文非推荐词 → 推荐写法（取自 ASD-STE100 的精神：用短、常见、一词一义的词）。
+// English non-approved words → approved wording (in the spirit of ASD-STE100: short, common words with one meaning each).
 export const EN_WORDS = Object.freeze({
   'utilize': 'use', 'utilise': 'use', 'utilization': 'use', 'commence': 'start', 'commenced': 'started',
   'prior to': 'before', 'in order to': 'to', 'approximately': 'about', 'ensure': 'make sure',
