@@ -21,7 +21,8 @@ const PHONE = 390;
 const A4_PORTRAIT = 794; // CSS px: A4 at 96 dpi, before margins
 const BAND_RATIO = 1.25; // diagrams on one page differ in scale by at most this (see BAND_RATIO in src/runtime/layout-plan.js)
 const SCALE_TOLERANCE = 0.03; // the browser rounds widths to whole pixels
-const BUDGET_MS = 1000; // generous: a laid-out page takes well under 300 ms on a developer laptop
+const BUDGET_MS = 1000; // generous: a re-layout takes well under 300 ms on a developer laptop
+const RESIZE_DELAY_MS = 150; // the page script waits this long after the last resize before it lays out (RESIZE_DELAY in layout-dom.js)
 
 const filler = (id, n) => `## ${id} 说明${n}\n这一段是普通文字，用来和其他面板排成一行，长度适中，换行后大约占四五行。这一段是普通文字，用来和其他面板排成一行。\n`;
 const fillerEn = (id, n) => `## ${id} Note ${n}\nThis panel is plain text. It sits in a row with other panels and wraps to a few lines. It is here to give the planner something to balance.\n`;
@@ -135,10 +136,78 @@ ${fillerEn('F', 2)}
 ${fillerEn('G', 3)}`,
 };
 
+// Drafts where the server pads or widens a panel's span (row filling, wide tables and diagrams): the padding is no hint from the author,
+// so these panels must share rows instead of each taking a whole row.
+const PADDED = {
+  'padded-text.zh': `---
+title: 四个短面板
+cols: 3
+---
+${filler('A', 1)}
+${filler('B', 2)}
+${filler('C', 3)}
+${filler('D', 4)}`,
+  'padded-table.zh': `---
+title: 短面板加宽表
+cols: 3
+---
+## A 说明
+这一段是普通文字，用来和宽表排在同一行。
+
+## B 对比
+| 方案 | 做法 | 场景 | 成本 | 风险 |
+|---|---|---|---|---|
+| 拆分 | 拆成小任务 | 人多 | 中 | 低 |
+| 集成 | 每次提交构建 | 变动多 | 低 | 低 |`,
+  'padded-diagram.en': `---
+title: Short panel and a flow diagram
+cols: 3
+lang: en
+---
+## A Note
+This panel is plain text. It shares a row with the diagram.
+
+## B Pipeline
+\`\`\`flow LR
+(Idea) -> spec: write it
+spec -> tickets: split it
+tickets -> code: build it
+\`\`\``,
+};
+
+// A page whose grid gets narrower once it is laid out (a stand-in for a scrollbar that appears with the new row heights), so the width
+// the layout was planned for never holds. And a page with an image inside the grid, whose late load changes panel heights.
+const UNSTABLE = {
+  'unstable.en': `---
+title: Unstable width
+cols: 3
+lang: en
+---
+${fillerEn('A', 1)}
+${fillerEn('B', 2)}
+## C Style
+\`\`\`html
+<style>.am-grid[style*="display: flex"] { max-width: 900px; }</style>
+<img alt="dot" width="20" height="20" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20'/%3E%3C/svg%3E">
+\`\`\``,
+  'image.en': `---
+title: Image in a panel
+cols: 3
+lang: en
+---
+${fillerEn('A', 1)}
+${fillerEn('B', 2)}
+## C Image
+\`\`\`html
+<img alt="dot" width="20" height="20" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20'/%3E%3C/svg%3E">
+\`\`\``,
+};
+
 // Everything the checks need, read in the page in one call. A "row" is the set of grid children with the same top edge.
 const MEASURE = `(() => {
   const grid = document.querySelector('.am-grid');
   const box = (e) => e.getBoundingClientRect();
+  const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
   const rows = [];
   for (const el of grid.children) {
     const r = box(el);
@@ -164,7 +233,7 @@ const MEASURE = `(() => {
   }).filter(Boolean);
   return {
     display: getComputedStyle(grid).display,
-    gap: parseFloat(getComputedStyle(grid).columnGap) || 0,
+    gap,
     width: grid.clientWidth,
     rows,
     clipped,
@@ -175,16 +244,18 @@ const MEASURE = `(() => {
     gridLeft: gridBox.left,
     diagramScales,
     gridOverflow: grid.scrollWidth - grid.clientWidth,
-    printed: performance.getEntriesByName('am-print').length,
-    layouts: performance.getEntriesByName('am-layout').map((m) => m.duration),
+    // The justified layout is in place and fits the current container: every row adds up to the grid's width.
+    settled: getComputedStyle(grid).display === 'flex' && rows.every((row) => Math.abs(row.items.reduce((sum, it) => sum + it.width, 0) + gap * (row.items.length - 1) - grid.clientWidth) <= 1),
   };
 })()`;
+const SETTLED = `(${MEASURE}).settled`;
 
 let tmp;
 let chrome;
 let cdp;
 let session;
 const pages = [];
+const special = {}; // drafts for the tests that need a page of their own, by name
 
 const page = (method, params) => cdp.send(method, params, session);
 const evaluate = async (expression) => {
@@ -226,12 +297,17 @@ before(() => {
     .filter((f) => f.endsWith('.md') && !f.startsWith('video-') && !/^template: doc/m.test(readFileSync(join(ROOT, 'examples', f), 'utf8')))
     .map((f) => render(join(ROOT, 'examples', f), f.replace(/\.md$/, '')));
   mkdirSync(join(tmp, 'drafts'));
-  const stress = Object.entries(STRESS).map(([name, text]) => {
+  const stress = Object.entries({ ...STRESS, ...PADDED }).map(([name, text]) => {
     const src = join(tmp, 'drafts', `${name}.md`);
     writeFileSync(src, text);
     return render(src, name);
   });
   pages.push(...examples, ...stress);
+  for (const [name, text] of Object.entries(UNSTABLE)) {
+    const src = join(tmp, 'drafts', `${name}.md`);
+    writeFileSync(src, text);
+    special[name] = render(src, name);
+  }
 });
 
 const launch = async () => {
@@ -262,7 +338,6 @@ after(async () => {
 // The laid-out page, as a reader sees it, must keep these invariants at any width above the single-column breakpoint.
 function assertJustified(name, width, m, ids) {
   const where = `${name} @${width}px`;
-  assert.equal(m.layouts.length >= 1, true, `${where}: the page script laid the page out`);
   assert.equal(m.display, 'flex', `${where}: the grid is a flex container`);
   assert.deepEqual(m.order, ids, `${where}: panel order is unchanged`);
   assert.ok(m.rows.length >= 1);
@@ -285,18 +360,41 @@ function assertScaleBand(where, m) {
   assert.ok(ratio <= BAND_RATIO + SCALE_TOLERANCE, `${where}: diagram scales ${scales.map((x) => x.toFixed(2)).join(', ')} differ by ${ratio.toFixed(2)}x (limit ${BAND_RATIO}x)`);
 }
 
-test('e2e: sheet pages lay out as justified rows at 1440 px, and the layout finishes within budget', { skip: SKIP, timeout: 180000 }, async () => {
+test('e2e: sheet pages lay out as justified rows at 1440 px, and a re-layout after a resize finishes within budget', { skip: SKIP, timeout: 180000 }, async () => {
   await launch();
   assert.ok(pages.length >= 6, 'examples and stress drafts rendered');
   for (const p of pages) {
     await open(p.file, DESKTOP);
-    await waitFor('performance.getEntriesByName("am-layout").length > 0', `${p.name} to lay out`).catch(() => {});
+    await waitFor(SETTLED, `${p.name} to lay out`);
     const m = await measure();
     assertJustified(p.name, DESKTOP, m, p.ids);
-    const slowest = Math.max(...m.layouts);
-    assert.ok(slowest < BUDGET_MS, `${p.name}: layout took ${Math.round(slowest)} ms (budget ${BUDGET_MS} ms)`);
-    console.log(`  layout ${p.name}: ${Math.round(slowest)} ms, ${m.rows.length} rows, ${m.order.length} panels`);
+    // Time a forced resize: the script waits for the resize to settle, then plans and applies the new layout.
+    const t0 = Date.now();
+    await setWidth(DESKTOP - 120);
+    await waitFor(`document.querySelector('.am-grid').clientWidth !== ${m.width} && ${SETTLED}`, `${p.name} to re-lay out`);
+    const took = Date.now() - t0 - RESIZE_DELAY_MS;
+    assertJustified(p.name, DESKTOP - 120, await measure(), p.ids);
+    assert.ok(took < BUDGET_MS, `${p.name}: re-layout took about ${took} ms (budget ${BUDGET_MS} ms)`);
+    console.log(`  re-layout ${p.name}: about ${took} ms, ${m.rows.length} rows, ${m.order.length} panels`);
   }
+});
+
+// Panels that sit alone in a row are only right when the author asked for it (these drafts have no span).
+const itemsPerRow = (m) => m.rows.map((r) => r.items.length);
+
+test('e2e: panels padded by the server share rows: four short panels, a short panel with a wide table or a diagram', { skip: SKIP, timeout: 120000 }, async () => {
+  if (!cdp) await launch();
+  const cases = [['padded-text.zh', DESKTOP], ['padded-table.zh', DESKTOP], ['padded-diagram.en', DESKTOP], ['padded-diagram.en', TABLET]];
+  const alone = [];
+  for (const [name, width] of cases) {
+    const p = pages.find((x) => x.name === name);
+    await open(p.file, width);
+    await waitFor("document.querySelector('.am-grid').style.display === 'flex'", `${name} to lay out`);
+    const m = await measure();
+    assertJustified(name, width, m, p.ids);
+    if (!itemsPerRow(m).every((n) => n >= 2)) alone.push(`${name} @${width}px: panels per row ${itemsPerRow(m).join(', ')} (widths ${m.panelWidths.map(Math.round).join(', ')})`);
+  }
+  assert.deepEqual(alone, [], 'every row has at least two panels');
 });
 
 test('e2e: resizing re-lays out the page, and a phone width restores one column', { skip: SKIP, timeout: 120000 }, async () => {
@@ -305,12 +403,12 @@ test('e2e: resizing re-lays out the page, and a phone width restores one column'
     const p = pages.find((x) => x.name === name);
     assert.ok(p, `${name} page`);
     await open(p.file, DESKTOP);
-    await waitFor('performance.getEntriesByName("am-layout").length > 0', `${name} to lay out`).catch(() => {});
+    await waitFor(SETTLED, `${name} to lay out`);
     const wide = await measure();
     assertJustified(name, DESKTOP, wide, p.ids);
 
     await setWidth(TABLET);
-    await waitFor(`document.querySelector('.am-grid').clientWidth !== ${wide.width} && document.querySelector('.am-grid').style.display === 'flex' && performance.getEntriesByName('am-layout').length > ${wide.layouts.length}`, `${name} to re-lay out at ${TABLET}px`);
+    await waitFor(`document.querySelector('.am-grid').clientWidth !== ${wide.width} && ${SETTLED}`, `${name} to re-lay out at ${TABLET}px`);
     const tablet = await measure();
     assertJustified(name, TABLET, tablet, p.ids);
 
@@ -345,7 +443,7 @@ test('e2e: printing restores the plain grid with complete panels, and screen lay
   if (!cdp) await launch();
   for (const p of pages) {
     await open(p.file, DESKTOP);
-    await waitFor('performance.getEntriesByName("am-layout").length > 0', `${p.name} to lay out`).catch(() => {});
+    await waitFor(SETTLED, `${p.name} to lay out`);
     assertJustified(p.name, DESKTOP, await measure(), p.ids);
 
     await page('Emulation.setEmulatedMedia', { media: 'print' });
@@ -363,12 +461,105 @@ test('e2e: printing restores the plain grid with complete panels, and screen lay
   for (const name of ['tcp', 'wide-table.zh', 'narrow-diagrams.en']) {
     const p = pages.find((x) => x.name === name);
     await open(p.file, DESKTOP);
-    await waitFor('performance.getEntriesByName("am-layout").length > 0', `${name} to lay out`).catch(() => {});
+    await waitFor(SETTLED, `${name} to lay out`);
+    // This listener is added after the page script's own, so it runs after it: it records what the script left for the printer.
+    await evaluate("window.__gridAtBeforePrint = []; addEventListener('beforeprint', () => window.__gridAtBeforePrint.push(getComputedStyle(document.querySelector('.am-grid')).display))");
     const { data } = await page('Page.printToPDF', { paperWidth: 8.27, paperHeight: 11.69, marginTop: 0.4, marginBottom: 0.4, marginLeft: 0.4, marginRight: 0.4, printBackground: true });
     assert.equal(Buffer.from(data, 'base64').subarray(0, 5).toString(), '%PDF-', `${name}: Chrome produced a PDF`);
-    assert.ok(await evaluate('performance.getEntriesByName("am-print").length > 0'), `${name}: the page script handled printing`);
+    assert.deepEqual(await evaluate('window.__gridAtBeforePrint'), ['grid'], `${name}: the page script had restored the grid when printing began`);
     await waitFor("document.querySelector('.am-grid').style.display === 'flex'", `${name} to lay out again after printing`);
     assertJustified(name, DESKTOP, await measure(), p.ids);
+  }
+});
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const nColumns = "getComputedStyle(document.querySelector('.am-grid')).gridTemplateColumns.split(' ').length";
+const plainGrid = (where, m, columns) => {
+  assert.equal(m.display, 'grid', `${where}: the grid is the plain CSS grid`);
+  assert.equal(m.wrappers, 0, `${where}: no column wrappers`);
+  assert.equal(columns, 3, `${where}: three grid tracks`);
+};
+
+test('e2e: with JavaScript off the sheet keeps its CSS grid', { skip: SKIP, timeout: 60000 }, async () => {
+  if (!cdp) await launch();
+  await page('Emulation.setScriptExecutionDisabled', { value: true });
+  try {
+    for (const name of ['padded-text.zh', 'tcp']) {
+      const p = pages.find((x) => x.name === name);
+      await open(p.file, DESKTOP);
+      await sleep(300); // longer than the script's resize delay, in case anything still ran
+      const m = await measure();
+      plainGrid(`${name} (no JavaScript)`, m, await evaluate(nColumns));
+      // The server's row filling is what shows: the fourth short panel is padded to a full row.
+      if (name === 'padded-text.zh') assert.deepEqual(itemsPerRow(m), [3, 1], `${name}: the server's rows`);
+      assert.equal(await evaluate('document.querySelectorAll(".am-panel[style*=width], .am-panel[style*=flex]").length'), 0, `${name}: no widths from the layout script`);
+      assert.deepEqual(m.order, p.ids, `${name}: panel order`);
+    }
+  } finally {
+    await page('Emulation.setScriptExecutionDisabled', { value: false });
+  }
+});
+
+test('e2e: a late resize or media change cannot lay the page out again between beforeprint and afterprint', { skip: SKIP, timeout: 60000 }, async () => {
+  if (!cdp) await launch();
+  const p = pages.find((x) => x.name === 'tcp');
+  await open(p.file, DESKTOP);
+  await waitFor(SETTLED, 'tcp to lay out');
+  await evaluate("window.dispatchEvent(new Event('beforeprint'))");
+  assert.equal((await measure()).display, 'grid', 'beforeprint restores the grid at once');
+  await setWidth(DESKTOP - 140); // a late resize: the debounced layout fires while the print layout is meant to stand
+  await sleep(RESIZE_DELAY_MS * 3);
+  const during = await measure();
+  assert.equal(during.display, 'grid', 'the grid is still plain after the late resize');
+  assert.equal(during.wrappers, 0, 'no column wrappers appeared');
+  assert.equal(await evaluate('document.querySelectorAll(".am-panel[style*=width]").length'), 0, 'no flex widths were applied');
+  await evaluate("window.dispatchEvent(new Event('afterprint'))");
+  await waitFor(`${SETTLED}`, 'the screen layout to come back after afterprint');
+  assertJustified('tcp', DESKTOP - 140, await measure(), p.ids);
+});
+
+test('e2e: when the width keeps changing under the layout, the page falls back to the grid instead of oversized columns', { skip: SKIP, timeout: 60000 }, async () => {
+  if (!cdp) await launch();
+  const p = special['unstable.en'];
+  await open(p.file, DESKTOP);
+  await sleep(RESIZE_DELAY_MS * 2);
+  plainGrid('unstable.en', await measure(), await evaluate(nColumns));
+  assert.equal(await evaluate('document.querySelectorAll(".am-panel[style*=width], .am-panel[style*=flex]").length'), 0, 'no widths from the layout script');
+});
+
+// Counts changes to the grid's attributes and children, which is what a layout pass does (it restores the markup first).
+const WATCH = `(() => {
+  window.__layoutPasses = 0;
+  new MutationObserver((records) => { window.__layoutPasses += records.length; }).observe(document.querySelector('.am-grid'), { attributes: true, childList: true });
+})()`;
+
+test('e2e: a late image load or a late font load lays the page out again', { skip: SKIP, timeout: 60000 }, async () => {
+  if (!cdp) await launch();
+  const p = special['image.en'];
+
+  await open(p.file, DESKTOP);
+  await waitFor(SETTLED, 'image.en to lay out');
+  await evaluate(WATCH);
+  await evaluate("document.querySelector('.am-grid img').dispatchEvent(new Event('load'))");
+  await sleep(RESIZE_DELAY_MS * 3);
+  assert.ok(await evaluate('window.__layoutPasses') > 0, 'an image load inside the grid scheduled a layout');
+  assert.ok(await evaluate(SETTLED), 'and the page is laid out again');
+
+  // The page waits for document.fonts.ready; hand it a promise the test settles later.
+  const { identifier } = await page('Page.addScriptToEvaluateOnNewDocument', { source: "Object.defineProperty(document.fonts, 'ready', { get: () => (window.__fonts ??= new Promise((r) => { window.__fontsDone = r; })) })" });
+  try {
+    await setWidth(DESKTOP);
+    const loaded = cdp.once('Page.loadEventFired');
+    await page('Page.navigate', { url: pathToFileURL(p.file).href });
+    await loaded;
+    await waitFor(SETTLED, 'image.en to lay out with fonts pending');
+    await evaluate(WATCH);
+    await evaluate('window.__fontsDone()');
+    await sleep(RESIZE_DELAY_MS * 3);
+    assert.ok(await evaluate('window.__layoutPasses') > 0, 'document.fonts.ready scheduled a layout');
+    assert.ok(await evaluate(SETTLED), 'and the page is laid out again');
+  } finally {
+    await page('Page.removeScriptToEvaluateOnNewDocument', { identifier });
   }
 });
 
@@ -380,6 +571,6 @@ test('e2e: doc pages have no sheet grid and stay untouched', { skip: SKIP, timeo
     env: { ...process.env, AM_NO_UPDATE_CHECK: '1', AM_HOME: join(tmp, 'home') }, stdio: 'pipe',
   });
   await open(join(tmp, 'doc.html'), DESKTOP);
-  assert.equal(await evaluate('performance.getEntriesByName("am-layout").length'), 0);
+  assert.equal(await evaluate('document.querySelector(".am-grid")'), null);
   assert.equal(await evaluate('document.querySelectorAll(".am-panel[style*=width]").length'), 0);
 });

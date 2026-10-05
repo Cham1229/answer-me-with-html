@@ -153,10 +153,19 @@ test('a diagram wider than the page can ever show it still gets a complete plan'
 test('the planner source can be inlined into a page script by dropping its export keyword', async () => {
   const { readFileSync } = await import('node:fs');
   const src = readFileSync(new URL('../src/runtime/layout-plan.js', import.meta.url), 'utf8');
-  assert.equal(src.match(/^export /gm).length, 1);
+  assert.deepEqual(src.match(/^export .*/gm).map((l) => l.match(/^export (?:const|function) (\w+)/)[1]), ['STEP', 'MAX_SCALE', 'MIN_SCALE', 'planLayout']);
   assert.ok(!/^import /m.test(src));
   const inlined = new Function(`${src.replace(/^export /gm, '')}\nreturn planLayout;`)();
   assert.deepEqual(inlined({ width: WIDTH, gap: GAP, cols: COLS, panels: MIXED }), plan(MIXED));
+});
+
+test('the DOM adapter takes the scale limits and the width step from the planner instead of repeating them', async () => {
+  const { readFileSync } = await import('node:fs');
+  const dom = readFileSync(new URL('../src/runtime/layout-dom.js', import.meta.url), 'utf8');
+  assert.ok(!/\b(1\.25|0\.75)\b/.test(dom.replace(/\/\/.*$/gm, '')), 'no copy of the scale limits');
+  assert.match(dom, /\bMAX_SCALE\b/);
+  assert.match(dom, /\bMIN_SCALE\b/);
+  assert.match(dom, /\bSTEP\b/);
 });
 
 test('planning a long page stays fast', () => {
@@ -165,6 +174,22 @@ test('planning a long page stays fast', () => {
   const result = plan(panels);
   assert.deepEqual(order(result), panels.map((_, i) => i));
   assert.ok(performance.now() - t0 < 1500, `took ${performance.now() - t0} ms`);
+});
+
+test('a page with cols: 12 plans at most six columns per row and stays fast', () => {
+  const panels = Array.from({ length: 24 }, (_, i) => (i % 5 === 1 ? diagram(360, 0.7) : text(40000 + (i % 4) * 15000)));
+  const t0 = performance.now();
+  const result = plan(panels, { cols: 12 });
+  const ms = performance.now() - t0;
+  assert.deepEqual(order(result), panels.map((_, i) => i));
+  assert.ok(Math.max(...result.rows.map((r) => r.columns.length)) <= 6, 'no row has more than six columns');
+  assert.ok(ms < 300, `planning 24 panels with cols: 12 took ${Math.round(ms)} ms`);
+});
+
+test('a span still means a share of cols when cols is above the planner cap', () => {
+  const result = plan([text(60000, { span: 12 }), text(60000), text(60000)], { cols: 12 });
+  assert.equal(result.rows[0].columns.length, 1, 'span >= cols keeps the panel alone in its row');
+  assert.deepEqual(result.rows[0].columns[0].panels, [0]);
 });
 
 test('the page script is page.js plus the planner and the DOM adapter, and it parses', async () => {

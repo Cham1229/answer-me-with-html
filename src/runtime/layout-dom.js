@@ -1,5 +1,5 @@
 // DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
-// (which defines planLayout) inside one function scope of the page script.
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
 //
 // It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
 // The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
@@ -12,7 +12,6 @@ if (panels.length > 1) {
   const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
   const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
   const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
-  const MIN_SCALE = 0.75; // diagrams shrink down to this
   const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
   const TABLE_COL_MIN = 96; // per table column, px
   const DIAGRAM_MIN = 160;
@@ -28,7 +27,9 @@ if (panels.length > 1) {
     for (const el of original.keys()) restoreStyle(el);
   };
 
-  const spanHint = (el) => Number((original.get(el) || '').match(/grid-column: span (\d+)/)?.[1] || 1);
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
   const diagramOnly = (el) => {
     const body = el.querySelector(':scope > .am-panel-body');
     return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
@@ -44,7 +45,7 @@ if (panels.length > 1) {
       el.style.boxSizing = 'border-box';
       for (const svg of el.querySelectorAll('.am-diagram > svg')) {
         svg.style.width = '100%';
-        svg.style.maxWidth = `${naturalWidth(svg) * 1.25}px`;
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
       }
     }
     const info = panels.map((el) => {
@@ -58,7 +59,7 @@ if (panels.length > 1) {
       const natural = svg ? naturalWidth(svg) : 0;
       const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
       const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34);
-      const from = Math.min(width, Math.floor(floor / 10) * 10);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
       const samples = [];
       let fits = null;
       for (let w = from; ; w += SAMPLE_STEP) {
@@ -72,7 +73,7 @@ if (panels.length > 1) {
       return {
         samples,
         minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
-        maxWidth: svg ? natural * 1.25 + pad : Infinity,
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
         natural,
         pad,
         span: spanHint(el),
@@ -128,11 +129,11 @@ if (panels.length > 1) {
   const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
 
   function justify() {
-    const t0 = performance.now();
+    if (printing || printQuery.matches) return;
     try {
-      if (printing.matches) return;
       // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
-      for (let pass = 0, planned = -1; pass < 3 && planned !== containerWidth(); pass++) {
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
         restore();
         if (matchMedia(SINGLE_COLUMN).matches) return;
         planned = containerWidth();
@@ -142,31 +143,41 @@ if (panels.length > 1) {
         apply(plan, gap);
         capDiagrams(plan.maxScale);
       }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
     } catch {
       restore();
-    } finally {
-      if (grid.style.display === 'flex') performance.measure('am-layout', { start: t0 });
     }
   }
 
   // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
   // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
-  const printing = matchMedia('print');
-  const enterPrint = () => {
-    clearTimeout(timer);
-    restore();
-    performance.mark('am-print');
-  };
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
   let timer = 0;
   const later = () => {
     clearTimeout(timer);
     timer = setTimeout(justify, RESIZE_DELAY);
   };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
   justify();
   addEventListener('resize', later);
-  addEventListener('beforeprint', enterPrint);
-  addEventListener('afterprint', later);
-  printing.addEventListener('change', (e) => (e.matches ? enterPrint() : later()));
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
   // Switching theme changes paddings and fonts, hence panel heights.
   document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
 }

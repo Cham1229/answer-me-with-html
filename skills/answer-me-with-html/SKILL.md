@@ -144,7 +144,7 @@ Table status words: ok / no / warn (may carry text: "ok approved") → ✓ / ✗
 Selection rules:
 - Conclusion first. The first panel or the lead gives the core answer; the following panels give the evidence.
 - One panel, one question. With more than 8 panels, split the page or cut panels.
-- `span` and `rows` are hints. In a browser the sheet sizes each panel to its content and fills every row, so write no `span` for a wide table or diagram. Write `span` only for a panel that must stand out (`span` = `cols` gives it a row of its own).
+- `span` is a hint. In a browser the sheet sizes each panel to its content and fills every row, so write no `span` for a wide table or diagram. Write `span` only for a panel that must stand out (`span` = `cols` gives it a row of its own). `rows` applies only to the plain grid (without JavaScript, in print and on narrow screens); the browser layout ignores it.
 - Do not invent data. Without real numbers, do not use limits; mark illustrative data as "illustrative" in the description.
 
 ## 5. STE controlled writing (the text in the draft)

@@ -1,14 +1,15 @@
 // Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
 //
-// This file must stay inlinable into the page script: top-level declarations only, no imports, and the only export is
-// `planLayout` (the page build strips the `export ` keyword; test/layout-plan.test.js checks that this still works).
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
 //
 // planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
 //
 // Input (all lengths in px):
 //   width   container width
 //   gap     space between columns, and between two panels stacked in one column
-//   cols    most columns in one row
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
 //   panels  one entry per panel, in reading order:
 //     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
 //     minWidth  narrowest feasible width (clamped to `width`)
@@ -32,10 +33,12 @@
 // If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
 // result is a single column: one panel per row at the full width.
 
-const STEP = 10;
-const MAX_SCALE = 1.25;
+export const STEP = 10;
+export const MAX_SCALE = 1.25;
+export const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
 const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
-const BAND_LOS = [0.75, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
 const SCALE_WEIGHT = 3;
 const PREF_WEIGHT = 0.15;
 
@@ -62,6 +65,8 @@ export function planLayout({ width, gap = 0, cols = 3, panels }) {
   const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
   if (!usable) return singleColumn(width, panels);
 
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
   const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
   // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
   // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
@@ -127,7 +132,7 @@ export function planLayout({ width, gap = 0, cols = 3, panels }) {
     if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
     let best = null;
     for (const split of splits(j - i + 1)) {
-      if (split.length > cols) continue;
+      if (split.length > maxColumns) continue;
       let next = i;
       const columns = split.map((size) => Array.from({ length: size }, () => next++));
       const r = bestColumns(columns);
@@ -136,7 +141,7 @@ export function planLayout({ width, gap = 0, cols = 3, panels }) {
     return best;
   }
 
-  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * cols panels. Null if nothing fits.
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
   function solve() {
     const n = panels.length;
     const total = Array(n + 1).fill(Infinity);
@@ -144,7 +149,7 @@ export function planLayout({ width, gap = 0, cols = 3, panels }) {
     const chosen = Array(n + 1).fill(null);
     total[0] = 0;
     for (let j = 1; j <= n; j++) {
-      for (let i = Math.max(0, j - 2 * cols); i < j; i++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
         if (total[i] === Infinity) continue;
         const r = bestRow(i, j - 1);
         if (r && total[i] + r.cost < total[j]) {
