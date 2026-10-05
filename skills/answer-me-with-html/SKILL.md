@@ -1,6 +1,6 @@
 ---
 name: answer-me-with-html
-argument-hint: "[config [键 值] | clean | update]"
+argument-hint: "[config [key value] | clean | update]"
 description: >-
   Renders a complex answer as a one-page visual HTML explainer: the model writes a short Markdown
   draft and the bundled CLI builds a single page (templates, SVG auto-layout, STE writing check).
@@ -15,183 +15,185 @@ description: >-
   commands to copy and run, pure code changes, or plain-text requests.
 ---
 
-# Answer me with HTML：用一页 HTML 回答复杂问题
+# Answer me with HTML: answer a complex question with one HTML page
 
-你只写**内容稿**（扩展 Markdown）。排版、配色、暗黑模式、图形坐标全部由 `am` CLI 完成。**不要手写 HTML / CSS / SVG。**
+You write only the **content draft** (extended Markdown). The `am` CLI does all layout, colours, dark mode and diagram coordinates. **Do not hand-write HTML / CSS / SVG.**
 
-## 0. 用户要改配置时
+Reply to the user, and write the draft, in the user's language.
 
-本次调用参数：`$ARGUMENTS`
+## 0. When the user wants to change settings
 
-参数以 `config` 开头时（如 `/answer-me-with-html config open off`），这一轮只处理配置，不出页面：
+Arguments for this call: `$ARGUMENTS`
 
-- `config`：运行 `am config` 显示当前配置，然后问用户想改哪一项。
-- `config <键> <值>`：运行 `am config set <键> <值>`。
-- `config reset [键]`：运行 `am config reset [键]`。
+When the arguments start with `config` (for example `/answer-me-with-html config open off`), this turn handles settings only and produces no page:
 
-用户用自然语言提出时（"别再自动弹浏览器了""关掉高频模式""默认用卡片主题"），同样换算成 `am config set`。可配置项：`open`（自动打开浏览器）、`always`（高频模式）、`theme`、`mode`、`style`、`voice`（视频配音）、`update_check`（新版本提示），运行 `am config` 可看全部说明。
+- `config`: run `am config` to show the current settings, then ask the user which one to change.
+- `config <key> <value>`: run `am config set <key> <value>`.
+- `config reset [key]`: run `am config reset [key]`.
 
-参数以 `clean` 开头，或用户说"清理一下页面 / 缓存"时：先运行 `am clean --dry-run`，把将删除的数量和大小告诉用户，用户同意后再运行 `am clean`（加 `--all` 删除全部页面和视频，`--days N` 改保留天数）。
+When the user asks in natural language ("stop opening the browser", "turn off always-on mode", "use the card theme by default"), also convert it to `am config set`. Settings: `open` (auto-open the browser), `always` (always-on mode), `theme`, `mode`, `style`, `voice` (video narration), `update_check` (new-version notices). Run `am config` to see all descriptions.
 
-参数以 `update` 开头，或用户说"更新一下这个 skill"时：按安装方式更新——`npx skills` 安装的运行 `npx skills update answer-me-with-html -y`；Claude Code 插件安装的运行 `claude plugin update answer-me-with-html@answer-me-with-html`（或请用户在 `/plugin` → Installed 点 Update now），再请用户 `/reload-plugins`；git clone 安装的在仓库目录 `git pull && npm install`。
+When the arguments start with `clean`, or the user asks to clean up pages / the cache: first run `am clean --dry-run` and tell the user how many items and how much space will be deleted. Run `am clean` only after the user agrees (add `--all` to delete all pages and videos, `--days N` to change how many days to keep).
 
-## 1. 判断：要不要出页面
+When the arguments start with `update`, or the user asks to update this skill: update according to how it was installed. Installed with `npx skills`: run `npx skills update answer-me-with-html -y`. Installed as a Claude Code plugin: run `claude plugin update answer-me-with-html@answer-me-with-html` (or ask the user to click Update now in `/plugin` → Installed), then ask the user to run `/reload-plugins`. Installed with git clone: run `git pull && npm install` in the repository directory.
 
-满足任一条就出页面：
-- 有 ≥3 个相互关联的概念，读者需要看到它们的关系。
-- 有流程、协议、调用链、状态迁移（尤其带分支或多个参与者）。
-- 有 ≥3 个维度的对比、方案取舍、"能 / 不能"清单。
-- 有层级结构或时间演进。
+## 1. Decide: produce a page or not
 
-不满足就用普通文字回答。拿不准时，问题越"要看图才懂"，越该出页面。
+Produce a page if any of these is true:
+- There are ≥3 interrelated concepts, and the reader needs to see how they relate.
+- There is a flow, protocol, call chain or state transition (especially with branches or several actors).
+- There is a comparison across ≥3 dimensions, a trade-off between options, or a "can / cannot" list.
+- There is a hierarchy or an evolution over time.
 
-### 高频模式
+Otherwise answer in plain text. When unsure: the more the question "needs a picture to understand", the more it calls for a page.
 
-如果上下文里出现 `[answer-me-with-html always-on]` 提醒（用户装了 answer-me-with-html-always 插件，或在规则文件里开启了高频模式），门槛放低：
+### Always-on mode
 
-- 只要这一轮给出了结论、总结、方案、对比、评审或讲解，就附一页。
-- 不要因为"答案不长"就跳过。有结论就出页。
-- 日常结论用 2～4 个面板的小页面：一个 callout 放结论，再配一张表或一张图。不要为了凑数加面板。
-- 渲染时加 `--no-open`，不要弹浏览器打断用户。用户点回复末尾的路径就能打开。
-- 终端里照常先给文字结论，最后一行附页面路径。
-- 闲聊、没有结论的一两句话、纯命令输出、用户要求纯文本时不出页面。
+If the context contains the `[answer-me-with-html always-on]` reminder (the user installed the answer-me-with-html-always plugin, or turned on always-on mode in a rules file), the bar is lower:
 
-## 2. 工作流（一次 Bash 调用）
+- Whenever this turn gives a conclusion, summary, plan, comparison, review or explanation, attach a page.
+- Do not skip it because "the answer is short". If there is a conclusion, produce a page.
+- For everyday conclusions use a small page with 2–4 panels: one callout with the conclusion, plus one table or one diagram. Do not add panels just to fill space.
+- Render with `--no-open`, so no browser window interrupts the user. The user opens the page by clicking the path at the end of the reply.
+- In the terminal, give the text conclusion first as usual, and put the page path on the last line.
+- Produce no page for small talk, one or two sentences with no conclusion, pure command output, or when the user asks for plain text.
 
-CLI 已经打包在本 skill 目录里：`scripts/am.mjs`，单文件、无需安装依赖，只要有 Node.js 20+。下文的 `am` 都指：
+## 2. Workflow (one Bash call)
+
+The CLI is bundled in this skill's directory: `scripts/am.mjs`, a single file with no dependencies to install; it needs only Node.js 20+. Below, `am` always means:
 
 ```bash
 node "${CLAUDE_SKILL_DIR}/scripts/am.mjs"
 ```
 
-在 Claude Code 里，上面的路径会自动替换成本 skill 的目录。如果你看到的是没有替换的变量（其他 Agent），请换成这个 SKILL.md 所在目录的绝对路径。用户全局安装了 `am` 命令时，也可以直接用 `am`。
+In Claude Code, the path above is replaced with this skill's directory automatically. If you see the variable unreplaced (other agents), replace it with the absolute path of the directory that contains this SKILL.md. If the user installed the `am` command globally, you can also use `am` directly.
 
-1. 先在心里列出 3～8 个面板。每个面板只回答一个子问题。
-   稿件语言跟随用户提问的语言：英文提问写英文稿，中文提问写中文稿，日文提问写日文稿。页面按钮文字、`<html lang>` 和 STE 检查规则会根据稿件语言自动切换（含假名的稿件判为日文）；STE 按每句的语言分别套用中英文规则（日文句子只查句长与段长，字数上限同中文）。要强制界面语言，在 frontmatter 写 `lang: en`、`lang: zh` 或 `lang: ja`。
-2. 按信息形状选组件（见第 4 节）。
-3. 用 heredoc 一次性渲染：
+1. First list 3–8 panels in your head. Each panel answers one sub-question only.
+   The draft language follows the language of the user's question: an English question gets an English draft, a Chinese question a Chinese draft, a Japanese question a Japanese draft. The page button labels, `<html lang>` and the STE check rules switch automatically by the draft language (a draft containing kana counts as Japanese); STE applies the English or Chinese rules to each sentence by its language (Japanese sentences get only the sentence-length and paragraph-length checks, with the same character limits as Chinese). To force the interface language, write `lang: en`, `lang: zh` or `lang: ja` in the frontmatter.
+2. Choose components by the shape of the information (see section 4).
+3. Render in one go with a heredoc:
 
 ````bash
 node "${CLAUDE_SKILL_DIR}/scripts/am.mjs" render - <<'AM_EOF'
 ---
-title: 标题
+title: Title
 ---
-## A 面板标题
+## A Panel title
 ```flow
-A -> B: 标签
+A -> B: label
 ```
 AM_EOF
 ````
 
-4. 读输出：
-   - `✓ <路径>`：成功。是否自动打开浏览器由用户配置决定（`am config`）；加 `--no-open` 只影响这一次。
-   - `✗ L<line> [component] …` + `Correct example:`：照示例改那一行，再渲染一次。
-   - `STE n warnings`：按建议改写对应行，再渲染一次。最多重试 2 轮，仍有警告就保留页面并说明。
-   - `! Cleanup hint: …` 或 `! Update hint: …`：在回复末尾用一句话转告用户，问要不要清理 / 更新。**不要自己执行 am clean 或更新命令**，等用户同意。CLI 会节流：清理提示每 7 天最多一次，更新提示每 3 天最多一次。
-5. 在终端只回 2～3 行：一句核心结论 + 页面路径。不要把稿件或 HTML 贴回终端。
+4. Read the output:
+   - `✓ <path>`: success. Whether the browser opens automatically depends on the user's settings (`am config`); `--no-open` affects only this run.
+   - `✗ L<line> [component] …` + `Correct example:`: fix that line following the example, then render again.
+   - `STE n warnings`: rewrite the flagged lines as suggested, then render again. Retry at most 2 rounds; if warnings remain, keep the page and say so.
+   - `! Cleanup hint: …` or `! Update hint: …`: pass it on to the user in one sentence at the end of the reply, and ask whether to clean up / update. **Do not run am clean or the update command yourself**; wait until the user agrees. The CLI throttles these: the cleanup hint appears at most once every 7 days, the update hint at most once every 3 days.
+5. Reply in the terminal with only 2–3 lines: one core conclusion + the page path. Do not paste the draft or the HTML back into the terminal.
 
-已经有页面、只需改其中一个面板时，不要整页重写。从该 HTML 的 `#am-source` 取回源稿，只替换对应的 `##` 小节，再原地覆盖：
+When a page already exists and only one panel needs to change, do not rewrite the whole page. Take the source draft from the HTML's `#am-source`, replace only the matching `##` section, and overwrite the page in place:
 
 ````bash
-node "${CLAUDE_SKILL_DIR}/scripts/am.mjs" patch page.html --panel "面板标题" <<'AM_EOF'
-## A 面板标题
-新的内容
+node "${CLAUDE_SKILL_DIR}/scripts/am.mjs" patch page.html --panel "Panel title" <<'AM_EOF'
+## A Panel title
+New content
 AM_EOF
 ````
 
-`--panel` 匹配标题、字母 ID 或 `ID 标题`。找不到该面板或页面没有 `#am-source` 时不要改文件。patch 沿用原页面的主题、明暗和 STE style；要换就加 `--theme` / `--mode` / `--style`。完整用法：`am help patch`。
+`--panel` matches the title, the letter ID, or `ID title`. If the panel is not found or the page has no `#am-source`, leave the file unchanged. patch keeps the original page's theme, light/dark mode and STE style; add `--theme` / `--mode` / `--style` to change them. Full usage: `am help patch`.
 
-## 3. 稿件格式速查
+## 3. Draft format quick reference
 
 ```markdown
 ---
-template: sheet     # sheet 图纸板（默认，一屏总览）| doc 线性讲解（逐步阅读）
-theme: blueprint    # blueprint 图纸风（默认）| shadcn 卡片风
-title: 标题
-subtitle: 一句话说明     # 可选
-cols: 3             # sheet 列数，默认 3；面板用 span / rows 跨列跨行
-source: RFC 9293    # 其他任意键显示在页头元信息行
+template: sheet     # sheet board (default, one-screen overview) | doc linear explanation (read step by step)
+theme: blueprint    # blueprint drawing style (default) | shadcn card style
+title: Title
+subtitle: One-line summary     # optional
+cols: 3             # sheet columns, default 3; panels span columns / rows with span / rows
+source: RFC 9293    # any other key is shown in the page header's meta line
 ---
-导语：一两句核心结论（可选）。
+Lead: one or two sentences with the core conclusion (optional).
 
-## A 面板标题 {span=2 meta="右上角小字"}
-普通 Markdown：段落、列表、表格、引用。
-表格状态词：ok / no / warn（可带文字："ok 已批准"）→ ✓ / ✗ / ! 徽章。
+## A Panel title {span=2 meta="small text, top right"}
+Plain Markdown: paragraphs, lists, tables, quotes.
+Table status words: ok / no / warn (may carry text: "ok approved") → ✓ / ✗ / ! badges.
 
-## B {bare}            ← bare：无标题栏（适合放 kv 标题栏块）
+## B {bare}            ← bare: no title bar (suits a kv title block)
 ```
 
-- 面板字母 ID 可省略，自动分配。
-- ```html / ```svg 围栏块原样嵌入，**只在组件确实表达不了时使用**。
-- 完整说明：`am help format`；组件语法：`am help <组件名>`；组件列表：`am list`。
+- The panel letter ID can be omitted; it is assigned automatically.
+- ```html / ```svg fenced blocks are embedded as-is. **Use them only when no component can express the content.**
+- Full reference: `am help format`; component syntax: `am help <component>`; component list: `am list`.
 
-## 4. 按信息形状选组件
+## 4. Choose components by the shape of the information
 
-| 信息形状 | 组件 | 最小写法 |
+| Shape of the information | Component | Minimal syntax |
 |---|---|---|
-| 谁连向谁、架构、决策分支 | `flow [LR]` | `A -> B: 标签`，`A --> C` 虚线，`A -> B & C` 扇出，`{判断?}` `(开始)` `[(数据库)]`，`*重点`，`group 名: A, B` |
-| 参与者之间按时间的消息 | `sequence [num]` | `A -> B: 请求`，`B --> A: 响应`，`note A, B: 说明`，`== 阶段 ==` |
-| 层级 / 目录 / 分类 | `tree [list]` | 缩进表达层级，`标签 \| 说明`，`` `编号` 标签 `` |
-| 历史 / 阶段 | `timeline [v]` | `时间 \| 标题 \| 说明`，`*` 高亮 |
-| 数值与上限 | `limits` | `标签 \| 13 / 20 \| 单位`，只写上限：`标签 \| max 20` |
-| 逐词点评一句话 | `annot` | `# 小标题 \| 右注`，`[片段]{注释}`，`[错词]{!红色注释}`，`> 底注` |
-| 元信息 / 标题栏 | `kv [cols=2]` | `键: 值`，`* 宽格: 值` |
-| 结论 / 警告 | `callout <info\|ok\|warn\|err> 标题` | 正文 Markdown |
-| 多维对比、能 / 不能清单 | Markdown 表格 | 状态列写 ok / no / warn |
+| What connects to what, architecture, decision branches | `flow [LR]` | `A -> B: label`, `A --> C` dashed, `A -> B & C` fan-out, `{decision?}` `(start)` `[(database)]`, `*emphasis`, `group name: A, B` |
+| Messages between actors over time | `sequence [num]` | `A -> B: request`, `B --> A: response`, `note A, B: note`, `== phase ==` |
+| Hierarchy / directories / taxonomy | `tree [list]` | indentation for levels, `label \| description`, `` `id` label `` |
+| History / phases | `timeline [v]` | `time \| title \| description`, `*` highlights |
+| Values and limits | `limits` | `label \| 13 / 20 \| unit`, limit only: `label \| max 20` |
+| Word-by-word comments on one sentence | `annot` | `# heading \| right note`, `[span]{note}`, `[wrong word]{!red note}`, `> footnote` |
+| Metadata / title block | `kv [cols=2]` | `key: value`, `* wide cell: value` |
+| Conclusion / warning | `callout <info\|ok\|warn\|err> title` | Markdown body |
+| Multi-dimension comparison, can / cannot list | Markdown table | write ok / no / warn in the status column |
 
-选型原则：
-- 先放结论。第一个面板或导语给出核心答案，后面的面板给证据。
-- 一个面板一个问题。超过 8 个面板就拆页或删减。
-- 用 `span` 给信息最密的面板更多宽度；等宽句子（annot）至少给 span=2。
-- 宽内容别塞进一列：4 列及以上的表格、画布超过约 560px 的图（`flow LR`、长标签的 `sequence`）。没写 `span` 时，CLI 会自动加宽，4 列表格占 2 列，5 列及以上占满一行；想要别的宽度就显式写 `span`。
-- 不编数据。没有真实数字就不用 limits；示意数据要在说明里写明"示意"。
+Selection rules:
+- Conclusion first. The first panel or the lead gives the core answer; the following panels give the evidence.
+- One panel, one question. With more than 8 panels, split the page or cut panels.
+- Use `span` to give the densest panel more width; give a monospaced sentence (annot) at least span=2.
+- Keep wide content out of a single column: tables with 4 or more columns, diagrams with a canvas wider than about 560px (`flow LR`, `sequence` with long labels). Without `span`, the CLI widens them automatically: a 4-column table takes 2 columns, 5 or more columns take a full row; write `span` explicitly for another width.
+- Do not invent data. Without real numbers, do not use limits; mark illustrative data as "illustrative" in the description.
 
-## 5. STE 受控写作（稿件里的文字）
+## 5. STE controlled writing (the text in the draft)
 
-`am render` 会自动检查，默认只警告（`style: 80`）；`style: strict` 不达标不生成；`style: off` 关闭。
+`am render` checks automatically and only warns by default (`style: 80`); with `style: strict` a draft that fails produces no page; `style: off` turns the check off.
 
-- 一句话只说一件事。
-- 用主动语态。步骤用祈使句（"关闭阀门"，不写"阀门应被关闭"）。
-- 一词一义。同一个东西全文用同一个叫法。
-- 句长上限：步骤（有序列表）英文 20 词 / 中文 35 字；描述英文 25 词 / 中文 45 字。
-- 每段不超过 6 句。复杂内容用列表。
-- 英文用常见短词：use 不用 utilize，start 不用 commence，before 不用 prior to。
-- 中文不用虚动词（"进行优化"→"优化"，"加以说明"→"说明"），不连用三个以上"的"，不用套话（赋能、闭环、至关重要……）。
-- 故意展示的反例用 `~~删除线~~`，或放进状态为 `no` 的表格行，检查会跳过它们。
+- One sentence says one thing.
+- Use the active voice. Write steps in the imperative ("Close the valve", not "The valve should be closed").
+- One word, one meaning. Call the same thing by the same name throughout.
+- Sentence length limits: steps (ordered lists) 20 words in English / 35 characters in Chinese; descriptions 25 words in English / 45 characters in Chinese.
+- No more than 6 sentences per paragraph. Use lists for complex content.
+- In English, use common short words: use, not utilize; start, not commence; before, not prior to.
+- In Chinese, do not use light verbs (`进行优化` → `优化`, `加以说明` → `说明`), do not chain more than three `的`, and do not use clichés (`赋能`, `闭环`, `至关重要`…).
+- For counter-examples shown on purpose, use `~~strikethrough~~` or put them in a table row whose status is `no`; the check skips them.
 
-## 6. 解释视频（am video，3Blue1Brown 风格）
+## 6. Explainer videos (am video, 3Blue1Brown style)
 
-只在用户明确要视频时使用（"做个视频""讲成视频""3b1b 风格""explainer video"）。高频模式下也不要主动出视频。
+Use only when the user explicitly asks for a video ("make a video", "explain it as a video", "3b1b style", "explainer video"). Do not produce a video unasked in always-on mode either.
 
-视频稿和页面稿格式相同，只多一条规则：以 `>` 开头的行是旁白，每行一拍。
+A video draft has the same format as a page draft, with one extra rule: lines starting with `>` are narration, one beat per line.
 
 ````bash
 node "${CLAUDE_SKILL_DIR}/scripts/am.mjs" video - --no-open <<'AM_EOF'
 ---
-title: TCP 三次握手
-subtitle: 为什么是三次
+title: The TCP three-way handshake
+subtitle: Why three
 ---
-> 片头旁白（可选）。
+> Opening narration (optional).
 
-## 两端都在等待
+## Both ends are waiting
 ```sequence
 Client -> Server: SYN
 Server -> Client: SYN-ACK
 Client -> Server: ACK
 ```
-> 客户端先发 SYN，请求建立连接。
-> [Server] 收到后回 SYN-ACK。
-> 客户端再回 ACK，连接建立。
+> First the client sends SYN to ask for a connection.
+> [Server] answers with SYN-ACK.
+> The client replies with ACK, and the connection is open.
 AM_EOF
 ````
 
-- 一个 `## ` 是一个场景。场景里放一个组件（或一张表、一个列表）作为画面，下面写 2～5 行旁白。
-- 第 N 句旁白播出时，画面出现第 N 步。flow / sequence / tree 每行源码是一步；timeline、limits、表格行、列表项按条目分步。所以组件的行顺序就是讲解顺序。旁白比步数多时，多出的前几句当开场白，不出新内容。
-- 旁白里写 `[名字]`：镜头推近同名的节点或参与者并高亮。名字要和组件里的写法一致。
-- 相邻场景里同名的节点会平滑移动到新位置。想让观众跟住一个对象，就在下一场景沿用同一个名字。
-- 一个视频 3～6 个场景，每行旁白一两句话。
-- 旁白是要念出来的，写成口语，像当面讲给人听：可以用"你看""那问题来了""我们换个角度看"这类过渡，引号里放人物的"台词"。不要写成说明书腔（"客户端发送 SYN 报文以请求建立连接"）。句长仍受 STE 检查约束。
-- 外观默认跟随配置里的 theme（通常是 blueprint 图纸风）。用户要"3b1b 那种深色风格"时在 frontmatter 写 `theme: 3b1b`。
-- 配音：默认 `--voice auto`，有 `ELEVENLABS_API_KEY` 用 ElevenLabs，否则用系统 TTS（macOS say），都没有就只出字幕。用户说"不要声音"时加 `--voice off`。用户在本地部署了 OpenAI 兼容的语音服务并设置了 `AM_TTS_URL` 时，用 `--voice local`。
-- 产物是 `~/.answer-me-with-html/videos/` 下的单文件播放页（音频内嵌）。用户要视频文件时加 `--mp4`，需要本机有 Chrome、ffmpeg 和 Node.js 22+，导出时间约为视频时长的 1.3 倍。
-- 完整语法：`am help video`。终端里回一句话加播放页路径（和 MP4 路径）。
+- One `## ` is one scene. Put one component (or one table, one list) in a scene as the picture, and write 2–5 narration lines below it.
+- When the Nth narration line plays, the picture shows step N. In flow / sequence / tree every source line is one step; timeline, limits, table rows and list items step by entry. So the line order of the component is the order of the explanation. When there are more narration lines than steps, the extra first lines serve as an opening and show nothing new.
+- Write `[name]` in narration: the camera zooms in on the node or actor with that name and highlights it. The name must match how it is written in the component.
+- Nodes with the same name in adjacent scenes move smoothly to their new position. To keep the viewer following one object, reuse the same name in the next scene.
+- 3–6 scenes per video, one or two sentences per narration line.
+- Narration is read aloud, so write it as speech, as if explaining to someone face to face: transitions like `你看`, `那问题来了`, `我们换个角度看` are fine, and characters' "lines" go in quotes. Do not write it like a manual (`客户端发送 SYN 报文以请求建立连接`). Sentence length is still subject to the STE check.
+- The look follows the theme in the settings by default (usually the blueprint drawing style). When the user wants "that dark 3b1b style", write `theme: 3b1b` in the frontmatter.
+- Narration voice: the default is `--voice auto`: ElevenLabs when `ELEVENLABS_API_KEY` is set, otherwise system TTS (macOS say), and subtitles only when neither is available. When the user says "no sound", add `--voice off`. When the user runs a local OpenAI-compatible speech service and has set `AM_TTS_URL`, use `--voice local`.
+- The output is a single-file player page under `~/.answer-me-with-html/videos/` (audio embedded). When the user wants a video file, add `--mp4`; this needs Chrome, ffmpeg and Node.js 22+ on the machine, and export takes about 1.3 times the video length.
+- Full syntax: `am help video`. In the terminal, reply with one sentence plus the player page path (and the MP4 path).

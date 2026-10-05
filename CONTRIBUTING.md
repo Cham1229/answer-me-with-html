@@ -7,6 +7,7 @@ Setup and test commands are in the README's [Development](README.md#development)
 - **`skills/answer-me-with-html/scripts/am.mjs` is generated.** Edit `src/`, then run `npm run build` and commit both. CI fails when the bundle is stale. On a merge or rebase conflict in `am.mjs`, take either side and rebuild; never merge it by hand.
 - **The page format lives in `src/page.js`.** It writes the root `<html>` settings, the narration `<audio>` and the trailing `#am-source`, and `readPage()` reads them back for `am patch`. A new page setting goes in both places.
 - **Refactors keep the HTML byte-identical.** `npm run snapshot [ref]` renders 336 render / video / patch combinations with a fixed clock and compares them with `ref` (default `origin/main`). Any difference must be intended and called out in the PR.
+- **The repository speaks English; the product speaks the reader's language.** Skill and command instructions, CLI output, comments and test names are English. Only viewer-facing page and video UI is localized (zh / en / ja); Chinese stays where it is the subject (writing-check word lists, Chinese fixtures and examples, README.zh-CN.md). `test/language.test.js` enforces this.
 - **Plugin installs copy the whole repository.** Keep large or personal files (videos, GIFs, `docs/social/`) out of git.
 
 ## Pull requests
