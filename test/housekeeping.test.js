@@ -125,9 +125,9 @@ for (const dir of ROOTS) {
 test('cleanHint: 超过 200 MB 或久未清理且超过 20 MB 时提示，7 天内不重复', () => {
   const use = (total) => ({ total, pages: { count: 1, bytes: 0 }, videos: { count: 0, bytes: total }, cache: { bytes: 0 } });
   assert.equal(cleanHint({ firstSeen: NOW }, use(CLEAN.bigBytes - 1), NOW), null, '新用户、未到 200 MB');
-  assert.match(cleanHint({ firstSeen: NOW }, use(CLEAN.bigBytes), NOW), /^! 清理提示：数据目录已占用 200 MB/);
+  assert.match(cleanHint({ firstSeen: NOW }, use(CLEAN.bigBytes), NOW), /^! Cleanup hint: the data directory uses 200 MB/);
   assert.equal(cleanHint({ lastClean: NOW - 10 * DAY }, use(50 * 2 ** 20), NOW), null, '10 天前刚清理过');
-  assert.match(cleanHint({ lastClean: NOW - 31 * DAY }, use(50 * 2 ** 20), NOW), /上次清理在 31 天前/);
+  assert.match(cleanHint({ lastClean: NOW - 31 * DAY }, use(50 * 2 ** 20), NOW), /last cleaned 31 days ago/);
   assert.equal(cleanHint({ lastClean: NOW - 31 * DAY }, use(5 * 2 ** 20), NOW), null, '久未清理但很小');
   assert.equal(cleanHint({ firstSeen: NOW, lastCleanHint: NOW - 2 * DAY }, use(CLEAN.bigBytes), NOW), null, '节流');
 });
@@ -206,9 +206,9 @@ test('cli clean: dry-run 与执行；--days 校验', async () => {
   file('pages/old.html', 2048, 45);
   const dry = await run(['clean', '--dry-run']);
   assert.equal(dry.code, 0);
-  assert.match(dry.out, /将删除 1 个文件，释放 2 KB/);
+  assert.match(dry.out, /Would delete 1 file, freeing 2 KB/);
   const real = await run(['clean']);
-  assert.match(real.out, /✓ 已删除 1 个文件/);
+  assert.match(real.out, /✓ Deleted 1 file/);
   assert.equal((await run(['clean', '--days', '-1'])).code, 2);
   assert.equal((await run(['clean', '--days='])).code, 2, '空值不能当成 0');
   assert.equal((await run(['clean', '--days', '1.5'])).code, 2);
@@ -224,19 +224,19 @@ test('cli clean: 根目录软链接不计入打印数量，预演和执行数量
   }
   const skipped = await run(['clean', '--all', '--dry-run']);
   assert.equal(skipped.code, 0, skipped.err);
-  assert.match(skipped.out, /将删除 0 个文件，释放 0 KB/);
-  assert.match(skipped.out, /共 0 KB：页面 0 个，视频 0 个，配音缓存 0 KB/);
+  assert.match(skipped.out, /Would delete 0 files, freeing 0 KB/);
+  assert.match(skipped.out, /0 KB in total: 0 pages, 0 videos, 0 KB voice-over cache/);
 
   // 让 pages 恢复为正常目录，确认打印的数量来自实际纳入清理的文件。
   rmSync(join(home, 'pages'));
   const normal = file('pages/old.html', 2048, 45);
   const dry = await run(['clean', '--all', '--dry-run']);
   assert.equal(dry.code, 0, dry.err);
-  assert.match(dry.out, /将删除 1 个文件，释放 2 KB/);
+  assert.match(dry.out, /Would delete 1 file, freeing 2 KB/);
   assert.ok(existsSync(normal), '预演保留正常目录文件');
   const real = await run(['clean', '--all']);
   assert.equal(real.code, 0, real.err);
-  assert.match(real.out, /已删除 1 个文件，释放 2 KB/);
+  assert.match(real.out, /Deleted 1 file, freeing 2 KB/);
   assert.ok(!existsSync(normal));
   assert.equal(readFileSync(target, 'utf8'), '外部文件');
 });
@@ -245,7 +245,7 @@ test('cli render: 数据目录过大时在输出末尾附清理提示', async ()
   file('videos/big.mp4', CLEAN.bigBytes);
   const r = await run(['render', '-'], { stdin: '## A\n文字\n' });
   assert.equal(r.code, 0, r.err);
-  assert.match(r.out, /! 清理提示：/);
+  assert.match(r.out, /! Cleanup hint: /);
   assert.ok(JSON.parse(readFileSync(join(home, 'state.json'), 'utf8')).lastCleanHint);
 });
 

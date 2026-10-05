@@ -24,16 +24,16 @@ const NUM = /^(?:max\s+)?(-?\d+(?:\.\d+)?)$/i;
 
 export default {
   name: 'limits',
-  summary: '数值 vs 上限 条形对照',
+  summary: 'Value vs limit bars',
   syntax: `\`\`\`limits
-标签 | 当前值 / 上限 | 单位（可选） | 备注（可选）
-标签 | 上限 | 单位          ← 只给上限：条填充到上限
+label | value / limit | unit (optional) | note (optional)
+label | limit | unit         ← limit only: the bar fills to the limit
 \`\`\`
-- 当前值超过上限时整行标红。上限可写成 "max 20"。`,
-  example: '```limits\n程序性句子 | 13 / 20 | words\n描述性句子 | max 25 | words\n名词簇 | 4 / 3 | words | 超限\n```',
+- A row turns red when the value is over the limit. The limit may be written as "max 20".`,
+  example: '```limits\nProcedural sentence | 13 / 20 | words\nDescriptive sentence | max 25 | words\nNoun cluster | 4 / 3 | words | over\n```',
   render(text) {
     const rows = contentLines(text).map(({ text: t, line }) => parseRow(t, line));
-    if (!rows.length) throw new ComponentError('limits 至少需要一行', 1);
+    if (!rows.length) throw new ComponentError('limits needs at least one line', 1);
     return `<div class="am-limits">${rows.map(rowHtml).join('')}</div>`;
   },
 };
@@ -43,7 +43,7 @@ function parseRow(t, line) {
   const [a, b] = spec.split('/').map((s) => s.trim());
   const nums = (b === undefined ? [a] : [a, b]).map((s) => s?.match(NUM)?.[1]);
   if (!spec || nums.some((n) => n === undefined)) {
-    throw new ComponentError(`limits 行格式应为 标签 | 当前值 / 上限 | 单位："${t}"`, line);
+    throw new ComponentError(`limits line must be label | value / limit | unit: "${t}"`, line);
   }
   const [value, limit] = b === undefined ? [null, Number(nums[0])] : nums.map(Number);
   return { label, value, limit, unit, note };

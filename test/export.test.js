@@ -24,7 +24,7 @@ test('exportMp4: ffmpeg 中途退出时抛 ExportError，不崩溃也不卡住',
     const prevPath = process.env.PATH;
     process.env.PATH = env.PATH; // hasCommand 与 spawn 都按 PATH 找 ffmpeg
     try {
-      await assert.rejects(exportMp4(page, join(dir, 'v.mp4'), { env }), (e) => e instanceof ExportError && /ffmpeg 失败（1）/.test(e.message));
+      await assert.rejects(exportMp4(page, join(dir, 'v.mp4'), { env }), (e) => e instanceof ExportError && /ffmpeg failed \(1\)/.test(e.message));
     } finally {
       process.env.PATH = prevPath;
     }

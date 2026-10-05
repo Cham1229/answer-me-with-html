@@ -65,8 +65,8 @@ test('parseVideo: 场景、旁白拍、聚焦、片头旁白', () => {
 });
 
 test('parseVideo: 场景没有旁白或稿件没有场景时报错', () => {
-  assert.throws(() => parseVideo('## 空场景\n- 只有画面\n'), (e) => e instanceof ParseError && /没有旁白/.test(e.message));
-  assert.throws(() => parseVideo('> 只有旁白\n'), (e) => e instanceof ParseError && /至少需要一个场景/.test(e.message));
+  assert.throws(() => parseVideo('## 空场景\n- 只有画面\n'), (e) => e instanceof ParseError && /has no narration/.test(e.message));
+  assert.throws(() => parseVideo('> 只有旁白\n'), (e) => e instanceof ParseError && /needs at least one scene/.test(e.message));
 });
 
 test('estimateSeconds: 中文按字、英文按词估算，且有下限', () => {
@@ -138,8 +138,8 @@ test('pickProvider: off / elevenlabs / system / auto 的选择与报错', () => 
 
 test('pickProvider: local 需要 AM_TTS_URL，AM_TTS_EXTRA 必须是 JSON 对象，auto 不会选 local', () => {
   assert.throws(() => pickProvider('local', {}), (e) => e instanceof TtsError && /AM_TTS_URL/.test(e.message));
-  assert.throws(() => pickProvider('local', { AM_TTS_URL: 'http://x', AM_TTS_EXTRA: '[1]' }), /JSON 对象/);
-  assert.throws(() => pickProvider('local', { AM_TTS_URL: 'http://x', AM_TTS_EXTRA: '{bad' }), /JSON 对象/);
+  assert.throws(() => pickProvider('local', { AM_TTS_URL: 'http://x', AM_TTS_EXTRA: '[1]' }), /JSON object/);
+  assert.throws(() => pickProvider('local', { AM_TTS_URL: 'http://x', AM_TTS_EXTRA: '{bad' }), /JSON object/);
   assert.equal(pickProvider('local', { AM_TTS_URL: 'http://x' }).name, 'local');
   assert.equal(pickProvider('auto', { AM_TTS_URL: 'http://x' }, { platform: 'linux', which: () => false }), null);
 });
@@ -200,7 +200,7 @@ test('local 配音：服务返回错误或连不上时报 TtsError', async () =>
   const real = globalThis.fetch;
   globalThis.fetch = async () => { throw new TypeError('fetch failed'); };
   try {
-    await assert.rejects(p.synth('一句'), (e) => e instanceof TtsError && /无法连接本地 TTS/.test(e.message));
+    await assert.rejects(p.synth('一句'), (e) => e instanceof TtsError && /Cannot connect to the local TTS/.test(e.message));
   } finally {
     globalThis.fetch = real;
   }
@@ -248,7 +248,7 @@ test('local 配音：AM_TTS_EXTRA 里的 speed 调整估算时长；AM_TTS_ATTEM
     await once.synth(text);
     assert.equal(calls.length, 1);
   });
-  assert.throws(() => pickProvider('local', { AM_TTS_URL: 'http://x', AM_TTS_ATTEMPTS: '0' }), /正整数/);
+  assert.throws(() => pickProvider('local', { AM_TTS_URL: 'http://x', AM_TTS_ATTEMPTS: '0' }), /positive integer/);
 });
 
 test('local 配音：响应体中途断开、音频不是 16 位 PCM WAV 时都报 TtsError', async () => {
@@ -260,7 +260,7 @@ test('local 配音：响应体中途断开、音频不是 16 位 PCM WAV 时都�
   const pcm24 = wav(new Int16Array(100));
   pcm24.writeUInt16LE(24, 34);
   await withFakeFetch([new Response(pcm24)], async () => {
-    await assert.rejects(p.synth('一句'), (e) => e instanceof TtsError && /16 位 PCM WAV/.test(e.message));
+    await assert.rejects(p.synth('一句'), (e) => e instanceof TtsError && /16-bit PCM WAV/.test(e.message));
   });
 });
 
@@ -269,7 +269,7 @@ test('local 配音：空音频或纯静音不算结果，全部如此时报 TtsE
   const e = estimateSeconds('一句');
   const silent = () => new Response(wav(new Int16Array(5 * SAMPLE_RATE)));
   await withFakeFetch([new Response(wav(new Int16Array(0))), silent(), silent()], async (calls) => {
-    await assert.rejects(p.synth('一句'), (err) => err instanceof TtsError && /静音/.test(err.message));
+    await assert.rejects(p.synth('一句'), (err) => err instanceof TtsError && /silence/.test(err.message));
     assert.equal(calls.length, 3);
   });
   await withFakeFetch([silent(), e * 3], async (calls) => {
@@ -363,7 +363,7 @@ test('视频主题：默认 blueprint 浅色；稿件可写 3b1b；命令行参�
   assert.match(dark.html, /data-theme="3b1b" data-mode="dark"/);
   const cli = await renderVideo(SRC, { overrides: { theme: 'shadcn', mode: 'dark' } });
   assert.match(cli.html, /data-theme="shadcn" data-mode="dark"/);
-  await assert.rejects(renderVideo(SRC, { overrides: { theme: 'neon' } }), /theme 的值 "neon" 无效/);
+  await assert.rejects(renderVideo(SRC, { overrides: { theme: 'neon' } }), /Invalid theme value "neon"/);
   assert.throws(() => renderDoc('---\ntheme: 3b1b\n---\n## A\n文字\n'), ParseError, '页面不支持 3b1b');
 });
 
@@ -421,18 +421,18 @@ test('cli video: 写入 AM_HOME/videos 并打印场景、旁白、时长与配�
   const r = await run(['video', '-'], { stdin: SRC });
   assert.equal(r.code, 0, r.err);
   assert.match(r.out, /✓ .+videos[\\/]握手-.+\.html/);
-  assert.match(r.out, /2 场景 · 4 句旁白 · [\d.]+s · 配音：无/);
+  assert.match(r.out, /2 scenes · 4 beats · [\d.]+s · voice: none/);
   assert.equal(readdirSync(join(dir, 'videos')).length, 1);
 });
 
 test('cli video: 配音方式写在输出里；无效 voice 报错', async () => {
   const r = await run(['video', '-', '-o', 'v.html'], { stdin: SRC, ttsProvider: fakeProvider() });
   assert.equal(r.code, 0, r.err);
-  assert.match(r.out, /配音：fake/);
+  assert.match(r.out, /voice: fake/);
   assert.match(readFileSync(join(dir, 'v.html'), 'utf8'), /data:audio\/wav/);
   const bad = await run(['video', '-', '--voice', 'robot'], { stdin: SRC });
   assert.equal(bad.code, 2);
-  assert.match(bad.err, /voice 的值 "robot" 无效/);
+  assert.match(bad.err, /Invalid voice value "robot"/);
 });
 
 test('cli patch: 视频页改一幕后仍是视频页', async () => {
@@ -466,7 +466,7 @@ title: 补丁视频
 });
 
 test('cli help video / config voice', async () => {
-  assert.match((await run(['help', 'video'])).out, /视频稿格式/);
+  assert.match((await run(['help', 'video'])).out, /Video draft format/);
   const set = await run(['config', 'set', 'voice', 'off']);
   assert.equal(set.code, 0, set.err);
   assert.match((await run(['config', 'get', 'voice'])).out, /^off/);
@@ -513,10 +513,10 @@ test('ElevenLabs: 网络错误包装成 TtsError，CLI 给出 --voice off 提示
   globalThis.fetch = async () => { throw new TypeError('fetch failed'); };
   try {
     const p = pickProvider('elevenlabs', { ELEVENLABS_API_KEY: 'k' });
-    await assert.rejects(p.synth('你好'), (e) => e instanceof TtsError && /无法连接 ElevenLabs/.test(e.message));
+    await assert.rejects(p.synth('你好'), (e) => e instanceof TtsError && /Cannot connect to ElevenLabs/.test(e.message));
     const r = await run(['video', '-', '--voice', 'elevenlabs'], { stdin: SRC, env: { ELEVENLABS_API_KEY: 'k' }, ttsProvider: undefined });
     assert.equal(r.code, 1);
-    assert.match(r.err, /配音失败：无法连接 ElevenLabs.*--voice off/);
+    assert.match(r.err, /Voice-over failed: Cannot connect to ElevenLabs.*--voice off/);
   } finally {
     globalThis.fetch = realFetch;
   }
@@ -561,7 +561,7 @@ test('am patch：有配音的视频沿用原来的配音方式，不按配置换
     const r = await run(['patch', file, '--panel', '第一幕', '--no-open'], { stdin: '- 画面\n> 改过的一句。\n', env: { AM_TTS_URL: 'http://tts' }, ttsProvider: undefined });
     assert.equal(r.code, 0, r.err);
     assert.equal(calls.length, 1, '用 local 重新配音');
-    assert.match(r.out, /配音：local/);
+    assert.match(r.out, /voice: local/);
   });
   assert.match(readFileSync(file, 'utf8'), /data-voice="local"/);
 });

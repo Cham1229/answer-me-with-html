@@ -29,12 +29,12 @@ export function newer(a, b) {
 // 按安装方式给出更新命令。scriptPath 是正在运行的 am 脚本路径。
 export function updateCommand(scriptPath = '') {
   if (/[\\/]\.claude[\\/]plugins[\\/]/.test(scriptPath)) {
-    return '终端运行 claude plugin update answer-me-with-html@answer-me-with-html（或在 /plugin 的 Installed 页点 Update now），再 /reload-plugins';
+    return 'run claude plugin update answer-me-with-html@answer-me-with-html in a terminal (or click Update now on the Installed tab of /plugin), then /reload-plugins';
   }
   if (/[\\/]bin[\\/]am\.js$/.test(scriptPath)) {
-    return '在 answer-me-with-html 仓库目录运行 git pull && npm install';
+    return 'run git pull && npm install in the answer-me-with-html repository';
   }
-  return '运行 npx skills update answer-me-with-html -y';
+  return 'run npx skills update answer-me-with-html -y';
 }
 
 // update_check off、CI、AM_NO_UPDATE_CHECK 同时关掉后台检查和更新提示。
@@ -43,7 +43,7 @@ export const updateEnabled = (env, config) => !(config.update_check === false ||
 export function updateHint(state, current, scriptPath, now = Date.now()) {
   if (!newer(state.latestVersion, current)) return null;
   if (state.lastUpdateHint && now - state.lastUpdateHint < UPDATE.hintEveryDays * DAY) return null;
-  return `! 更新提示：Answer me with HTML 有新版本 ${state.latestVersion}（当前 ${current}）。请问用户是否更新：${updateCommand(scriptPath)}。`;
+  return `! Update hint: Answer me with HTML ${state.latestVersion} is available (current ${current}). Ask the user whether to update: ${updateCommand(scriptPath)}.`;
 }
 
 export function shouldCheckUpdate(state, env, config, now = Date.now()) {

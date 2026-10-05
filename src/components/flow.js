@@ -21,18 +21,18 @@ const ARROW = /^\s*(-->|->)\s*/;
 
 export default {
   name: 'flow',
-  summary: '流程图 / 架构图（自动布局）',
+  summary: 'Flowchart / architecture diagram (automatic layout)',
   syntax: `\`\`\`flow [TB|LR|BT|RL]
-A -> B: 标签                  ← 实线，冒号后为边标签
-A --> C                       ← 虚线
-A -> B -> C                   ← 链式
-A -> B & C                    ← 扇出
-(开始)  {判断?}  [(数据库)]  [含: 冒号的文本]   ← 圆角 / 菱形 / 圆柱 / 矩形
-*重点节点                      ← * 前缀高亮
-group 分组名: B, C            ← 把节点框进一个分组
+A -> B: label                 ← solid line; text after the colon is the edge label
+A --> C                       ← dashed line
+A -> B -> C                   ← chain
+A -> B & C                    ← fan-out
+(Start)  {Valid?}  [(Database)]  [text with: a colon]   ← rounded / diamond / cylinder / rectangle
+*Key node                     ← * prefix highlights
+group Group name: B, C        ← draw a group box around nodes
 \`\`\`
-- 节点以括号内的文字作为身份，之后可直接写文字引用。默认方向 TB（自上而下）。`,
-  example: '```flow LR\n(用户) -> 网关: HTTPS\n网关 -> 鉴权 & *业务服务\n业务服务 -> [(数据库)]\ngroup 后端: 鉴权, 业务服务\n```',
+- The text inside the brackets is the node's identity; later lines can refer to the node by that text alone. The default direction is TB (top to bottom).`,
+  example: '```flow LR\n(User) -> Gateway: HTTPS\nGateway -> Auth & *Service\nService -> [(Database)]\ngroup Backend: Auth, Service\n```',
   render(text, { args, uid }) {
     const model = parseFlow(text);
     const dir = (args.match(/\b(TB|LR|BT|RL)\b/i)?.[1] ?? 'TB').toUpperCase();
@@ -68,10 +68,10 @@ export function parseFlow(text) {
       }
     }
   }
-  if (!nodes.size) throw new ComponentError('flow 至少需要一个节点', 1);
+  if (!nodes.size) throw new ComponentError('flow needs at least one node', 1);
   for (const grp of groups) {
     const missing = grp.members.filter((m) => !nodes.has(m));
-    if (missing.length) throw new ComponentError(`group ${grp.name} 引用了不存在的节点：${missing.join('、')}`, grp.line);
+    if (missing.length) throw new ComponentError(`group ${grp.name} refers to nodes that do not exist: ${missing.join(', ')}`, grp.line);
   }
   return { nodes, edges, groups };
 }
@@ -99,7 +99,7 @@ function parseChain(t, line) {
   }
   const rest = t.slice(pos).trim();
   if (rest && !/^[:：]/.test(rest)) {
-    throw new ComponentError(`flow 无法解析："${t}"。关系写作 A -> B: 标签`, line);
+    throw new ComponentError(`flow cannot parse "${t}". Write a link as A -> B: label`, line);
   }
   return { chain, label: rest.replace(/^[:：]\s*/, '') };
 }
@@ -113,7 +113,7 @@ function parseNode(t, start, line) {
   let end;
   if (bracket) {
     const close = t.indexOf(bracket.close, pos + bracket.open.length);
-    if (close === -1) throw new ComponentError(`flow 形状括号未闭合：缺少 ${bracket.close}`, line);
+    if (close === -1) throw new ComponentError(`flow: unclosed shape bracket, missing ${bracket.close}`, line);
     label = t.slice(pos + bracket.open.length, close).trim();
     end = close + bracket.close.length;
   } else {
@@ -121,7 +121,7 @@ function parseNode(t, start, line) {
     label = m[1].trim();
     end = pos + m[0].length;
   }
-  if (!label) throw new ComponentError(`flow 存在空节点："${t}"`, line);
+  if (!label) throw new ComponentError(`flow has an empty node: "${t}"`, line);
   return { node: { id: label, label, shape: bracket?.shape ?? 'rect', explicit: Boolean(bracket), hi }, end };
 }
 
@@ -188,7 +188,7 @@ function layout({ nodes, edges, groups }, rankdir, id) {
   });
 
   const { width, height } = g.graph();
-  const label = `流程图：${[...nodes.keys()].slice(0, 8).join('、')}`;
+  const label = `流程图：${[...nodes.keys()].slice(0, 8).join('、')}`; // lang-ok: page aria-label, viewer-facing
   return `${svgOpen(width, height, label)}${arrowDefs(id)}<g>${clusters.join('')}</g><g>${edgeSvg.join('')}</g><g>${nodeSvg.join('')}</g></svg>`;
 }
 

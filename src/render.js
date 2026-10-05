@@ -23,7 +23,7 @@ export class RenderError extends Error {
 
 export class LintError extends Error {
   constructor(warnings) {
-    super(`STE 检查未通过（style: strict）：${warnings.length} 条`);
+    super(`STE check failed (style: strict): ${warnings.length} warning${warnings.length === 1 ? '' : 's'}`);
     this.name = 'LintError';
     this.warnings = warnings;
   }
@@ -66,7 +66,7 @@ export function detectLang(text) {
 export function renderDoc(source, overrides = {}, defaults = {}) {
   const parsed = parseDoc(source, { defaults });
   const doc = { ...parsed, meta: applyOverrides(parsed.meta, overrides) };
-  if (doc.meta.template === 'video') throw new ParseError('template: video 是视频稿，请用 am video 渲染', 0);
+  if (doc.meta.template === 'video') throw new ParseError('template: video is a video draft; render it with am video', 0);
 
   const warnings = doc.meta.style === 'off' ? [] : lintDoc(doc);
   if (doc.meta.style === 'strict' && warnings.length) throw new LintError(warnings);

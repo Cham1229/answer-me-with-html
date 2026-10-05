@@ -13,7 +13,7 @@ const shared = { '--font-sans': SANS, '--font-mono': MONO };
 
 export const THEMES = Object.freeze({
   blueprint: {
-    label: '图纸 Blueprint',
+    label: 'Blueprint drawing',
     common: { ...shared, '--radius': '0px', '--shadow': 'none', '--bw': '1.5px', '--head-font': 'var(--font-sans)' },
     light: {
       '--bg': '#f6f6f3', '--paper': '#ffffff', '--ink': '#16181d', '--ink-2': '#4b5260', '--ink-3': '#8b929e',
@@ -31,7 +31,7 @@ export const THEMES = Object.freeze({
     },
   },
   shadcn: {
-    label: '卡片 shadcn',
+    label: 'shadcn cards',
     common: { ...shared, '--radius': '8px', '--shadow': '0 1px 2px 0 rgba(0,0,0,0.05)', '--bw': '1px', '--head-font': 'var(--font-sans)' },
     light: {
       '--bg': '#fafafa', '--paper': '#ffffff', '--ink': '#09090b', '--ink-2': '#71717a', '--ink-3': '#a1a1aa',

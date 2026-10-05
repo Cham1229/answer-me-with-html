@@ -36,26 +36,26 @@ export function parseSequence(text) {
       add(m[3]);
       steps.push({ kind: 'msg', from: m[1], to: m[3], dashed: m[2] === '-->', label: (m[4] ?? '').trim(), line });
     } else {
-      throw new ComponentError(`sequence 无法解析："${t}"。消息写作 A -> B: 标签（--> 为虚线返回），注释写作 note A: 文本`, line);
+      throw new ComponentError(`sequence cannot parse "${t}". Write a message as A -> B: label (--> is a dashed return) and a note as note A: text`, line);
     }
   }
-  if (!participants.length) throw new ComponentError('sequence 至少需要一条消息', 1);
+  if (!participants.length) throw new ComponentError('sequence needs at least one message', 1);
   return { participants, steps };
 }
 
 export default {
   name: 'sequence',
-  summary: '时序图（参与者之间的消息往来）',
+  summary: 'Sequence diagram (messages between participants)',
   syntax: `\`\`\`sequence [num]
-participants: A, B, C        ← 可选，固定参与者顺序
-A -> B: 请求                  ← 实线
-B --> A: 响应                 ← 虚线（返回）
-B -> B: 自调用
-note A: 单个参与者上的注释
-note A, C: 横跨多个参与者的注释
-== 阶段分隔 ==
+participants: A, B, C        ← optional, fixes the participant order
+A -> B: request              ← solid line
+B --> A: response            ← dashed line (return)
+B -> B: self call
+note A: note on one participant
+note A, C: note across several participants
+== Phase divider ==
 \`\`\`
-- 参数 num：给消息加序号。`,
+- Argument num: number the messages.`,
   example: '```sequence\nClient -> Server: SYN\nServer --> Client: SYN-ACK\nClient -> Server: ACK\nnote Client, Server: ESTABLISHED\n```',
   render(text, { args, uid }) {
     const model = parseSequence(text);
@@ -151,5 +151,5 @@ function layout({ participants: ps, steps }, { num, id }) {
       + `<g data-key="${esc(p)}"><rect class="am-actor" x="${f(x - actorW[i] / 2)}" y="${TOP}" width="${f(actorW[i])}" height="${ACTOR_H}" rx="2"/>`
       + `${textLines([p], x, TOP + ACTOR_H / 2, LH, ' font-weight="600"')}</g>`;
   });
-  return `${svgOpen(width, height, `时序图：${ps.join('、')}`)}${arrowDefs(id)}${actors.join('')}${body.join('')}</svg>`;
+  return `${svgOpen(width, height, `时序图：${ps.join('、')}`)}${arrowDefs(id)}${actors.join('')}${body.join('')}</svg>`; // lang-ok: page aria-label, viewer-facing
 }

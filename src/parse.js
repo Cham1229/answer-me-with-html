@@ -21,7 +21,7 @@ export function applyOverrides(meta, overrides, choices = CHOICES) {
   const set = Object.entries(overrides).filter(([, v]) => v !== undefined);
   for (const [key, value] of set) {
     if (choices[key] && !choices[key].includes(String(value))) {
-      throw new ParseError(`${key} 的值 "${value}" 无效，可选：${choices[key].join(' | ')}`, 0);
+      throw new ParseError(`Invalid ${key} value "${value}". Choose one of: ${choices[key].join(' | ')}`, 0);
     }
   }
   return { ...meta, ...Object.fromEntries(set) };
@@ -60,21 +60,21 @@ export function parseDoc(source, { defaults = {}, choices = {} } = {}) {
 function parseFrontmatter(lines, base, allowed) {
   if (lines[0]?.trim() !== '---') return { meta: { ...base }, bodyStart: 0 };
   const end = lines.findIndex((l, i) => i > 0 && l.trim() === '---');
-  if (end === -1) throw new ParseError('frontmatter 未闭合：缺少结束行 ---', 1);
+  if (end === -1) throw new ParseError('frontmatter is not closed: missing the closing --- line', 1);
 
   const entries = {};
   for (let i = 1; i < end; i++) {
     const raw = stripLineComment(lines[i]).trim();
     if (!raw || raw.startsWith('#')) continue;
     const m = raw.match(/^([\w-]+)\s*:\s*(.*)$/);
-    if (!m) throw new ParseError(`frontmatter 无法解析："${lines[i]}"，应为 key: value`, i + 1);
+    if (!m) throw new ParseError(`Cannot parse frontmatter line "${lines[i]}"; expected key: value`, i + 1);
     entries[m[1]] = { value: coerce(m[1], unquote(m[2])), line: i + 1 };
   }
 
   const meta = { ...base };
   for (const [key, { value, line }] of Object.entries(entries)) {
     if (allowed[key] && !allowed[key].includes(String(value))) {
-      throw new ParseError(`${key} 的值 "${value}" 无效，可选：${allowed[key].join(' | ')}`, line);
+      throw new ParseError(`Invalid ${key} value "${value}". Choose one of: ${allowed[key].join(' | ')}`, line);
     }
     meta[key] = allowed[key] ? String(value) : value;
   }
@@ -99,7 +99,7 @@ function splitSections(lines, start) {
     if (fence) {
       flushMd();
       const close = findFenceClose(lines, i, fence[1]);
-      if (close === -1) throw new ParseError(`围栏块 ${fence[1]}${fence[2]} 未闭合`, i + 1);
+      if (close === -1) throw new ParseError(`fenced block ${fence[1]}${fence[2]} is not closed`, i + 1);
       current.blocks.push({
         type: 'fence',
         lang: fence[2].toLowerCase(),

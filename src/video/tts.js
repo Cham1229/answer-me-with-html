@@ -33,13 +33,13 @@ export function pickProvider(choice, env, { platform = process.platform, which =
   const system = () => systemVoice(platform, which);
   if (choice === 'off') return null;
   if (choice === 'elevenlabs') {
-    if (!env.ELEVENLABS_API_KEY) throw new TtsError('voice=elevenlabs 需要环境变量 ELEVENLABS_API_KEY');
+    if (!env.ELEVENLABS_API_KEY) throw new TtsError('voice=elevenlabs needs the ELEVENLABS_API_KEY environment variable');
     return eleven();
   }
   if (choice === 'local') return localSpeech(env);
   if (choice === 'system') {
     const p = system();
-    if (!p) throw new TtsError('没有找到系统 TTS：macOS 自带 say；Linux 请安装 espeak-ng');
+    if (!p) throw new TtsError('No system TTS found: macOS has say built in; on Linux install espeak-ng');
     return p;
   }
   if (env.ELEVENLABS_API_KEY) return eleven();
@@ -64,9 +64,9 @@ function elevenLabs(env) {
           signal: AbortSignal.timeout(ELEVEN_TIMEOUT_MS),
         });
       } catch (e) {
-        throw new TtsError(`无法连接 ElevenLabs：${e.name === 'TimeoutError' ? `${ELEVEN_TIMEOUT_MS / 1000} 秒内没有响应` : e.message}`);
+        throw new TtsError(`Cannot connect to ElevenLabs: ${e.name === 'TimeoutError' ? `no response within ${ELEVEN_TIMEOUT_MS / 1000} seconds` : e.message}`);
       }
-      if (!res.ok) throw new TtsError(`ElevenLabs 返回 ${res.status}：${(await res.text()).slice(0, 200)}`);
+      if (!res.ok) throw new TtsError(`ElevenLabs returned ${res.status}: ${(await res.text()).slice(0, 200)}`);
       const buf = Buffer.from(await res.arrayBuffer());
       return new Int16Array(buf.buffer, buf.byteOffset, Math.floor(buf.length / 2)).slice();
     },
@@ -78,7 +78,7 @@ function elevenLabs(env) {
 // 但 input / response_format / stream 总由 am 决定。AM_TTS_ATTEMPTS 是每句最多合成次数，默认 3，设为 1 关闭时长检查。
 // AM_TTS_API_KEY 有值时以 Bearer 令牌发送；它不进缓存键。
 function localSpeech(env) {
-  if (!env.AM_TTS_URL) throw new TtsError('voice=local 需要环境变量 AM_TTS_URL（如 http://127.0.0.1:8000）');
+  if (!env.AM_TTS_URL) throw new TtsError('voice=local needs the AM_TTS_URL environment variable (such as http://127.0.0.1:8000)');
   const url = `${env.AM_TTS_URL.replace(/\/+$/, '').replace(/\/v1$/, '')}/v1/audio/speech`;
   let extra = {};
   if (env.AM_TTS_EXTRA) {
@@ -87,10 +87,10 @@ function localSpeech(env) {
     } catch {
       extra = null;
     }
-    if (!extra || typeof extra !== 'object' || Array.isArray(extra)) throw new TtsError('AM_TTS_EXTRA 必须是 JSON 对象');
+    if (!extra || typeof extra !== 'object' || Array.isArray(extra)) throw new TtsError('AM_TTS_EXTRA must be a JSON object');
   }
   const attempts = env.AM_TTS_ATTEMPTS ? Number(env.AM_TTS_ATTEMPTS) : LOCAL_ATTEMPTS;
-  if (!Number.isInteger(attempts) || attempts < 1) throw new TtsError('AM_TTS_ATTEMPTS 必须是正整数');
+  if (!Number.isInteger(attempts) || attempts < 1) throw new TtsError('AM_TTS_ATTEMPTS must be a positive integer');
   const body = { ...extra, response_format: 'wav', stream: false };
   delete body.input;
   if (env.AM_TTS_MODEL) body.model = env.AM_TTS_MODEL;
@@ -100,7 +100,7 @@ function localSpeech(env) {
   const headers = { 'content-type': 'application/json', ...(env.AM_TTS_API_KEY ? { authorization: `Bearer ${env.AM_TTS_API_KEY}` } : {}) };
   const request = async (text) => {
     const signal = AbortSignal.timeout(LOCAL_TIMEOUT_MS);
-    const why = (e) => (signal.aborted ? `${LOCAL_TIMEOUT_MS / 1000} 秒内没有完成` : e.message);
+    const why = (e) => (signal.aborted ? `not finished within ${LOCAL_TIMEOUT_MS / 1000} seconds` : e.message);
     let res;
     try {
       res = await fetch(url, {
@@ -110,19 +110,19 @@ function localSpeech(env) {
         signal,
       });
     } catch (e) {
-      throw new TtsError(`无法连接本地 TTS ${url}：${why(e)}`);
+      throw new TtsError(`Cannot connect to the local TTS ${url}: ${why(e)}`);
     }
     let buf;
     try {
       buf = Buffer.from(await res.arrayBuffer());
     } catch (e) {
-      throw new TtsError(`读取本地 TTS 响应失败（HTTP ${res.status}）：${why(e)}`);
+      throw new TtsError(`Cannot read the local TTS response (HTTP ${res.status}): ${why(e)}`);
     }
-    if (!res.ok) throw new TtsError(`本地 TTS 返回 ${res.status}：${buf.toString('utf8', 0, 200)}`);
+    if (!res.ok) throw new TtsError(`The local TTS returned ${res.status}: ${buf.toString('utf8', 0, 200)}`);
     try {
       return readWav(buf);
     } catch (e) {
-      throw new TtsError(`本地 TTS 返回的音频无法解码（需要 16 位 PCM WAV）：${e.message}`);
+      throw new TtsError(`Cannot decode the audio from the local TTS (needs 16-bit PCM WAV): ${e.message}`);
     }
   };
   return {
@@ -141,7 +141,7 @@ function localSpeech(env) {
         if (!best || Math.abs(Math.log(ratio)) < Math.abs(Math.log(best.ratio))) best = { samples, ratio };
         if (ratio >= LOCAL_RATIO[0] && ratio <= LOCAL_RATIO[1]) break;
       }
-      if (!best) throw new TtsError(`本地 TTS 连续 ${attempts} 次只返回静音`);
+      if (!best) throw new TtsError(`The local TTS returned only silence ${attempts} time${attempts === 1 ? '' : 's'} in a row`);
       return best.samples;
     },
   };
@@ -209,7 +209,7 @@ function run(cmd, args) {
     let err = '';
     p.stderr.on('data', (d) => { err += d; });
     p.on('error', reject);
-    p.on('close', (code) => (code === 0 ? resolve() : reject(new TtsError(`${cmd} 失败（${code}）：${err.slice(0, 200)}`))));
+    p.on('close', (code) => (code === 0 ? resolve() : reject(new TtsError(`${cmd} failed (${code}): ${err.slice(0, 200)}`))));
   });
 }
 
@@ -231,7 +231,7 @@ async function withTemp(fn) {
 
 // 解析 16 位 PCM WAV，多声道取第一声道。返回 { rate, samples }。
 export function readWav(buf) {
-  if (buf.toString('ascii', 0, 4) !== 'RIFF' || buf.toString('ascii', 8, 12) !== 'WAVE') throw new TtsError('不是 WAV 文件');
+  if (buf.toString('ascii', 0, 4) !== 'RIFF' || buf.toString('ascii', 8, 12) !== 'WAVE') throw new TtsError('Not a WAV file');
   let pos = 12;
   let fmt = null;
   while (pos + 8 <= buf.length) {
@@ -239,7 +239,7 @@ export function readWav(buf) {
     const size = buf.readUInt32LE(pos + 4);
     if (id === 'fmt ') fmt = { channels: buf.readUInt16LE(pos + 10), rate: buf.readUInt32LE(pos + 12), bits: buf.readUInt16LE(pos + 22) };
     if (id === 'data') {
-      if (!fmt || fmt.bits !== 16) throw new TtsError('只支持 16 位 PCM WAV');
+      if (!fmt || fmt.bits !== 16) throw new TtsError('Only 16-bit PCM WAV is supported');
       const n = Math.floor(Math.min(size, buf.length - pos - 8) / 2 / fmt.channels);
       const samples = new Int16Array(n);
       for (let i = 0; i < n; i++) samples[i] = buf.readInt16LE(pos + 8 + i * 2 * fmt.channels);
@@ -247,7 +247,7 @@ export function readWav(buf) {
     }
     pos += 8 + size + (size % 2);
   }
-  throw new TtsError('WAV 缺少 data 块');
+  throw new TtsError('The WAV has no data chunk');
 }
 
 // 线性插值重采样到 SAMPLE_RATE。

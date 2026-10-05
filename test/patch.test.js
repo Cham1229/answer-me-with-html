@@ -172,7 +172,7 @@ test('replacePanel: 正文不含 ## 时保留原标题行', () => {
 test('replacePanel: 找不到面板或稿件为空时抛错', () => {
   assert.throws(() => replacePanel(SRC, '没有这个', 'x'), PatchError);
   assert.throws(() => replacePanel(SRC, '流程', '   '), PatchError);
-  assert.throws(() => replacePanel(SRC, '流程', '## A 一\na\n## B 二\nb\n'), /只包含一个/);
+  assert.throws(() => replacePanel(SRC, '流程', '## A 一\na\n## B 二\nb\n'), /exactly one/);
 });
 
 test('pageSettings: 从页面读回模板、主题、明暗与 STE style', async () => {

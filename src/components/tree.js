@@ -5,20 +5,20 @@ import { esc } from '../svg/text.js';
 
 export default {
   name: 'tree',
-  summary: '层级结构树（组织图 / 缩进列表）',
+  summary: 'Hierarchy tree (org chart / indented list)',
   syntax: `\`\`\`tree [list]
-根节点 | 副标题
-  子节点
-    孙节点 | 一行说明
-  *高亮子节点
+Root | subtitle
+  Child
+    Grandchild | one-line note
+  *Highlighted child
 \`\`\`
-- 用缩进（空格或 Tab）表达层级；"标签 | 说明" 给出灰色说明。
-- 单根且 2~4 个子节点 → 组织图；子节点更多或参数 list → 缩进列表；多个根 → 并排。
-- 标签支持行内 Markdown，如 \`Section 1\` Words。`,
-  example: '```tree\nASD-STE100 | Simplified Technical English\n  Part 1: Writing rules\n    `Section 1` Words\n  Part 2: Dictionary\n    Approved words | 一词一义\n```',
+- Indentation (spaces or tabs) sets the level; "label | note" adds a gray note.
+- One root with 2 to 4 children → org chart; more children or the list argument → indented list; several roots → side by side.
+- Labels support inline Markdown, such as \`Section 1\` Words.`,
+  example: '```tree\nASD-STE100 | Simplified Technical English\n  Part 1: Writing rules\n    `Section 1` Words\n  Part 2: Dictionary\n    Approved words | one word, one meaning\n```',
   render(text, { args }) {
     const roots = buildTree(text);
-    if (!roots.length) throw new ComponentError('tree 至少需要一个节点', 1);
+    if (!roots.length) throw new ComponentError('tree needs at least one node', 1);
     const listMode = /\blist\b/.test(args);
     if (roots.length === 1) {
       const [root] = roots;

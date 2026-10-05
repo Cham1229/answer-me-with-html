@@ -70,9 +70,10 @@ export function cleanHint(state, use, now = Date.now()) {
   const big = use.total >= CLEAN.bigBytes;
   const stale = days >= CLEAN.staleDays && use.total >= CLEAN.staleBytes;
   if (!big && !stale) return null;
-  const parts = `页面 ${use.pages.count} 个 ${mb(use.pages.bytes)}，视频 ${mb(use.videos.bytes)}，配音缓存 ${mb(use.cache.bytes)}`;
-  const when = state.lastClean ? `上次清理在 ${days} 天前` : '还没有清理过';
-  return `! 清理提示：数据目录已占用 ${mb(use.total)}（${parts}），${when}。请问用户是否运行 am clean（删除 ${CLEAN.days} 天前的页面和视频，并清空配音缓存；全部清掉用 am clean --all）。`;
+  const pages = `${use.pages.count} page${use.pages.count === 1 ? '' : 's'}`;
+  const parts = `${pages} ${mb(use.pages.bytes)}, videos ${mb(use.videos.bytes)}, voice-over cache ${mb(use.cache.bytes)}`;
+  const when = state.lastClean ? `last cleaned ${days} days ago` : 'never cleaned';
+  return `! Cleanup hint: the data directory uses ${mb(use.total)} (${parts}), ${when}. Ask the user whether to run am clean (deletes pages and videos older than ${CLEAN.days} days and empties the voice-over cache; am clean --all deletes everything).`;
 }
 
 // 每次渲染后调用：记录首次使用时间，返回要打印的提示，并按需安排后台版本检查。

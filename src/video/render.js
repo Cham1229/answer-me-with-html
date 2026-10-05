@@ -41,7 +41,7 @@ export async function renderVideo(source, { provider = null, cacheDir, defaults 
 // 有配音时每拍时长取音频长度；否则按字数估算。
 async function voiceBeats(beats, provider, cacheDir, onProgress) {
   if (!provider) return { clips: null, durations: beats.map((b) => estimateSeconds(b.text)) };
-  onProgress?.(`配音：${provider.name}，${beats.length} 句`);
+  onProgress?.(`Voice-over: ${provider.name}, ${beats.length} line${beats.length === 1 ? '' : 's'}`);
   const clips = await synthAll(beats.map((b) => b.text), provider, { cacheDir });
   return { clips, durations: clips.map((c) => c.length / SAMPLE_RATE) };
 }

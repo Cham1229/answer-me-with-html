@@ -14,10 +14,10 @@ export function parseVideo(source, { defaults = {} } = {}) {
   const intro = splitNarration(doc.intro);
   const scenes = doc.panels.map((p) => {
     const { blocks, beats } = splitNarration(p.blocks);
-    if (!beats.length) throw new ParseError(`场景 "${p.title}" 没有旁白：每个场景至少写一行 > 旁白`, p.line);
+    if (!beats.length) throw new ParseError(`Scene "${p.title}" has no narration: write at least one > narration line in every scene`, p.line);
     return { id: p.id, title: p.title, line: p.line, attrs: p.attrs, blocks, beats };
   });
-  if (!scenes.length) throw new ParseError('视频稿至少需要一个场景（## 场景标题）', 1);
+  if (!scenes.length) throw new ParseError('A video draft needs at least one scene (## Scene title)', 1);
   return { meta: doc.meta, doc, intro: intro.blocks, introBeats: intro.beats, scenes };
 }
 

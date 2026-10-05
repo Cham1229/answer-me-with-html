@@ -9,14 +9,14 @@ const NOTE_GAP = 10;
 
 export default {
   name: 'annot',
-  summary: '句子逐段标注（下划括号 + 注释）',
+  summary: 'Sentence annotation by segment (underline bracket + note)',
   syntax: `\`\`\`annot
-# 小标题 | 右侧说明（可选）
-句子文本，[被标注片段]{注释}，[错误片段]{!红色注释}。
-> 底部说明（可选）
+# Heading | right-side note (optional)
+Sentence text, [annotated span]{note}, [wrong span]{!red note}.
+> Caption below (optional)
 \`\`\`
-- 一个 # 开启一组；同组可有多句。注释重叠时自动错行。`,
-  example: '```annot\n# 1 程序性句子 | 13 words, limit 20\nMake sure that [the hydraulic reservoir]{Technical name} is [full]{!Not "replenished"}.\n> 一句只写一条指令\n```',
+- Each # starts a group; a group can hold several sentences. Overlapping notes move to separate rows automatically.`,
+  example: '```annot\n# 1 Procedural sentence | 13 words, limit 20\nMake sure that [the hydraulic reservoir]{Technical name} is [full]{!Not "replenished"}.\n> Write one instruction per sentence\n```',
   render(text) {
     const groups = [];
     let group = null;
@@ -31,7 +31,7 @@ export default {
         ensure().lines.push(sentenceHtml(t, line));
       }
     }
-    if (!groups.length) throw new ComponentError('annot 至少需要一个句子', 1);
+    if (!groups.length) throw new ComponentError('annot needs at least one sentence', 1);
     return groups.map(groupHtml).join('');
   },
 };
@@ -54,7 +54,7 @@ function groupHtml(g) {
 function sentenceHtml(sentence, line) {
   const stripped = sentence.replace(SEG, '');
   if (/\[[^\]]*\]\{|\]\{[^}]*$/.test(stripped)) {
-    throw new ComponentError(`annot 标注未闭合，应为 [片段]{注释}："${sentence}"`, line);
+    throw new ComponentError(`annot has an unclosed annotation; expected [span]{note}: "${sentence}"`, line);
   }
   const rows = [];
   let out = '';

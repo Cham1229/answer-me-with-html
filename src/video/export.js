@@ -39,10 +39,10 @@ export function findChrome(env = process.env, platform = process.platform) {
 }
 
 export async function exportMp4(htmlFile, mp4File, { wav, env = process.env, onProgress = () => {} } = {}) {
-  if (typeof WebSocket === 'undefined') throw new ExportError('导出 MP4 需要 Node.js 22 或更高版本（内置 WebSocket）');
-  if (!hasCommand('ffmpeg')) throw new ExportError('导出 MP4 需要 ffmpeg：macOS 用 brew install ffmpeg，Linux 用包管理器安装');
+  if (typeof WebSocket === 'undefined') throw new ExportError('MP4 export needs Node.js 22 or later (built-in WebSocket)');
+  if (!hasCommand('ffmpeg')) throw new ExportError('MP4 export needs ffmpeg: on macOS run brew install ffmpeg; on Linux install it with the package manager');
   const chromePath = findChrome(env);
-  if (!chromePath) throw new ExportError('没有找到 Chrome / Chromium / Edge。可用环境变量 AM_CHROME 指定浏览器路径');
+  if (!chromePath) throw new ExportError('No Chrome / Chromium / Edge found. Set the browser path with the AM_CHROME environment variable');
 
   const tmp = mkdtempSync(join(tmpdir(), 'am-export-'));
   const chrome = spawn(chromePath, [
@@ -63,7 +63,7 @@ export async function exportMp4(htmlFile, mp4File, { wav, env = process.env, onP
     await loaded;
     const evaluate = async (expression) => {
       const r = await page('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
-      if (r.exceptionDetails) throw new ExportError(`播放页脚本出错：${r.exceptionDetails.exception?.description ?? r.exceptionDetails.text}`);
+      if (r.exceptionDetails) throw new ExportError(`Player page script error: ${r.exceptionDetails.exception?.description ?? r.exceptionDetails.text}`);
       return r.result.value;
     };
     const info = await evaluate('document.fonts.ready.then(() => { window.__amv.exportMode(); return { duration: window.__amv.duration, fps: window.__amv.fps }; })');
@@ -83,11 +83,11 @@ export async function exportMp4(htmlFile, mp4File, { wav, env = process.env, onP
     // ffmpeg 提前退出时，写入 stdin 会触发 EPIPE；这里吞掉，由 done 统一报错。
     ffmpeg.stdin.on('error', () => {});
     const done = new Promise((resolve, reject) => {
-      ffmpeg.on('error', (e) => { exited = true; reject(new ExportError(`无法运行 ffmpeg：${e.message}`)); });
+      ffmpeg.on('error', (e) => { exited = true; reject(new ExportError(`Cannot run ffmpeg: ${e.message}`)); });
       ffmpeg.on('close', (code) => {
         exited = true;
         if (code === 0) resolve();
-        else reject(new ExportError(`ffmpeg 失败（${code}）：${ffErr.slice(0, 300)}`));
+        else reject(new ExportError(`ffmpeg failed (${code}): ${ffErr.slice(0, 300)}`));
       });
     });
     done.catch(() => {}); // 先挂上处理器，避免帧循环期间出现未处理的 rejection
@@ -124,8 +124,8 @@ export async function exportMp4(htmlFile, mp4File, { wav, env = process.env, onP
 function devtoolsUrl(chrome) {
   return new Promise((resolve, reject) => {
     let buf = '';
-    const timer = setTimeout(() => reject(new ExportError('Chrome 启动超时')), 20000);
-    chrome.on('error', (e) => { clearTimeout(timer); reject(new ExportError(`无法启动 Chrome：${e.message}`)); });
+    const timer = setTimeout(() => reject(new ExportError('Chrome did not start in time')), 20000);
+    chrome.on('error', (e) => { clearTimeout(timer); reject(new ExportError(`Cannot start Chrome: ${e.message}`)); });
     chrome.stderr.on('data', (d) => {
       buf += d;
       const m = buf.match(/DevTools listening on (ws:\/\/\S+)/);
@@ -144,7 +144,7 @@ function connect(url) {
     const pending = new Map();
     const waiters = new Map();
     let id = 0;
-    ws.addEventListener('error', () => reject(new ExportError('无法连接 Chrome DevTools')));
+    ws.addEventListener('error', () => reject(new ExportError('Cannot connect to Chrome DevTools')));
     ws.addEventListener('message', (ev) => {
       const msg = JSON.parse(ev.data);
       if (msg.id && pending.has(msg.id)) {
@@ -163,7 +163,7 @@ function connect(url) {
           const msgId = ++id;
           const timer = setTimeout(() => {
             pending.delete(msgId);
-            fail(new ExportError(`Chrome 无响应（${method} 超过 ${CDP_TIMEOUT_MS / 1000} 秒）`));
+            fail(new ExportError(`Chrome is not responding (${method} took more than ${CDP_TIMEOUT_MS / 1000} seconds)`));
           }, CDP_TIMEOUT_MS);
           pending.set(msgId, { ok: (v) => { clearTimeout(timer); ok(v); }, fail: (e) => { clearTimeout(timer); fail(e); } });
           ws.send(JSON.stringify({ id: msgId, method, params, ...(sessionId ? { sessionId } : {}) }));

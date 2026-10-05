@@ -88,7 +88,7 @@ test('自动 ID 跳过已被显式占用的字母', () => {
 test('错误：未闭合的围栏块报告起始行号', () => {
   assert.throws(
     () => parseDoc('## A\n文本\n```flow\nA -> B'),
-    (err) => err instanceof ParseError && err.line === 3 && /未闭合/.test(err.message),
+    (err) => err instanceof ParseError && err.line === 3 && /not closed/.test(err.message),
   );
 });
 
@@ -118,6 +118,6 @@ test('CRLF 换行也能正确解析', () => {
 test('applyOverrides: 校验取值、忽略 undefined、返回新对象', () => {
   const meta = Object.freeze({ theme: 'blueprint', mode: 'auto', title: 'T' });
   assert.deepEqual(applyOverrides(meta, { theme: 'shadcn', mode: undefined }), { theme: 'shadcn', mode: 'auto', title: 'T' });
-  assert.throws(() => applyOverrides(meta, { theme: '3b1b' }), /theme 的值 "3b1b" 无效/);
+  assert.throws(() => applyOverrides(meta, { theme: '3b1b' }), /Invalid theme value "3b1b"/);
   assert.equal(applyOverrides(meta, { theme: '3b1b' }, { theme: ['3b1b'] }).theme, '3b1b');
 });

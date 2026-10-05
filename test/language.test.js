@@ -15,7 +15,48 @@ const commandFiles = () => readdirSync(join(ROOT, 'commands')).filter((f) => f.e
 const PARTS = {
   whole: (text) => text,
   frontmatter: (text) => text.match(/^---\n([\s\S]*?)\n---\n/)?.[1] ?? '',
+  strings: stringLiterals,
 };
+
+// JavaScript string and template-literal text only; comments, regex literals and code are blanked
+// (line breaks kept, so line numbers still match). A line ending in `// lang-ok: <reason>` is skipped:
+// it marks Chinese that is input or viewer-facing, not text the CLI prints.
+function stringLiterals(src) {
+  const text = src.replace(/^.*\/\/ lang-ok:.*$/gm, '');
+  const blank = (s) => s.replace(/[^\n]/g, ' ');
+  const stack = [{ tpl: false, depth: 0 }];
+  let out = '';
+  let last = '';
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    const top = stack[stack.length - 1];
+    if (top.tpl) {
+      if (c === '\\') { out += text.slice(i, i + 2); i++; } else if (c === '`') { stack.pop(); out += ' '; last = '`'; } else if (c === '$' && text[i + 1] === '{') { stack.push({ tpl: false, depth: 0 }); out += '  '; i++; } else out += c;
+      continue;
+    }
+    const end = (re) => { re.lastIndex = i; re.exec(text); return re.lastIndex || text.length; };
+    if (c === '/' && text[i + 1] === '/') { const j = text.indexOf('\n', i); const k = j === -1 ? text.length : j; out += blank(text.slice(i, k)); i = k - 1; continue; }
+    if (c === '/' && text[i + 1] === '*') { const k = text.indexOf('*/', i + 2) + 2; out += blank(text.slice(i, k)); i = k - 1; continue; }
+    if (c === '/' && (!last || /[(,=:[!&|?{};+\-*%<>~^]/.test(last) || /\b(return|typeof)\s*$/.test(text.slice(Math.max(0, i - 12), i)))) {
+      const k = end(/\/(?:\\.|\[(?:\\.|[^\]\\])*\]|[^/\\\n])+\/[a-z]*/y); out += blank(text.slice(i, k)); i = k - 1; last = ')'; continue;
+    }
+    if (c === '"' || c === "'") { const k = end(c === '"' ? /"(?:\\.|[^"\\\n])*"/y : /'(?:\\.|[^'\\\n])*'/y); out += ` ${text.slice(i + 1, k - 1)} `; i = k - 1; last = c; continue; }
+    if (c === '`') { stack.push({ tpl: true }); out += ' '; continue; }
+    if (c === '{') top.depth++;
+    if (c === '}') { if (top.depth === 0 && stack.length > 1) { stack.pop(); out += ' '; last = '}'; continue; } top.depth--; }
+    out += c === '\n' ? '\n' : ' ';
+    if (!/\s/.test(c)) last = c;
+  }
+  return out;
+}
+
+// Files whose string literals are text the CLI prints: output, errors, help and notices.
+const cliTextFiles = () => [
+  'bin/am.js',
+  ...['cli.js', 'config.js', 'housekeeping.js', 'update.js', 'patch.js', 'parse.js'].map((f) => join('src', f)),
+  ...['tts.js', 'export.js', 'script.js'].map((f) => join('src', 'video', f)),
+  ...readdirSync(join(ROOT, 'src', 'components')).filter((f) => f.endsWith('.js')).map((f) => join('src', 'components', f)),
+];
 
 // The single scope list: every file that must be English, and which part of it is checked.
 const SCOPE = [
@@ -23,6 +64,7 @@ const SCOPE = [
   { files: () => ['.claude-plugin/plugin.json', '.claude-plugin/marketplace.json'], part: 'whole' },
   { files: () => ['plugins/answer-me-with-html-always/.claude-plugin/plugin.json'], part: 'whole' },
   { files: commandFiles, part: 'frontmatter' },
+  { files: cliTextFiles, part: 'strings' },
 ];
 
 // Spans where Chinese is the subject, not the medium. They are removed before the check.
