@@ -565,3 +565,30 @@ test('am patch: a voiced video keeps its voice instead of switching to the confi
   });
   assert.match(readFileSync(file, 'utf8'), /data-voice="local"/);
 });
+
+test('ElevenLabs: defaults to eleven_v4_turbo, ELEVENLABS_MODEL_ID changes the model, the cache id follows it', async () => {
+  const realFetch = globalThis.fetch;
+  const bodies = [];
+  const urls = [];
+  globalThis.fetch = async (url, init) => {
+    urls.push(String(url));
+    bodies.push(JSON.parse(init.body));
+    return new Response(new Uint8Array(4), { status: 200 });
+  };
+  try {
+    const base = { ELEVENLABS_API_KEY: 'k' };
+    const def = pickProvider('elevenlabs', base);
+    const flash = pickProvider('elevenlabs', { ...base, ELEVENLABS_MODEL_ID: 'eleven_flash_v2_5' });
+    await def.synth('你好');
+    await flash.synth('你好');
+    assert.deepEqual(bodies.map((b) => b.model_id), ['eleven_v4_turbo', 'eleven_flash_v2_5']);
+    assert.match(def.id, /:eleven_v4_turbo$/);
+    // The default voice is Will, a premade voice that works on the free plan; ELEVENLABS_VOICE_ID overrides it.
+    assert.match(urls[0], /text-to-speech\/bIHbv24MWmeRgasZH58o\?/);
+    await pickProvider('elevenlabs', { ...base, ELEVENLABS_VOICE_ID: 'abc' }).synth('你好');
+    assert.match(urls[2], /text-to-speech\/abc\?/);
+    assert.notEqual(def.id, flash.id);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
