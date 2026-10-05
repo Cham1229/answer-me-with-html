@@ -1,13 +1,13 @@
-// 把 CLI 打包成单文件 skills/answer-me-with-html/scripts/am.mjs。
-// 产物随 skill 目录分发：用 npx skills add / 插件市场安装后无需 npm install，有 Node 即可运行。
+// Bundle the CLI into the single file skills/answer-me-with-html/scripts/am.mjs.
+// The bundle ships with the skill directory: after npx skills add / a plugin-marketplace install it runs with Node alone, no npm install.
 import { build } from 'esbuild';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-// 统一成 LF，产物不随检出平台的换行设置变化。
+// Normalize to LF so the bundle does not depend on the checkout's line-ending settings.
 const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8').replace(/\r\n?/g, '\n');
 
-// 用内联字符串替换 src/assets.js，去掉运行时对磁盘文件的依赖。
+// Replace src/assets.js with inline strings, removing the runtime dependency on files on disk.
 const inlineAssets = {
   name: 'inline-assets',
   setup(b) {

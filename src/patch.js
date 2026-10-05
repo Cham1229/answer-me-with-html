@@ -1,4 +1,4 @@
-// 在源稿里替换一个 ## 面板。源稿由 page.js 的 readPage 从页面取回；写回由 CLI 覆盖原路径。
+// Replace one ## panel in the source draft. page.js readPage recovers the source from the page; the CLI writes back over the original path.
 
 import { parseDoc } from './parse.js';
 
@@ -31,19 +31,19 @@ function panelKeys(panel) {
 
 export function findPanel(doc, query) {
   const q = normalizePanelQuery(query);
-  if (!q) throw new PatchError('缺少 --panel 标题');
+  if (!q) throw new PatchError('Missing the --panel title');
   const matches = doc.panels.filter((p) => panelKeys(p).has(q));
-  if (matches.length === 0) throw new PatchError(`没有找到标题为 "${query}" 的面板`);
-  if (matches.length > 1) throw new PatchError(`标题 "${query}" 匹配到多个面板`);
+  if (matches.length === 0) throw new PatchError(`No panel titled "${query}"`);
+  if (matches.length > 1) throw new PatchError(`The title "${query}" matches more than one panel`);
   return matches[0];
 }
 
 function asSinglePanelMarkdown(replacement) {
   const text = String(replacement).replace(/\r\n?/g, '\n');
-  if (!text.trim()) throw new PatchError('新面板稿件为空');
+  if (!text.trim()) throw new PatchError('The new panel draft is empty');
   const looksLikeHeading = /^\s*##\s+/.test(text);
   const doc = parseDoc(looksLikeHeading ? text : `## _\n${text}`);
-  if (doc.panels.length !== 1) throw new PatchError('新面板稿件必须只包含一个 ## 面板');
+  if (doc.panels.length !== 1) throw new PatchError('The new panel draft must contain exactly one ## panel');
   return { text, looksLikeHeading };
 }
 

@@ -12,54 +12,54 @@ const WIDE_FLOW = [
   'to-tickets -> implement-spec: 并行实现整个规格',
 ].join('\n');
 
-// 取面板 id 对应的 grid-column 跨度；没有 style 说明只占 1 列。
+// The grid-column span of panel id; no style means it takes 1 column.
 const spanOf = (html, id) => {
   const m = html.match(new RegExp(`<section class="am-panel[^"]*" id="panel-${id}"([^>]*)>`));
-  assert.ok(m, `panel ${id} 应存在`);
+  assert.ok(m, `panel ${id} must exist`);
   return Number(m[1].match(/grid-column: span (\d+)/)?.[1] ?? 1);
 };
-// 后面跟两个短面板：只有一个面板或行尾面板时，fillRows 会把它拉满整行，测不出自动跨列。
+// Two short panels follow: a lone panel or a row-end panel is stretched to the full row by fillRows, which would hide automatic spanning.
 const FILLERS = '\n\n## B 一\n文字\n\n## C 二\n文字';
 const render = (head, body) => renderDoc(`---\n${head}\n---\n${body}${FILLERS}`).html;
 
-test('sheet: 5 列表格没写 span 时自动占满一行', () => {
+test('sheet: a 5-column table without span fills a whole row', () => {
   assert.equal(spanOf(render('cols: 3', `## A 对比\n${table(5)}`), 'A'), 3);
 });
 
-test('sheet: 4 列表格自动占 2 列', () => {
+test('sheet: a 4-column table takes 2 columns', () => {
   assert.equal(spanOf(render('cols: 3', `## A 对比\n${table(4)}`), 'A'), 2);
 });
 
-test('sheet: 3 列及以下的表格保持 1 列，布局不变', () => {
+test('sheet: a table with 3 or fewer columns keeps 1 column and the layout is unchanged', () => {
   assert.equal(spanOf(render('cols: 3', `## A 对比\n${table(3)}`), 'A'), 1);
 });
 
-test('sheet: 作者显式写了 span 就不自动调整', () => {
+test('sheet: an explicit span from the author is not adjusted', () => {
   assert.equal(spanOf(render('cols: 3', `## A 对比 {span=1}\n${table(5)}`), 'A'), 1);
 });
 
-test('sheet: 自动跨列不超过 cols', () => {
+test('sheet: automatic spanning never exceeds cols', () => {
   assert.equal(spanOf(render('cols: 2', `## A 对比\n${table(6)}`), 'A'), 2);
 });
 
-test('sheet: 画布比一列宽得多的图自动加宽', () => {
+test('sheet: a diagram much wider than one column is widened', () => {
   const html = render('cols: 3', `## A 流程\n\`\`\`flow LR\n${WIDE_FLOW}\n\`\`\``);
   assert.ok(spanOf(html, 'A') >= 2);
 });
 
-test('sheet: 窄图保持 1 列', () => {
+test('sheet: a narrow diagram keeps 1 column', () => {
   const html = render('cols: 3', '## A 流程\n```sequence\nClient -> Server: SYN\nServer --> Client: ACK\n```');
   assert.equal(spanOf(html, 'A'), 1);
 });
 
-test('sheet: 自动加宽的面板之后，行尾面板仍拉满整行', () => {
+test('sheet: after a widened panel, the row-end panel still fills the row', () => {
   const html = render('cols: 3', `## A 对比\n${table(5)}`);
   assert.deepEqual(['A', 'B', 'C'].map((id) => spanOf(html, id)), [3, 1, 2]);
 });
 
-// 手机宽度下表格和图不再收缩：外层 overflow-x: auto 改为横向滚动。
-// 用浏览器实测过 390px：5 列表格单元格 >= 66px，图保持原尺寸。这里只守住规则不被删。
-test('base.css: ≤760px 时表格单元格有最小宽度、图不随容器缩小', async () => {
+// At phone width, tables and diagrams no longer shrink: the outer overflow-x: auto scrolls them sideways.
+// Checked in a browser at 390px: 5-column table cells are >= 66px and diagrams keep their size. This test only guards the rules from removal.
+test('base.css: at 760px or less, table cells have a minimum width and diagrams do not shrink with the container', async () => {
   const { BASE_CSS } = await import('../src/assets.js');
   const narrow = BASE_CSS.slice(BASE_CSS.indexOf('@media (max-width: 760px)'));
   const block = narrow.slice(0, narrow.indexOf('\n}') + 2);

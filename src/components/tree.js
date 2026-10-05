@@ -1,24 +1,24 @@
-// 结构树（配图 A）：缩进表达层级。单根且 2~4 个子节点时画成组织图，其余情况画成带连线的缩进列表。
+// Structure tree (figure A): indentation shows hierarchy. A single root with 2–4 children draws an org chart; otherwise an indented list with connectors.
 import { mdInline } from '../markdown.js';
 import { ComponentError, fields } from './error.js';
 import { esc } from '../svg/text.js';
 
 export default {
   name: 'tree',
-  summary: '层级结构树（组织图 / 缩进列表）',
+  summary: 'Hierarchy tree (org chart / indented list)',
   syntax: `\`\`\`tree [list]
-根节点 | 副标题
-  子节点
-    孙节点 | 一行说明
-  *高亮子节点
+Root | subtitle
+  Child
+    Grandchild | one-line note
+  *Highlighted child
 \`\`\`
-- 用缩进（空格或 Tab）表达层级；"标签 | 说明" 给出灰色说明。
-- 单根且 2~4 个子节点 → 组织图；子节点更多或参数 list → 缩进列表；多个根 → 并排。
-- 标签支持行内 Markdown，如 \`Section 1\` Words。`,
-  example: '```tree\nASD-STE100 | Simplified Technical English\n  Part 1: Writing rules\n    `Section 1` Words\n  Part 2: Dictionary\n    Approved words | 一词一义\n```',
+- Indentation (spaces or tabs) sets the level; "label | note" adds a gray note.
+- One root with 2 to 4 children → org chart; more children or the list argument → indented list; several roots → side by side.
+- Labels support inline Markdown, such as \`Section 1\` Words.`,
+  example: '```tree\nASD-STE100 | Simplified Technical English\n  Part 1: Writing rules\n    `Section 1` Words\n  Part 2: Dictionary\n    Approved words | one word, one meaning\n```',
   render(text, { args }) {
     const roots = buildTree(text);
-    if (!roots.length) throw new ComponentError('tree 至少需要一个节点', 1);
+    if (!roots.length) throw new ComponentError('tree needs at least one node', 1);
     const listMode = /\blist\b/.test(args);
     if (roots.length === 1) {
       const [root] = roots;
@@ -54,10 +54,10 @@ function parseLabel(t) {
   return { label, sub, hi };
 }
 
-// 标签以行内代码开头且后面还有文字时（如 `Section 1` Words），代码部分作为灰色编号标签。
+// When a label starts with inline code followed by text (e.g. `Section 1` Words), the code part becomes a grey number tag.
 const labelHtml = (label) => mdInline(label).replace(/^<code>([^<]*)<\/code>(?=\s*\S)/, '<span class="am-tree-tag">$1</span>');
 
-// data-key / data-step 供视频模式使用：同名节点跨场景变形，按源码行逐步出现。
+// data-key / data-step are for video mode: same-named nodes morph across scenes, appearing step by step by source line.
 const vattrs = (n) => ` data-key="${esc(n.label)}" data-step="${n.step}"`;
 
 const boxInner = (n) => `${labelHtml(n.label)}${n.sub ? `<small>${mdInline(n.sub)}</small>` : ''}`;

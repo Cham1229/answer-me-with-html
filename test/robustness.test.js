@@ -1,5 +1,5 @@
-// 健壮性：对每个组件和整份稿件喂各种异常输入，要求打包后的 CLI 不挂起、不出现"内部错误"。
-// 只允许正常的报错（语法错误提示、退出码 1/2）。每批在子进程里跑，挂起时由超时兜底。
+// Robustness: feed malformed input to every component and to whole drafts; the bundled CLI must not hang or report an "internal error".
+// Only normal errors are allowed (syntax error hints, exit code 1/2). Each batch runs in a child process; a timeout catches hangs.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -26,7 +26,7 @@ function runBatch(cases, args) {
         input, timeout: 10000, encoding: 'utf8', env: { ...process.env, AM_HOME: home, AM_NO_UPDATE_CHECK: '1', AM_NO_OPEN: '1' },
       });
       if (r.error || r.signal) failures.push(`${label}: ${r.error?.code ?? r.signal}`);
-      else if (r.status > 2 || /内部错误/.test(r.stderr)) failures.push(`${label}: ${r.stderr.split('\n')[0]}`);
+      else if (r.status > 2 || /Internal error/.test(r.stderr)) failures.push(`${label}: ${r.stderr.split('\n')[0]}`);
     }
     return failures;
   } finally {
@@ -35,17 +35,17 @@ function runBatch(cases, args) {
 }
 
 for (const c of COMPONENTS) {
-  test(`robustness: ${c} 组件的异常输入不挂起、不崩溃`, { timeout: 120000 }, () => {
+  test(`robustness: malformed input to the ${c} component neither hangs nor crashes`, { timeout: 120000 }, () => {
     const cases = BODIES.map((b, i) => [`${c}#${i}`, `## A t\n\`\`\`${c}\n${b}\n\`\`\`\n`]);
     assert.deepEqual(runBatch(cases, ['render', '-', '--no-open']), []);
   });
 }
 
-test('robustness: 稿件结构异常不挂起、不崩溃', { timeout: 120000 }, () => {
+test('robustness: malformed draft structure neither hangs nor crashes', { timeout: 120000 }, () => {
   assert.deepEqual(runBatch(DOCS.map((d, i) => [`doc#${i}`, d]), ['render', '-', '--no-open']), []);
 });
 
-test('robustness: 视频稿异常输入不挂起、不崩溃', { timeout: 120000 }, () => {
+test('robustness: malformed video drafts neither hang nor crash', { timeout: 120000 }, () => {
   const videos = ['', '> 只有旁白', '## 空\n', '## A\n> [', '## A\n> [不存在]', '## A\n```limits\nA | 0 / 0\n```\n> x',
     '## A\n```flow\n\u0000 -> B\n```\n> [B]', '## A\n```tree\nA\n  A\n```\n> [A]', '---\ntheme: neon\n---\n## A\n> x'];
   assert.deepEqual(runBatch(videos.map((v, i) => [`video#${i}`, v]), ['video', '-', '--voice', 'off', '--no-open']), []);

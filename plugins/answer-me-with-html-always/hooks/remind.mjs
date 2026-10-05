@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// answer-me-with-html 高频模式：UserPromptSubmit 时注入一句提醒（约 90 token），让 Agent 给出结论时顺手出一页 HTML。
-// 只输出提醒，不读取、不记录用户输入。用户用 `am config set always off` 关闭后，什么都不输出。
+// answer-me-with-html always-on mode: on UserPromptSubmit, inject one reminder (about 90 tokens) so the agent adds an HTML page when it gives a conclusion.
+// It only prints the reminder; it does not read or record user input. After `am config set always off`, it prints nothing.
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
@@ -14,7 +14,7 @@ export const REMINDER = [
   'or when the user asks for plain text.',
 ].join(' ');
 
-// 与 src/config.js 读取同一个文件；插件安装后只有本目录可用，所以这里内联一份最小实现。
+// Reads the same file as src/config.js. An installed plugin has only this directory, so a minimal copy is inlined here.
 function alwaysEnabled() {
   const file = join(process.env.AM_HOME || join(homedir(), '.answer-me-with-html'), 'config.json');
   try {

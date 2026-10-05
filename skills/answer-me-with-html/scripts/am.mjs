@@ -7,7 +7,7 @@ import { readFileSync as readFileSync4, writeFileSync as writeFileSync5, mkdirSy
 
 // src/assets.js
 var VERSION = "0.4.7";
-var BASE_CSS = '/* Answer me with HTML base \u2014 \u53EA\u5F15\u7528\u4E3B\u9898\u53D8\u91CF\uFF0C\u7981\u6B62\u5199\u6B7B\u989C\u8272\uFF08\u4E3B\u9898 token \u89C1 themes/index.js\uFF09\u3002\u4F8B\u5916\uFF1A\u56FE\uFF08flow / sequence\uFF09\u7684 var() fallback\uFF0C\u53D6\u503C\u7B49\u4E8E blueprint \u6D45\u8272 token\uFF0C\u7531\u6D4B\u8BD5\u5B88\u4F4F\u3002 */\n*, *::before, *::after { box-sizing: border-box; }\nhtml, body { margin: 0; padding: 0; }\nbody {\n  background: var(--bg); color: var(--ink);\n  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;\n  -webkit-font-smoothing: antialiased;\n}\ncode, pre, kbd { font-family: var(--font-mono); }\n\n/* \u2500\u2500 \u5DE5\u5177\u680F \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-toolbar {\n  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;\n}\n.am-btn {\n  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);\n  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;\n}\n.am-btn:hover { border-color: var(--ink-3); }\n.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }\n\n/* \u2500\u2500 \u9875\u5934 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-head { margin: 0 0 20px; padding-right: 260px; }\n.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }\n.am-sub { margin: 4px 0 0; color: var(--ink-2); }\n.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }\n.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }\n.am-intro { margin-top: 12px; max-width: 80ch; }\n\n/* \u2500\u2500 sheet \u56FE\u7EB8\u677F \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }\n.am-frame { position: relative; }\n.am-grid {\n  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));\n  gap: 20px; align-items: start;\n}\n.am-ruler { display: none; }\nhtml[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }\nhtml[data-theme="blueprint"] .am-frame::before {\n  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;\n}\nhtml[data-theme="blueprint"] .am-ruler {\n  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);\n}\n.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }\n.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }\n.am-ruler--top { top: 0; }\n.am-ruler--bottom { bottom: 0; }\n.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }\n.am-ruler--left { left: 0; }\n.am-ruler--right { right: 0; }\n.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }\n.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }\n\n/* \u2500\u2500 \u9762\u677F \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-panel {\n  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);\n  box-shadow: var(--shadow); min-width: 0; overflow: hidden;\n}\n.am-panel-head {\n  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;\n}\n.am-panel-id {\n  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;\n  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;\n}\nhtml[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }\nhtml[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }\n.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }\n.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }\n.am-panel-body { padding: 14px 16px 16px; }\n.am-panel-body > * + * { margin-top: 12px; }\n\n/* \u2500\u2500 Markdown \u6B63\u6587 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-md > :first-child { margin-top: 0; }\n.am-md > :last-child { margin-bottom: 0; }\n.am-md p { margin: 0 0 8px; }\n.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }\n.am-md li + li { margin-top: 3px; }\n.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }\n.am-md a { color: var(--accent); }\n.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }\n.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }\n.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }\n.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }\n.am-md th {\n  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;\n  padding: 6px 10px; border-bottom: 1px solid var(--line-2);\n}\n/* th \u7684 text-align: left \u4F1A\u538B\u8FC7 Markdown \u5BF9\u9F50\u8BED\u6CD5\u751F\u6210\u7684 align \u5C5E\u6027\uFF0C\u53F3\u5BF9\u9F50\u548C\u5C45\u4E2D\u5217\u8981\u663E\u5F0F\u8FD8\u539F\u3002 */\n.am-md th[align="right"] { text-align: right; }\n.am-md th[align="center"] { text-align: center; }\n.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }\n.am-md tbody tr:nth-child(even) td { background: var(--fill); }\n.am-table-wrap { overflow-x: auto; }\n.am-code {\n  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);\n  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;\n}\n\n/* \u2500\u2500 \u72B6\u6001\u5FBD\u7AE0 ok / no / warn \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-status { white-space: nowrap; font-weight: 500; }\n.am-status--ok { color: var(--ok); }\n.am-status--no { color: var(--err); }\n.am-status--warn { color: var(--warn); }\n.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }\n\n/* \u2500\u2500 callout \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-callout {\n  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);\n  padding: 10px 14px; border-radius: var(--radius);\n}\n.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }\n.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }\n.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }\n.am-callout-title { font-weight: 600; margin-bottom: 4px; }\n\n/* \u2500\u2500 kv \u6807\u9898\u680F\u683C \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-kv {\n  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;\n  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);\n}\n.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }\n.am-kv-cell--wide { grid-column: 1 / -1; }\n.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }\n.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }\n.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }\nhtml[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }\n\n/* \u2500\u2500 timeline \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-timeline { list-style: none; margin: 0; padding: 0; }\n.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }\n.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }\n.am-timeline--h li::before {\n  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);\n}\n.am-timeline--h li:first-child::before { left: 50%; }\n.am-timeline--h li:last-child::before { right: 50%; }\n.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }\n.am-tl-dot {\n  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;\n  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);\n}\n.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }\n.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }\n.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }\n.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }\n.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }\n.am-timeline--v li:last-child::before { display: none; }\n.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }\n.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }\n.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }\n.am-timeline--v .am-tl-text { margin-top: 2px; }\n\n/* \u2500\u2500 annot \u53E5\u5B50\u6807\u6CE8 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }\n.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }\n.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }\n.am-annot-scroll { overflow-x: auto; }\n.am-annot-line {\n  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);\n  padding-bottom: calc(var(--rows, 0) * 17px + 14px);\n}\n.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }\n.am-annot-line--wrap .am-seg { white-space: nowrap; }\n.am-seg { position: relative; }\n.am-seg::after {\n  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;\n  border: 1px solid var(--accent); border-top: 0;\n}\n.am-seg-n {\n  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);\n  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;\n}\n.am-seg--err { color: var(--err); }\n.am-seg--err::after { border-color: var(--err); }\n.am-seg--err .am-seg-n { color: var(--err); }\n.am-annot-caption { font-size: 12px; color: var(--ink-2); }\n\n/* \u2500\u2500 limits \u9650\u503C\u6761 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-lim + .am-lim { margin-top: 14px; }\n.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }\n.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }\n.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }\n.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }\n.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }\n.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }\n.am-lim.is-over .am-lim-val { color: var(--err); }\n.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }\n.am-lim-ticks span { position: absolute; transform: translateX(-50%); }\n.am-lim-ticks span:first-child { transform: none; }\n.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }\n\n/* \u2500\u2500 tree \u7ED3\u6784\u6811 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-tree { font-size: 13px; }\n.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }\n.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }\n.am-tree-root--solo { padding-bottom: 12px; }\n.am-tree-root--solo::after { display: none; }\n.am-tree-box {\n  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;\n  border-radius: var(--radius); font-weight: 600;\n}\n.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }\n.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }\n.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }\n.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }\n.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }\n.am-tree-col:first-child::before { left: 50%; }\n.am-tree-col:last-child::before { right: 50%; }\n.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }\n.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }\n.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }\n.am-tree-list ul { margin-left: 16px; }\n.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }\n.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }\n.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }\n.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }\n.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }\n.am-tree code { font: 12px var(--font-mono); }\n.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }\n.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }\n\n/* \u2500\u2500 \u56FE\uFF08flow / sequence\uFF09\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-diagram { margin: 0; overflow-x: auto; text-align: center; }\n/* \u5D4C\u5165\u9884\u89C8\u53EF\u80FD\u4E22\u5931 html[data-theme]\uFF1Bfallback \u4FDD\u6301\u56FE\u53EF\u8BFB\uFF0C\u5DF2\u5B9A\u4E49\u7684\u4E3B\u9898\u53D8\u91CF\u4ECD\u4F18\u5148\u3002 */\n.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }\n.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }\n.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }\n.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }\n.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }\n.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }\n.am-edge--dashed { stroke-dasharray: 5 4; }\n.am-arrow { fill: var(--ink-2, #4b5260); }\n.am-edge-label rect { fill: var(--paper, #ffffff); }\n.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }\n.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }\n.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }\n.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }\n.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }\n.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }\n.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }\n\n/* \u2500\u2500 doc \u7EBF\u6027\u8BB2\u89E3 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }\n.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }\n.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }\n.am-toc { position: sticky; top: 24px; font-size: 13px; }\n.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }\n.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }\n.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }\n\n/* \u2500\u2500 \u54CD\u5E94\u5F0F\u4E0E\u6253\u5370 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n@media (max-width: 1100px) {\n  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n  .am-grid > .am-panel { grid-column: auto !important; }\n  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }\n}\n@media (max-width: 760px) {\n  .am-sheet, .am-doc { padding: 56px 12px 24px; }\n  .am-head { padding-right: 0; }\n  .am-grid { grid-template-columns: minmax(0, 1fr); }\n  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }\n  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }\n  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }\n  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }\n  .am-toc { position: static; }\n  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }\n  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }\n  /* \u8868\u683C\u548C\u56FE\u4E0D\u518D\u88AB\u6324\u5C0F\uFF1A\u8D85\u51FA\u5C4F\u5E55\u65F6\u7531\u5916\u5C42\u6A2A\u5411\u6EDA\u52A8\u3002 */\n  .am-md th, .am-md td { min-width: 6em; }\n  .am-diagram svg { max-width: none; }\n}\n.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }\n\n@media print {\n  .am-toolbar { display: none; }\n  body { background: var(--paper); }\n  .am-panel { break-inside: avoid; box-shadow: none; }\n}\n.am-panel--bare { border: 0; background: transparent; box-shadow: none; }\n.am-panel--bare > .am-panel-body { padding: 0; }\n.am-panel--bare .am-kv { background: var(--paper); }\n';
+var BASE_CSS = '/* Answer me with HTML base \u2014 uses theme variables only, never hard-coded colors (theme tokens: themes/index.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */\n*, *::before, *::after { box-sizing: border-box; }\nhtml, body { margin: 0; padding: 0; }\nbody {\n  background: var(--bg); color: var(--ink);\n  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;\n  -webkit-font-smoothing: antialiased;\n}\ncode, pre, kbd { font-family: var(--font-mono); }\n\n/* \u2500\u2500 Toolbar \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-toolbar {\n  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;\n}\n.am-btn {\n  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);\n  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;\n}\n.am-btn:hover { border-color: var(--ink-3); }\n.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }\n\n/* \u2500\u2500 Header \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-head { margin: 0 0 20px; padding-right: 260px; }\n.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }\n.am-sub { margin: 4px 0 0; color: var(--ink-2); }\n.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }\n.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }\n.am-intro { margin-top: 12px; max-width: 80ch; }\n\n/* \u2500\u2500 sheet template \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }\n.am-frame { position: relative; }\n.am-grid {\n  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));\n  gap: 20px; align-items: start;\n}\n.am-ruler { display: none; }\nhtml[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }\nhtml[data-theme="blueprint"] .am-frame::before {\n  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;\n}\nhtml[data-theme="blueprint"] .am-ruler {\n  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);\n}\n.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }\n.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }\n.am-ruler--top { top: 0; }\n.am-ruler--bottom { bottom: 0; }\n.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }\n.am-ruler--left { left: 0; }\n.am-ruler--right { right: 0; }\n.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }\n.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }\n\n/* \u2500\u2500 Panels \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-panel {\n  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);\n  box-shadow: var(--shadow); min-width: 0; overflow: hidden;\n}\n.am-panel-head {\n  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;\n}\n.am-panel-id {\n  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;\n  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;\n}\nhtml[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }\nhtml[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }\n.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }\n.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }\n.am-panel-body { padding: 14px 16px 16px; }\n.am-panel-body > * + * { margin-top: 12px; }\n\n/* \u2500\u2500 Markdown body \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-md > :first-child { margin-top: 0; }\n.am-md > :last-child { margin-bottom: 0; }\n.am-md p { margin: 0 0 8px; }\n.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }\n.am-md li + li { margin-top: 3px; }\n.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }\n.am-md a { color: var(--accent); }\n.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }\n.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }\n.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }\n.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }\n.am-md th {\n  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;\n  padding: 6px 10px; border-bottom: 1px solid var(--line-2);\n}\n/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */\n.am-md th[align="right"] { text-align: right; }\n.am-md th[align="center"] { text-align: center; }\n.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }\n.am-md tbody tr:nth-child(even) td { background: var(--fill); }\n.am-table-wrap { overflow-x: auto; }\n.am-code {\n  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);\n  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;\n}\n\n/* \u2500\u2500 Status badges ok / no / warn \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-status { white-space: nowrap; font-weight: 500; }\n.am-status--ok { color: var(--ok); }\n.am-status--no { color: var(--err); }\n.am-status--warn { color: var(--warn); }\n.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }\n\n/* \u2500\u2500 callout \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-callout {\n  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);\n  padding: 10px 14px; border-radius: var(--radius);\n}\n.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }\n.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }\n.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }\n.am-callout-title { font-weight: 600; margin-bottom: 4px; }\n\n/* \u2500\u2500 kv title block \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-kv {\n  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;\n  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);\n}\n.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }\n.am-kv-cell--wide { grid-column: 1 / -1; }\n.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }\n.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }\n.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }\nhtml[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }\n\n/* \u2500\u2500 timeline \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-timeline { list-style: none; margin: 0; padding: 0; }\n.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }\n.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }\n.am-timeline--h li::before {\n  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);\n}\n.am-timeline--h li:first-child::before { left: 50%; }\n.am-timeline--h li:last-child::before { right: 50%; }\n.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }\n.am-tl-dot {\n  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;\n  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);\n}\n.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }\n.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }\n.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }\n.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }\n.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }\n.am-timeline--v li:last-child::before { display: none; }\n.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }\n.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }\n.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }\n.am-timeline--v .am-tl-text { margin-top: 2px; }\n\n/* \u2500\u2500 annot sentence notes \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }\n.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }\n.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }\n.am-annot-scroll { overflow-x: auto; }\n.am-annot-line {\n  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);\n  padding-bottom: calc(var(--rows, 0) * 17px + 14px);\n}\n.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }\n.am-annot-line--wrap .am-seg { white-space: nowrap; }\n.am-seg { position: relative; }\n.am-seg::after {\n  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;\n  border: 1px solid var(--accent); border-top: 0;\n}\n.am-seg-n {\n  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);\n  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;\n}\n.am-seg--err { color: var(--err); }\n.am-seg--err::after { border-color: var(--err); }\n.am-seg--err .am-seg-n { color: var(--err); }\n.am-annot-caption { font-size: 12px; color: var(--ink-2); }\n\n/* \u2500\u2500 limits bars \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-lim + .am-lim { margin-top: 14px; }\n.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }\n.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }\n.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }\n.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }\n.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }\n.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }\n.am-lim.is-over .am-lim-val { color: var(--err); }\n.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }\n.am-lim-ticks span { position: absolute; transform: translateX(-50%); }\n.am-lim-ticks span:first-child { transform: none; }\n.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }\n\n/* \u2500\u2500 tree \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-tree { font-size: 13px; }\n.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }\n.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }\n.am-tree-root--solo { padding-bottom: 12px; }\n.am-tree-root--solo::after { display: none; }\n.am-tree-box {\n  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;\n  border-radius: var(--radius); font-weight: 600;\n}\n.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }\n.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }\n.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }\n.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }\n.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }\n.am-tree-col:first-child::before { left: 50%; }\n.am-tree-col:last-child::before { right: 50%; }\n.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }\n.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }\n.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }\n.am-tree-list ul { margin-left: 16px; }\n.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }\n.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }\n.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }\n.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }\n.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }\n.am-tree code { font: 12px var(--font-mono); }\n.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }\n.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }\n\n/* \u2500\u2500 Diagrams (flow / sequence) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-diagram { margin: 0; overflow-x: auto; text-align: center; }\n/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */\n.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }\n.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }\n.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }\n.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }\n.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }\n.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }\n.am-edge--dashed { stroke-dasharray: 5 4; }\n.am-arrow { fill: var(--ink-2, #4b5260); }\n.am-edge-label rect { fill: var(--paper, #ffffff); }\n.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }\n.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }\n.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }\n.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }\n.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }\n.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }\n.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }\n\n/* \u2500\u2500 doc template \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }\n.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }\n.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }\n.am-toc { position: sticky; top: 24px; font-size: 13px; }\n.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }\n.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }\n.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }\n\n/* \u2500\u2500 Responsive and print \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n@media (max-width: 1100px) {\n  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n  .am-grid > .am-panel { grid-column: auto !important; }\n  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }\n}\n@media (max-width: 760px) {\n  .am-sheet, .am-doc { padding: 56px 12px 24px; }\n  .am-head { padding-right: 0; }\n  .am-grid { grid-template-columns: minmax(0, 1fr); }\n  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }\n  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }\n  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }\n  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }\n  .am-toc { position: static; }\n  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }\n  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }\n  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */\n  .am-md th, .am-md td { min-width: 6em; }\n  .am-diagram svg { max-width: none; }\n}\n.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }\n\n@media print {\n  .am-toolbar { display: none; }\n  body { background: var(--paper); }\n  .am-panel { break-inside: avoid; box-shadow: none; }\n}\n.am-panel--bare { border: 0; background: transparent; box-shadow: none; }\n.am-panel--bare > .am-panel-body { padding: 0; }\n.am-panel--bare .am-kv { background: var(--paper); }\n';
 var RUNTIME_JS = `(() => {
   const root = document.documentElement;
   const cycle = (list, cur) => list[(list.indexOf(cur) + 1) % list.length];
@@ -47,8 +47,8 @@ var RUNTIME_JS = `(() => {
   });
 })();
 `;
-var VIDEO_CSS = '/* \u89C6\u9891\u64AD\u653E\u9875\uFF1A1920\xD71080 \u821E\u53F0\u6309\u7A97\u53E3\u7B49\u6BD4\u7F29\u653E\u3002\u989C\u8272\u5168\u90E8\u6765\u81EA\u4E3B\u9898\u53D8\u91CF\uFF1A\n   blueprint / shadcn \u6CBF\u7528\u9875\u9762\u4E3B\u9898\uFF1B3b1b \u662F\u89C6\u9891\u4E13\u7528\u7684\u6DF1\u8272\u4E3B\u9898\uFF08\u6DF1\u5E95\u3001\u84DD\u7EBF\u3001\u9EC4\u8272\u5F3A\u8C03\uFF09\u3002 */\nhtml[data-video] {\n  /* \u64AD\u653E\u63A7\u4EF6\u4E0D\u8FDB\u5165\u753B\u9762\uFF0C\u4E5F\u4E0D\u968F\u4E3B\u9898\u53D8\u5316\uFF0C\u56FA\u5B9A\u7528\u4E00\u7EC4\u6DF1\u8272 token */\n  --v-ctl-bg: #0b0d11; --v-ctl-line: #1d2330; --v-ctl-fg: #c9d1dc; --v-ctl-muted: #5b6576;\n  --v-ctl-btn: #141922; --v-ctl-btn-line: #2a3240; --v-ctl-accent: #58c4dd; --v-ctl-white: #fff;\n  --v-letterbox: #000;\n  --v-stage: var(--bg);\n  --v-cap-fg: var(--ink); --v-cap-bg: var(--paper); --v-cap-border: var(--line);\n  --v-title-font: var(--head-font);\n  --v-glow: none;\n}\nhtml[data-video][data-theme="3b1b"] {\n  --bg: #0e1015; --paper: #141922; --ink: #eceff4; --ink-2: #a9b4c4; --ink-3: #6c7789;\n  --line: #58c4dd; --line-2: #2a3444; --fill: #171d27;\n  --accent: #f7d96f; --accent-bg: rgba(247, 217, 111, 0.12);\n  --ok: #83c167; --ok-bg: rgba(131, 193, 103, 0.14); --err: #fc6255; --err-bg: rgba(252, 98, 85, 0.14);\n  --warn: #f7d96f; --warn-bg: rgba(247, 217, 111, 0.12); --head-bg: #eceff4; --head-fg: #0e1015;\n  --radius: 6px; --bw: 1.6px; --shadow: none;\n  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, sans-serif;\n  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\n  --head-font: var(--font-sans);\n  --v-stage: radial-gradient(ellipse at 50% 40%, #151a23 0%, #0e1015 70%);\n  --v-cap-fg: #fff; --v-cap-bg: rgba(8, 10, 14, 0.55); --v-cap-border: transparent;\n  --v-title-font: "CMU Serif", "Latin Modern Roman", "Iowan Old Style", "Palatino", "Songti SC", "STSong", "Noto Serif CJK SC", serif;\n  --v-glow: drop-shadow(0 0 6px rgba(247, 217, 111, 0.55));\n}\n/* blueprint\uFF1A\u56FE\u7EB8\u5E95\u52A0\u7EC6\u7F51\u683C */\nhtml[data-video][data-theme="blueprint"] {\n  --v-stage: linear-gradient(var(--line-2) 1px, transparent 1px) 0 0 / 40px 40px,\n             linear-gradient(90deg, var(--line-2) 1px, transparent 1px) 0 0 / 40px 40px, var(--paper);\n}\nhtml[data-video][data-theme="blueprint"][data-mode="dark"] {\n  --v-stage: linear-gradient(rgba(201, 214, 232, 0.07) 1px, transparent 1px) 0 0 / 40px 40px,\n             linear-gradient(90deg, rgba(201, 214, 232, 0.07) 1px, transparent 1px) 0 0 / 40px 40px, var(--bg);\n}\n\nhtml[data-video], html[data-video] body { background: var(--v-letterbox); height: 100%; overflow: hidden; }\nhtml[data-video] body { font-size: 22px; }\n\n.amv-viewport { position: fixed; inset: 0 0 56px 0; overflow: hidden; }\n.amv-stage {\n  position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; overflow: hidden;\n  background: var(--v-stage); color: var(--ink); transform-origin: 50% 50%;\n}\n.amv-camera { position: absolute; inset: 0; transform-origin: 0 0; }\n.amv-overlay { position: absolute; inset: 0; pointer-events: none; }\n.amv-ghost { position: absolute; left: 0; top: 0; transform-origin: 0 0; margin: 0; }\n.amv-ghost svg { display: block; max-width: none; overflow: visible; }\n\n/* \u2500\u2500 \u56FE\u7EB8\u5916\u6846\uFF08blueprint\uFF09\u2500\u2500 */\n.amv-sheet { display: none; }\nhtml[data-theme="blueprint"] .amv-sheet {\n  display: block; position: absolute; inset: 24px; border: 1.5px solid var(--line); pointer-events: none;\n}\nhtml[data-theme="blueprint"] .amv-sheet::before {\n  content: ""; position: absolute; inset: 24px; border: 1.5px solid var(--line);\n}\n.amv-ruler { position: absolute; display: flex; font: 13px/1 var(--font-mono); color: var(--ink-3); }\n.amv-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }\n.amv-ruler--top, .amv-ruler--bottom { left: 24px; right: 24px; height: 24px; }\n.amv-ruler--top { top: 0; }\n.amv-ruler--bottom { bottom: 0; }\n.amv-ruler--left, .amv-ruler--right { top: 24px; bottom: 24px; width: 24px; flex-direction: column; }\n.amv-ruler--left { left: 0; }\n.amv-ruler--right { right: 0; }\n.amv-ruler--top span + span, .amv-ruler--bottom span + span { border-left: 1px solid var(--line); }\n.amv-ruler--left span + span, .amv-ruler--right span + span { border-top: 1px solid var(--line); }\n\n/* \u2500\u2500 \u573A\u666F \u2500\u2500 */\n.amv-scene { position: absolute; inset: 0; visibility: hidden; }\n.amv-scene-head {\n  position: absolute; left: 72px; right: 72px; top: 72px; height: 64px; visibility: hidden;\n  display: flex; align-items: stretch; border: var(--bw) solid var(--line); background: var(--paper);\n  border-radius: var(--radius); overflow: hidden; color: var(--ink);\n}\n.amv-scene-n {\n  display: flex; align-items: center; justify-content: center; min-width: 64px; padding: 0 14px;\n  background: var(--head-bg); color: var(--head-fg); font: 700 30px var(--font-sans);\n}\n.amv-scene-title { flex: 1; display: flex; align-items: center; padding: 0 22px; font: 600 32px var(--v-title-font); }\n.amv-scene-meta { display: flex; align-items: center; padding: 0 22px; font: 16px var(--font-mono); color: var(--ink-2); letter-spacing: 0.06em; }\nhtml[data-theme="shadcn"] .amv-scene-n { margin: 12px 0 12px 14px; min-width: 40px; border-radius: 8px; font-size: 22px; }\nhtml[data-theme="shadcn"] .amv-scene-head { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }\n/* 3b1b\uFF1A\u6807\u9898\u6D6E\u5728\u5DE6\u4E0A\u89D2\uFF0C\u4E0D\u8981\u8FB9\u6846 */\nhtml[data-theme="3b1b"] .amv-scene-head { left: 96px; top: 56px; border: 0; background: none; align-items: baseline; gap: 22px; }\nhtml[data-theme="3b1b"] .amv-scene-n { background: none; color: var(--line); padding: 0; min-width: 0; font: 500 30px var(--font-mono); }\nhtml[data-theme="3b1b"] .amv-scene-title { padding: 0; font-weight: 400; font-size: 46px; }\nhtml[data-theme="3b1b"] .amv-scene-meta { display: none; }\n\n.amv-body { position: absolute; left: 96px; right: 96px; top: 160px; height: 760px; display: grid; place-items: center; }\n.amv-fit { width: max-content; max-width: 1100px; transform-origin: 50% 50%; display: flex; flex-direction: column; gap: 28px; }\n.amv-fit .am-diagram { overflow: visible; }\n.amv-fit .am-diagram svg { max-width: none; overflow: visible; }\n.amv-fit .am-md { font-size: 26px; line-height: 1.6; }\n.amv-fit table { font-size: 24px; }\n.amv-fit th { font-size: 17px; }\n\n/* \u2500\u2500 \u7247\u5934 \u2500\u2500 */\n.amv-scene--title { display: grid; place-items: center; text-align: center; }\n.amv-title-wrap { max-width: 1500px; display: flex; flex-direction: column; align-items: center; }\n.amv-title { margin: 0; font: 700 96px/1.15 var(--v-title-font); color: var(--ink); letter-spacing: -0.01em; text-wrap: balance; }\n.amv-subtitle { margin: 26px 0 0; font: 36px var(--v-title-font); color: var(--accent); }\n.amv-intro { margin-top: 36px; font-size: 28px; color: var(--ink-2); }\n.amv-titleblock {\n  display: flex; margin-top: 56px; border: var(--bw) solid var(--line); border-radius: var(--radius);\n  background: var(--paper); text-align: left; overflow: hidden;\n}\n.amv-titleblock div { padding: 16px 30px; display: flex; flex-direction: column; gap: 6px; }\n.amv-titleblock div + div { border-left: 1px solid var(--line); }\n.amv-titleblock b { font: 600 16px var(--font-mono); color: var(--ink-3); letter-spacing: 0.08em; }\n.amv-titleblock span { font: 28px var(--font-sans); color: var(--ink); }\nhtml[data-theme="3b1b"] .amv-title { font-weight: 400; font-size: 104px; letter-spacing: 0.005em; }\nhtml[data-theme="3b1b"] .amv-subtitle { color: var(--line); }\nhtml[data-theme="3b1b"] .amv-titleblock { display: none; }\n\n/* \u2500\u2500 \u5B57\u5E55 \u2500\u2500 */\n.amv-caption {\n  position: absolute; left: 0; right: 0; bottom: 76px; display: flex; justify-content: center; pointer-events: none;\n}\n.amv-caption span {\n  max-width: 1500px; padding: 12px 28px; border-radius: var(--radius); text-align: center;\n  font: 500 38px/1.45 var(--font-sans); color: var(--v-cap-fg); background: var(--v-cap-bg);\n  border: var(--bw) solid var(--v-cap-border);\n}\nhtml[data-theme="3b1b"] .amv-caption { bottom: 56px; }\nhtml[data-theme="3b1b"] .amv-caption span { text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); font-size: 40px; }\n.amv-caption span:empty { display: none; }\n.amv-caption b { color: var(--accent); font-weight: 700; }\n\n/* \u2500\u2500 \u65C1\u767D\u70B9\u540D\u65F6\u7684\u9AD8\u4EAE\uFF1B\u8FDE\u7EBF\u6807\u7B7E\u5E73\u65F6\u7528\u7070\u8272\uFF0C\u88AB\u70B9\u540D\u624D\u53D8\u8272 \u2500\u2500 */\nhtml[data-video] .am-diagram .am-edge-label text { fill: var(--ink-2); }\n.amv-hl .am-node-shape, .amv-hl .am-actor {\n  stroke: var(--accent); stroke-width: 3; fill: var(--accent-bg); filter: var(--v-glow);\n}\nhtml[data-video] .am-diagram .amv-hl text, html[data-video] .am-diagram text.amv-hl { fill: var(--accent); font-weight: 600; }\n.amv-hl .am-edge { stroke: var(--accent); stroke-width: 2.4; }\n.amv-hl.am-tree-box, .amv-hl.am-tl-item, .amv-hl.am-lim, .amv-hl.am-kv-cell, li.amv-hl > .am-tree-label, tr.amv-hl td, .amv-hl.am-seg {\n  color: var(--accent); outline: 2.5px solid var(--accent); outline-offset: 4px; border-radius: 4px;\n}\n\n/* \u2500\u2500 \u64AD\u653E\u63A7\u4EF6\uFF08\u4E0D\u8FDB\u5165\u753B\u9762\uFF09\u2500\u2500 */\n.amv-bigplay {\n  position: absolute; left: 50%; top: 50%; width: 132px; height: 132px; margin: -66px 0 0 -66px; border-radius: 50%;\n  border: 2px solid var(--v-ctl-white); background: rgba(0, 0, 0, 0.55); color: var(--v-ctl-white); font-size: 54px; cursor: pointer;\n  padding-left: 10px;\n}\n.amv-bigplay[hidden] { display: none; }\n.amv-controls {\n  position: fixed; left: 0; right: 0; bottom: 0; height: 56px; display: flex; align-items: center; gap: 14px;\n  padding: 0 18px; background: var(--v-ctl-bg); border-top: 1px solid var(--v-ctl-line); color: var(--v-ctl-fg); font: 13px -apple-system, "Segoe UI", sans-serif;\n}\n.amv-btn { width: 36px; height: 32px; border: 1px solid var(--v-ctl-btn-line); border-radius: 6px; background: var(--v-ctl-btn); color: var(--v-ctl-white); cursor: pointer; }\n.amv-time { font-family: ui-monospace, Menlo, monospace; min-width: 96px; }\n.amv-track { position: relative; flex: 1; }\n.amv-seek { width: 100%; accent-color: var(--v-ctl-accent); }\n.amv-marks { position: absolute; left: 0; right: 0; top: -6px; height: 6px; pointer-events: none; }\n.amv-marks i { position: absolute; top: 0; width: 2px; height: 6px; background: var(--v-ctl-accent); }\n.amv-brand { color: var(--v-ctl-muted); font-size: 12px; white-space: nowrap; }\n\n/* \u5BFC\u51FA\u6A21\u5F0F\uFF1A\u53EA\u7559\u821E\u53F0\uFF0C1:1 \u65E0\u7F29\u653E */\nhtml[data-export] .amv-controls, html[data-export] .amv-bigplay { display: none; }\nhtml[data-export] .amv-viewport { inset: 0; }\nhtml[data-export] .amv-stage { left: 0; top: 0; transform: none !important; }\n';
-var VIDEO_JS = "(() => {\n  const D = JSON.parse(document.getElementById('amv-data').textContent);\n  const W = 1920;\n  const H = 1080;\n  const T = 0.9;     // \u573A\u666F\u5207\u6362\u65F6\u957F\uFF0C\u4E0E TIMING.transition \u4E00\u81F4\n  const R = 0.6;     // \u5355\u6B65\u51FA\u73B0\u65F6\u957F\n  const CAM = 0.8;   // \u955C\u5934\u79FB\u52A8\u65F6\u957F\n  const root = document.documentElement;\n  const stage = document.querySelector('.amv-stage');\n  const camera = document.querySelector('.amv-camera');\n  const overlay = document.querySelector('.amv-overlay');\n  const caption = document.querySelector('.amv-caption span');\n  const scenes = [...document.querySelectorAll('.amv-scene')];\n  const segs = D.segments;\n  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));\n  const ease = (x) => { const v = clamp(x); return v < 0.5 ? 4 * v * v * v : 1 - (-2 * v + 2) ** 3 / 2; };\n  const lerp = (a, b, p) => a + (b - a) * p;\n  const STEP_SEL = '.am-tl-item, .am-lim, .am-seg, tbody tr, .am-kv-cell, .am-md > ul > li, .am-md > ol > li, .am-md > p, .am-md > blockquote, .am-callout';\n\n  // \u2500\u2500 1. \u8BA9\u6BCF\u4E2A\u573A\u666F\u7684\u5185\u5BB9\u9002\u914D\u753B\u9762 \u2500\u2500\n  for (const sc of scenes) {\n    const fit = sc.querySelector('.amv-fit');\n    if (!fit || !fit.children.length) continue;\n    const s = Math.min(1600 / fit.offsetWidth, 740 / fit.offsetHeight, 3.4);\n    fit.style.transform = `scale(${s})`;\n  }\n\n  // \u573A\u666F\u6807\u9898\u653E\u5728\u955C\u5934\u4E4B\u5916\uFF1A\u955C\u5934\u63A8\u8FD1\u65F6\u6807\u9898\u4FDD\u6301\u4E0D\u52A8\u3002\n  const heads = scenes.map((sc) => {\n    const h = sc.querySelector('.amv-scene-head');\n    if (h) stage.insertBefore(h, camera.nextSibling);\n    return h;\n  });\n\n  // \u4EE5\u821E\u53F0\u4E3A\u5750\u6807\u7CFB\u6D4B\u91CF\u5143\u7D20\uFF08\u6B64\u65F6\u955C\u5934\u4E3A\u5355\u4F4D\u53D8\u6362\uFF09\u3002\n  const sr = stage.getBoundingClientRect();\n  const k = sr.width / W;\n  const rectOf = (el) => {\n    const r = el.getBoundingClientRect();\n    return { x: (r.left - sr.left) / k, y: (r.top - sr.top) / k, w: r.width / k, h: r.height / k };\n  };\n\n  // \u2500\u2500 2. \u5206\u6B65\uFF1A\u7EC4\u4EF6\u81EA\u5E26 data-step \u65F6\u6309\u5B83\u5206\u7EC4\uFF0C\u5426\u5219\u6309\u884C/\u6761\u76EE\u81EA\u52A8\u5206\u6B65 \u2500\u2500\n  const items = [];   // { el, at, paths: [{ el, len }] }\n  scenes.forEach((sc, i) => {\n    if (i === 0) return;\n    const groups = [];\n    for (const block of sc.querySelectorAll('.amv-fit > *')) {\n      const marked = [...block.querySelectorAll('[data-step]')];\n      if (marked.length) {\n        const by = new Map();\n        for (const el of marked) {\n          const n = Number(el.dataset.step);\n          if (!by.has(n)) by.set(n, []);\n          by.get(n).push(el);\n        }\n        [...by.keys()].sort((a, b) => a - b).forEach((n) => groups.push(by.get(n)));\n      } else {\n        const found = [...block.querySelectorAll(STEP_SEL)].filter((el) => !el.parentElement.closest(STEP_SEL));\n        if (found.length) found.forEach((el) => groups.push([el]));\n        else groups.push([block]);\n      }\n    }\n    const beats = segs[i].beats;\n    const S = groups.length;\n    const B = beats.length;\n    const perBeat = new Map();\n    groups.forEach((g, gi) => {\n      // \u65C1\u767D\u6BD4\u6B65\u6570\u591A\u65F6\uFF0C\u591A\u51FA\u7684\u53E5\u5B50\u5F53\u5F00\u573A\u767D\uFF1A\u6B65\u9AA4\u5BF9\u9F50\u5230\u6700\u540E\u51E0\u53E5\u3002\n      const b = S <= B ? gi + (B - S) : Math.floor((gi * B) / S);\n      const rank = perBeat.get(b) ?? 0;\n      perBeat.set(b, rank + 1);\n      const beat = beats[b];\n      const count = S <= B ? 1 : Math.ceil(S / B) || 1;\n      const slot = Math.min(0.45, (beat.end - beat.start) / count);\n      for (const el of g) {\n        const paths = (el.matches('path.am-edge') ? [el] : [...el.querySelectorAll('path.am-edge')])\n          .filter((p) => !p.classList.contains('am-edge--dashed'))\n          .map((p) => ({ el: p, len: p.getTotalLength() }));\n        items.push({ el, scene: i, at: beat.start + rank * slot, paths });\n      }\n    });\n  });\n\n  // \u2500\u2500 3. \u8DE8\u573A\u666F\u53D8\u5F62\uFF1A\u524D\u540E\u4E24\u4E2A\u573A\u666F\u91CC\u540C\u540D\uFF08data-key\uFF09\u7684\u5143\u7D20 \u2500\u2500\n  const morphs = [];  // { scene, from, to, ghost, a, b }\n  const keyed = (sc) => {\n    const m = new Map();\n    for (const el of sc.querySelectorAll('[data-key]')) if (!m.has(el.dataset.key)) m.set(el.dataset.key, el);\n    return m;\n  };\n  for (let i = 2; i < scenes.length; i++) {\n    const prev = keyed(scenes[i - 1]);\n    for (const [key, to] of keyed(scenes[i])) {\n      const from = prev.get(key);\n      // \u53EA\u5728\u540C\u7C7B\u5143\u7D20\u4E4B\u95F4\u53D8\u5F62\uFF08SVG \u5BF9 SVG\u3001HTML \u5BF9 HTML\uFF09\uFF0C\u5426\u5219\u5F62\u72B6\u5BF9\u4E0D\u4E0A\u3002\n      if (!from || (from instanceof SVGElement) !== (to instanceof SVGElement)) continue;\n      try {\n        const ghost = makeGhost(from);\n        overlay.append(ghost.node);\n        morphs.push({ scene: i, from, to, ghost: ghost.node, a: ghost.place(rectOf(from)), b: ghost.place(rectOf(to)) });\n      } catch {\n        // \u53D8\u5F62\u53EA\u662F\u9526\u4E0A\u6DFB\u82B1\uFF1A\u4E2A\u522B\u5143\u7D20\u6D4B\u91CF\u5931\u8D25\u65F6\u76F4\u63A5\u8DF3\u8FC7\uFF0C\u4E0D\u5F71\u54CD\u64AD\u653E\u3002\n      }\n    }\n  }\n  const carried = new Set(morphs.map((m) => m.to));\n\n  function makeGhost(el) {\n    const wrap = document.createElement('div');\n    const host = el.closest('.am-diagram, .am-tree, .am-timeline, .am-kv, .am-limits');\n    wrap.className = `amv-ghost ${host ? host.className : ''}`;\n    if (el instanceof SVGGraphicsElement) {\n      const bb = el.getBBox();\n      const pad = 4;\n      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');\n      svg.setAttribute('viewBox', `${bb.x - pad} ${bb.y - pad} ${bb.width + pad * 2} ${bb.height + pad * 2}`);\n      svg.setAttribute('width', bb.width + pad * 2);\n      svg.setAttribute('height', bb.height + pad * 2);\n      const clone = el.cloneNode(true);\n      clone.removeAttribute('style');\n      svg.append(clone);\n      wrap.append(svg);\n      return {\n        node: wrap,\n        place: (r) => {\n          const s = r.w / (bb.width || 1);\n          return { x: r.x - pad * s, y: r.y - pad * s, s };\n        },\n      };\n    }\n    const clone = el.cloneNode(true);\n    clone.removeAttribute('style');\n    clone.querySelectorAll('[data-key], ul').forEach((n) => n.remove());\n    const box = document.createElement(el.tagName === 'LI' ? 'ul' : 'div');\n    box.className = el.tagName === 'LI' ? 'am-tree-list' : '';\n    box.style.margin = '0';\n    box.append(clone);\n    wrap.append(box);\n    wrap.style.width = `${el.offsetWidth}px`;\n    const w0 = el.offsetWidth || 1;\n    return { node: wrap, place: (r) => ({ x: r.x, y: r.y, s: r.w / w0 }) };\n  }\n\n  // \u2500\u2500 4. \u955C\u5934\uFF1A\u65C1\u767D\u91CC [\u540D\u5B57] \u5BF9\u5E94\u7684\u5143\u7D20 \u2500\u2500\n  const findKey = (sc, key) => {\n    const all = [...sc.querySelectorAll('[data-key]')];\n    const norm = (s) => s.replace(/[`*]/g, '').trim().toLowerCase();\n    return all.find((el) => norm(el.dataset.key) === norm(key))\n      ?? all.find((el) => norm(el.dataset.key).includes(norm(key)))\n      ?? [...sc.querySelectorAll(`${STEP_SEL}, text`)].find((el) => norm(el.textContent).includes(norm(key)));\n  };\n  const IDENT = { s: 1, x: 0, y: 0 };\n  // \u63A8\u8FD1\u4F46\u4E0D\u88C1\u5207\uFF1A\u653E\u5927\u540E\u6574\u5F20\u56FE\u4ECD\u8981\u7559\u5728\u6807\u9898\u4E0E\u5B57\u5E55\u4E4B\u95F4\u7684\u5B89\u5168\u533A\u91CC\u3002\n  const SAFE = { left: 60, right: W - 60, top: 150, bottom: H - 200 }; // \u4E0B\u8FB9\u7559\u51FA\u5B57\u5E55\u7684\u4F4D\u7F6E\n  function focusCam(r, sc) {\n    const fit = sc.querySelector('.amv-fit');\n    const c = fit ? rectOf(fit) : { x: 0, y: 0, w: W, h: H };\n    const room = Math.min((SAFE.right - SAFE.left) / c.w, (SAFE.bottom - SAFE.top) / c.h);\n    const s = clamp(Math.min(0.5 * W / r.w, 0.42 * H / r.h, room, 1.4), 1, 1.4);\n    const fitAxis = (want, lo, hi, a, b) => (s * (b - a) <= hi - lo ? clamp(want, lo - s * a, hi - s * b) : want);\n    return {\n      s,\n      x: fitAxis(W / 2 - s * (r.x + r.w / 2), SAFE.left, SAFE.right, c.x, c.x + c.w),\n      y: fitAxis(H * 0.5 - s * (r.y + r.h / 2), SAFE.top, SAFE.bottom, c.y, c.y + c.h),\n    };\n  }\n  const camEvents = [];   // { t, cam, hl }\n  segs.forEach((seg, i) => {\n    camEvents.push({ t: seg.start, cam: IDENT, hl: null });\n    seg.beats.forEach((b) => {\n      const el = b.focus ? findKey(scenes[i], b.focus) : null;\n      let cam = IDENT;\n      if (el) cam = focusCam(rectOf(el), scenes[i]);\n      camEvents.push({ t: b.start, cam, hl: el });\n    });\n  });\n  const hlTargets = new Set(camEvents.map((e) => e.hl).filter(Boolean));\n\n  // \u573A\u666F\u4E0E\u6807\u9898\u7684\u6DE1\u5165\u6DE1\u51FA\u3002\u6807\u9898\u4E0D\u4EA4\u53E0\uFF1A\u65E7\u6807\u9898\u5728\u5207\u6362\u524D\u534A\u6BB5\u6DE1\u51FA\uFF0C\u65B0\u6807\u9898\u5728\u540E\u534A\u6BB5\u6DE1\u5165\u3002\n  const show = (el, op) => {\n    el.style.opacity = op;\n    el.style.visibility = op > 0 ? 'visible' : 'hidden';\n  };\n  function drawScenes(t) {\n    scenes.forEach((sc, i) => {\n      const seg = segs[i];\n      const next = segs[i + 1];\n      const before = t < seg.start;\n      const fadeIn = i === 0 ? ease(t / 0.8) : ease((t - seg.start) / T);\n      const fadeOut = next ? 1 - ease((t - next.start) / T) : 1;\n      show(sc, before ? 0 : Math.min(fadeIn, fadeOut));\n      if (!heads[i]) return;\n      const hin = ease((t - seg.start - T / 2) / (T / 2));\n      const hout = next ? 1 - ease((t - next.start) / (T / 2)) : 1;\n      show(heads[i], before ? 0 : Math.min(hin, hout));\n    });\n  }\n\n  // \u9010\u6B65\u51FA\u73B0\uFF1A\u8FDE\u7EBF\u4E00\u7B14\u753B\u51FA\uFF0C\u5176\u4F59\u5143\u7D20\u6DE1\u5165\u5E76\u8F7B\u5FAE\u4E0A\u79FB\u3002\n  function drawSteps(t) {\n    for (const it of items) {\n      if (carried.has(it.el)) continue;\n      const p = ease((t - it.at) / R);\n      it.el.style.opacity = clamp((t - it.at) / 0.25);\n      if (!it.paths.length) {\n        it.el.style.transform = p < 1 ? `translateY(${(1 - p) * 14}px)` : '';\n        continue;\n      }\n      for (const { el, len } of it.paths) {\n        el.style.strokeDasharray = `${len}`;\n        el.style.strokeDashoffset = `${len * (1 - p)}`;\n        el.style.markerEnd = p < 0.97 ? 'none' : '';\n      }\n    }\n  }\n\n  // \u8DE8\u573A\u666F\u53D8\u5F62\uFF1A\u5207\u6362\u671F\u95F4\u7528\u66FF\u8EAB\u4ECE\u65E7\u4F4D\u7F6E\u79FB\u5230\u65B0\u4F4D\u7F6E\uFF0C\u771F\u8EAB\u6682\u65F6\u9690\u85CF\u3002\n  // \u4E00\u4E2A\u5143\u7D20\u53EF\u80FD\u65E2\u662F\u4E0A\u4E00\u573A\u53D8\u5F62\u7684\u7EC8\u70B9\u3001\u53C8\u662F\u4E0B\u4E00\u573A\u53D8\u5F62\u7684\u8D77\u70B9\uFF1B\u5148\u6C47\u603B\"\u8BE5\u85CF\"\u7684\u5143\u7D20\u518D\u7EDF\u4E00\u8BBE\u7F6E\uFF0C\u907F\u514D\u4E92\u76F8\u8986\u76D6\u3002\n  const morphed = [...new Set(morphs.flatMap((m) => [m.from, m.to]))];\n  function drawMorphs(t) {\n    const hidden = new Set();\n    for (const m of morphs) {\n      const s0 = segs[m.scene].start;\n      const during = t >= s0 && t < s0 + T;\n      m.ghost.style.display = during ? '' : 'none';\n      if (during) {\n        const p = ease((t - s0) / T);\n        m.ghost.style.transform = `translate(${lerp(m.a.x, m.b.x, p)}px, ${lerp(m.a.y, m.b.y, p)}px) scale(${lerp(m.a.s, m.b.s, p)})`;\n        hidden.add(m.from);\n      }\n      if (t < s0 + T) hidden.add(m.to);\n      m.to.style.opacity = 1;\n    }\n    for (const el of morphed) el.style.visibility = hidden.has(el) ? 'hidden' : '';\n  }\n\n  // \u955C\u5934\u4E0E\u9AD8\u4EAE\uFF1A\u5728\u4E0A\u4E00\u4E2A\u955C\u5934\u4F4D\u7F6E\u548C\u5F53\u524D\u76EE\u6807\u4E4B\u95F4\u63D2\u503C\u3002\n  function drawCamera(t) {\n    const ev = camEvents.findLastIndex((e) => t >= e.t);\n    const e = ev >= 0 ? camEvents[ev] : null;\n    const prev = ev > 0 ? camEvents[ev - 1].cam : IDENT;\n    const p = e ? ease((t - e.t) / CAM) : 0;\n    const to = e ? e.cam : IDENT;\n    camera.style.transform = `translate(${lerp(prev.x, to.x, p)}px, ${lerp(prev.y, to.y, p)}px) scale(${lerp(prev.s, to.s, p)})`;\n    for (const el of hlTargets) el.classList.toggle('amv-hl', el === e?.hl);\n  }\n\n  function drawCaption(t) {\n    const cur = segs.findLastIndex((s) => t >= s.start);\n    const beats = cur >= 0 ? segs[cur].beats : [];\n    const b = beats.find((x) => t >= x.start && t < x.end + 0.3);\n    const html = b ? b.html : '';\n    if (caption.dataset.html !== html) {\n      caption.innerHTML = html;\n      caption.dataset.html = html;\n    }\n    caption.style.opacity = b ? clamp((t - b.start) / 0.2) : 0;\n  }\n\n  // \u2500\u2500 5. \u786E\u5B9A\u6027\u6E32\u67D3\uFF1A\u540C\u4E00\u65F6\u523B\u6C38\u8FDC\u753B\u51FA\u540C\u4E00\u5E27 \u2500\u2500\n  function render(time) {\n    const t = clamp(time, 0, D.duration);\n    drawScenes(t);\n    drawSteps(t);\n    drawMorphs(t);\n    drawCamera(t);\n    drawCaption(t);\n    updateUi(t);\n  }\n\n  // \u2500\u2500 6. \u64AD\u653E\u5668 \u2500\u2500\n  const audio = document.getElementById('amv-audio');\n  const seek = document.querySelector('.amv-seek');\n  const timeEl = document.querySelector('.amv-time');\n  const toggleBtn = document.querySelector('[data-amv=\"toggle\"]');\n  const bigPlay = document.querySelector('.amv-bigplay');\n  const marks = document.querySelector('.amv-marks');\n  const fmt = (x) => `${Math.floor(x / 60)}:${String(Math.floor(x % 60)).padStart(2, '0')}`;\n  seek.max = D.duration;\n  segs.slice(1).forEach((s) => {\n    const m = document.createElement('i');\n    m.style.left = `${(s.start / D.duration) * 100}%`;\n    m.title = s.title;\n    marks.append(m);\n  });\n\n  let playing = false;\n  let base = 0;\n  let t0 = 0;\n  const now = () => (!playing ? base : audio ? audio.currentTime : base + (performance.now() - t0) / 1000);\n\n  function updateUi(t) {\n    if (document.activeElement !== seek) seek.value = t;\n    timeEl.textContent = `${fmt(t)} / ${fmt(D.duration)}`;\n  }\n\n  function play() {\n    if (base >= D.duration - 0.05) base = 0;\n    playing = true;\n    bigPlay.hidden = true;\n    toggleBtn.textContent = '\u275A\u275A';\n    toggleBtn.setAttribute('aria-label', toggleBtn.dataset.pause);\n    if (audio) {\n      audio.currentTime = base;\n      audio.play().catch(() => {});\n    } else {\n      t0 = performance.now();\n    }\n    requestAnimationFrame(tick);\n  }\n\n  function pause() {\n    base = now();\n    playing = false;\n    audio?.pause();\n    toggleBtn.textContent = '\u25B6';\n    toggleBtn.setAttribute('aria-label', toggleBtn.dataset.play);\n  }\n\n  function seekTo(x) {\n    base = clamp(x, 0, D.duration);\n    if (audio) audio.currentTime = base;\n    t0 = performance.now();\n    render(base);\n  }\n\n  function tick() {\n    if (!playing) return;\n    const t = now();\n    if (t >= D.duration) {\n      pause();\n      base = D.duration;\n      render(D.duration);\n      return;\n    }\n    render(t);\n    requestAnimationFrame(tick);\n  }\n\n  const toggle = () => (playing ? pause() : play());\n  toggleBtn.addEventListener('click', toggle);\n  bigPlay.addEventListener('click', play);\n  stage.addEventListener('click', (e) => { if (e.target !== bigPlay) toggle(); });\n  seek.addEventListener('input', () => seekTo(Number(seek.value)));\n  document.addEventListener('keydown', (e) => {\n    if (e.key === ' ') { e.preventDefault(); toggle(); }\n    if (e.key === 'ArrowRight') seekTo(now() + 5);\n    if (e.key === 'ArrowLeft') seekTo(now() - 5);\n  });\n  audio?.addEventListener('ended', () => { pause(); base = D.duration; });\n\n  function fitStage() {\n    if (root.hasAttribute('data-export')) return;\n    const vp = stage.parentElement;\n    const s = Math.min(vp.clientWidth / W, vp.clientHeight / H);\n    stage.style.transform = `translate(-50%, -50%) scale(${s})`;\n  }\n  window.addEventListener('resize', fitStage);\n\n  // \u5BFC\u51FA\uFF1A\u628A\u821E\u53F0 1:1 \u6446\u5728\u5DE6\u4E0A\u89D2\uFF0C\u9010\u5E27\u8C03\u7528 render(t)\u3002\n  window.render = render;\n  window.__amv = {\n    duration: D.duration,\n    fps: D.fps,\n    exportMode() { root.setAttribute('data-export', ''); stage.style.transform = ''; },\n  };\n  fitStage();\n  // \u5C01\u9762\uFF1A\u663E\u793A\u5B8C\u5168\u6DE1\u5165\u540E\u7684\u7247\u5934\uFF0C\u4F46\u64AD\u653E\u4ECD\u4ECE 0 \u5F00\u59CB\u3002\n  render(Math.min(1, segs[0].end));\n  updateUi(0);\n})();\n";
+var VIDEO_CSS = '/* Video player: the 1920\xD71080 stage scales to the window. All colors come from theme variables:\n   blueprint / shadcn reuse the page themes; 3b1b is a video-only dark theme (dark ground, blue lines, yellow accents). */\nhtml[data-video] {\n  /* Player controls stay out of the picture and ignore the theme: one fixed set of dark tokens */\n  --v-ctl-bg: #0b0d11; --v-ctl-line: #1d2330; --v-ctl-fg: #c9d1dc; --v-ctl-muted: #5b6576;\n  --v-ctl-btn: #141922; --v-ctl-btn-line: #2a3240; --v-ctl-accent: #58c4dd; --v-ctl-white: #fff;\n  --v-letterbox: #000;\n  --v-stage: var(--bg);\n  --v-cap-fg: var(--ink); --v-cap-bg: var(--paper); --v-cap-border: var(--line);\n  --v-title-font: var(--head-font);\n  --v-glow: none;\n}\nhtml[data-video][data-theme="3b1b"] {\n  --bg: #0e1015; --paper: #141922; --ink: #eceff4; --ink-2: #a9b4c4; --ink-3: #6c7789;\n  --line: #58c4dd; --line-2: #2a3444; --fill: #171d27;\n  --accent: #f7d96f; --accent-bg: rgba(247, 217, 111, 0.12);\n  --ok: #83c167; --ok-bg: rgba(131, 193, 103, 0.14); --err: #fc6255; --err-bg: rgba(252, 98, 85, 0.14);\n  --warn: #f7d96f; --warn-bg: rgba(247, 217, 111, 0.12); --head-bg: #eceff4; --head-fg: #0e1015;\n  --radius: 6px; --bw: 1.6px; --shadow: none;\n  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, sans-serif;\n  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\n  --head-font: var(--font-sans);\n  --v-stage: radial-gradient(ellipse at 50% 40%, #151a23 0%, #0e1015 70%);\n  --v-cap-fg: #fff; --v-cap-bg: rgba(8, 10, 14, 0.55); --v-cap-border: transparent;\n  --v-title-font: "CMU Serif", "Latin Modern Roman", "Iowan Old Style", "Palatino", "Songti SC", "STSong", "Noto Serif CJK SC", serif;\n  --v-glow: drop-shadow(0 0 6px rgba(247, 217, 111, 0.55));\n}\n/* blueprint: drawing-sheet ground with a fine grid */\nhtml[data-video][data-theme="blueprint"] {\n  --v-stage: linear-gradient(var(--line-2) 1px, transparent 1px) 0 0 / 40px 40px,\n             linear-gradient(90deg, var(--line-2) 1px, transparent 1px) 0 0 / 40px 40px, var(--paper);\n}\nhtml[data-video][data-theme="blueprint"][data-mode="dark"] {\n  --v-stage: linear-gradient(rgba(201, 214, 232, 0.07) 1px, transparent 1px) 0 0 / 40px 40px,\n             linear-gradient(90deg, rgba(201, 214, 232, 0.07) 1px, transparent 1px) 0 0 / 40px 40px, var(--bg);\n}\n\nhtml[data-video], html[data-video] body { background: var(--v-letterbox); height: 100%; overflow: hidden; }\nhtml[data-video] body { font-size: 22px; }\n\n.amv-viewport { position: fixed; inset: 0 0 56px 0; overflow: hidden; }\n.amv-stage {\n  position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; overflow: hidden;\n  background: var(--v-stage); color: var(--ink); transform-origin: 50% 50%;\n}\n.amv-camera { position: absolute; inset: 0; transform-origin: 0 0; }\n.amv-overlay { position: absolute; inset: 0; pointer-events: none; }\n.amv-ghost { position: absolute; left: 0; top: 0; transform-origin: 0 0; margin: 0; }\n.amv-ghost svg { display: block; max-width: none; overflow: visible; }\n\n/* \u2500\u2500 Sheet frame (blueprint) \u2500\u2500 */\n.amv-sheet { display: none; }\nhtml[data-theme="blueprint"] .amv-sheet {\n  display: block; position: absolute; inset: 24px; border: 1.5px solid var(--line); pointer-events: none;\n}\nhtml[data-theme="blueprint"] .amv-sheet::before {\n  content: ""; position: absolute; inset: 24px; border: 1.5px solid var(--line);\n}\n.amv-ruler { position: absolute; display: flex; font: 13px/1 var(--font-mono); color: var(--ink-3); }\n.amv-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }\n.amv-ruler--top, .amv-ruler--bottom { left: 24px; right: 24px; height: 24px; }\n.amv-ruler--top { top: 0; }\n.amv-ruler--bottom { bottom: 0; }\n.amv-ruler--left, .amv-ruler--right { top: 24px; bottom: 24px; width: 24px; flex-direction: column; }\n.amv-ruler--left { left: 0; }\n.amv-ruler--right { right: 0; }\n.amv-ruler--top span + span, .amv-ruler--bottom span + span { border-left: 1px solid var(--line); }\n.amv-ruler--left span + span, .amv-ruler--right span + span { border-top: 1px solid var(--line); }\n\n/* \u2500\u2500 Scenes \u2500\u2500 */\n.amv-scene { position: absolute; inset: 0; visibility: hidden; }\n.amv-scene-head {\n  position: absolute; left: 72px; right: 72px; top: 72px; height: 64px; visibility: hidden;\n  display: flex; align-items: stretch; border: var(--bw) solid var(--line); background: var(--paper);\n  border-radius: var(--radius); overflow: hidden; color: var(--ink);\n}\n.amv-scene-n {\n  display: flex; align-items: center; justify-content: center; min-width: 64px; padding: 0 14px;\n  background: var(--head-bg); color: var(--head-fg); font: 700 30px var(--font-sans);\n}\n.amv-scene-title { flex: 1; display: flex; align-items: center; padding: 0 22px; font: 600 32px var(--v-title-font); }\n.amv-scene-meta { display: flex; align-items: center; padding: 0 22px; font: 16px var(--font-mono); color: var(--ink-2); letter-spacing: 0.06em; }\nhtml[data-theme="shadcn"] .amv-scene-n { margin: 12px 0 12px 14px; min-width: 40px; border-radius: 8px; font-size: 22px; }\nhtml[data-theme="shadcn"] .amv-scene-head { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }\n/* 3b1b: title floats top left, no frame */\nhtml[data-theme="3b1b"] .amv-scene-head { left: 96px; top: 56px; border: 0; background: none; align-items: baseline; gap: 22px; }\nhtml[data-theme="3b1b"] .amv-scene-n { background: none; color: var(--line); padding: 0; min-width: 0; font: 500 30px var(--font-mono); }\nhtml[data-theme="3b1b"] .amv-scene-title { padding: 0; font-weight: 400; font-size: 46px; }\nhtml[data-theme="3b1b"] .amv-scene-meta { display: none; }\n\n.amv-body { position: absolute; left: 96px; right: 96px; top: 160px; height: 760px; display: grid; place-items: center; }\n.amv-fit { width: max-content; max-width: 1100px; transform-origin: 50% 50%; display: flex; flex-direction: column; gap: 28px; }\n.amv-fit .am-diagram { overflow: visible; }\n.amv-fit .am-diagram svg { max-width: none; overflow: visible; }\n.amv-fit .am-md { font-size: 26px; line-height: 1.6; }\n.amv-fit table { font-size: 24px; }\n.amv-fit th { font-size: 17px; }\n\n/* \u2500\u2500 Title card \u2500\u2500 */\n.amv-scene--title { display: grid; place-items: center; text-align: center; }\n.amv-title-wrap { max-width: 1500px; display: flex; flex-direction: column; align-items: center; }\n.amv-title { margin: 0; font: 700 96px/1.15 var(--v-title-font); color: var(--ink); letter-spacing: -0.01em; text-wrap: balance; }\n.amv-subtitle { margin: 26px 0 0; font: 36px var(--v-title-font); color: var(--accent); }\n.amv-intro { margin-top: 36px; font-size: 28px; color: var(--ink-2); }\n.amv-titleblock {\n  display: flex; margin-top: 56px; border: var(--bw) solid var(--line); border-radius: var(--radius);\n  background: var(--paper); text-align: left; overflow: hidden;\n}\n.amv-titleblock div { padding: 16px 30px; display: flex; flex-direction: column; gap: 6px; }\n.amv-titleblock div + div { border-left: 1px solid var(--line); }\n.amv-titleblock b { font: 600 16px var(--font-mono); color: var(--ink-3); letter-spacing: 0.08em; }\n.amv-titleblock span { font: 28px var(--font-sans); color: var(--ink); }\nhtml[data-theme="3b1b"] .amv-title { font-weight: 400; font-size: 104px; letter-spacing: 0.005em; }\nhtml[data-theme="3b1b"] .amv-subtitle { color: var(--line); }\nhtml[data-theme="3b1b"] .amv-titleblock { display: none; }\n\n/* \u2500\u2500 Captions \u2500\u2500 */\n.amv-caption {\n  position: absolute; left: 0; right: 0; bottom: 76px; display: flex; justify-content: center; pointer-events: none;\n}\n.amv-caption span {\n  max-width: 1500px; padding: 12px 28px; border-radius: var(--radius); text-align: center;\n  font: 500 38px/1.45 var(--font-sans); color: var(--v-cap-fg); background: var(--v-cap-bg);\n  border: var(--bw) solid var(--v-cap-border);\n}\nhtml[data-theme="3b1b"] .amv-caption { bottom: 56px; }\nhtml[data-theme="3b1b"] .amv-caption span { text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); font-size: 40px; }\n.amv-caption span:empty { display: none; }\n.amv-caption b { color: var(--accent); font-weight: 700; }\n\n/* \u2500\u2500 Highlight when narration names an element; edge labels stay grey until named \u2500\u2500 */\nhtml[data-video] .am-diagram .am-edge-label text { fill: var(--ink-2); }\n.amv-hl .am-node-shape, .amv-hl .am-actor {\n  stroke: var(--accent); stroke-width: 3; fill: var(--accent-bg); filter: var(--v-glow);\n}\nhtml[data-video] .am-diagram .amv-hl text, html[data-video] .am-diagram text.amv-hl { fill: var(--accent); font-weight: 600; }\n.amv-hl .am-edge { stroke: var(--accent); stroke-width: 2.4; }\n.amv-hl.am-tree-box, .amv-hl.am-tl-item, .amv-hl.am-lim, .amv-hl.am-kv-cell, li.amv-hl > .am-tree-label, tr.amv-hl td, .amv-hl.am-seg {\n  color: var(--accent); outline: 2.5px solid var(--accent); outline-offset: 4px; border-radius: 4px;\n}\n\n/* \u2500\u2500 Player controls (outside the picture) \u2500\u2500 */\n.amv-bigplay {\n  position: absolute; left: 50%; top: 50%; width: 132px; height: 132px; margin: -66px 0 0 -66px; border-radius: 50%;\n  border: 2px solid var(--v-ctl-white); background: rgba(0, 0, 0, 0.55); color: var(--v-ctl-white); font-size: 54px; cursor: pointer;\n  padding-left: 10px;\n}\n.amv-bigplay[hidden] { display: none; }\n.amv-controls {\n  position: fixed; left: 0; right: 0; bottom: 0; height: 56px; display: flex; align-items: center; gap: 14px;\n  padding: 0 18px; background: var(--v-ctl-bg); border-top: 1px solid var(--v-ctl-line); color: var(--v-ctl-fg); font: 13px -apple-system, "Segoe UI", sans-serif;\n}\n.amv-btn { width: 36px; height: 32px; border: 1px solid var(--v-ctl-btn-line); border-radius: 6px; background: var(--v-ctl-btn); color: var(--v-ctl-white); cursor: pointer; }\n.amv-time { font-family: ui-monospace, Menlo, monospace; min-width: 96px; }\n.amv-track { position: relative; flex: 1; }\n.amv-seek { width: 100%; accent-color: var(--v-ctl-accent); }\n.amv-marks { position: absolute; left: 0; right: 0; top: -6px; height: 6px; pointer-events: none; }\n.amv-marks i { position: absolute; top: 0; width: 2px; height: 6px; background: var(--v-ctl-accent); }\n.amv-brand { color: var(--v-ctl-muted); font-size: 12px; white-space: nowrap; }\n\n/* Export mode: stage only, 1:1, no scaling */\nhtml[data-export] .amv-controls, html[data-export] .amv-bigplay { display: none; }\nhtml[data-export] .amv-viewport { inset: 0; }\nhtml[data-export] .amv-stage { left: 0; top: 0; transform: none !important; }\n';
+var VIDEO_JS = "(() => {\n  const D = JSON.parse(document.getElementById('amv-data').textContent);\n  const W = 1920;\n  const H = 1080;\n  const T = 0.9;     // scene transition, matches TIMING.transition\n  const R = 0.6;     // one step appearing\n  const CAM = 0.8;   // camera move\n  const root = document.documentElement;\n  const stage = document.querySelector('.amv-stage');\n  const camera = document.querySelector('.amv-camera');\n  const overlay = document.querySelector('.amv-overlay');\n  const caption = document.querySelector('.amv-caption span');\n  const scenes = [...document.querySelectorAll('.amv-scene')];\n  const segs = D.segments;\n  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));\n  const ease = (x) => { const v = clamp(x); return v < 0.5 ? 4 * v * v * v : 1 - (-2 * v + 2) ** 3 / 2; };\n  const lerp = (a, b, p) => a + (b - a) * p;\n  const STEP_SEL = '.am-tl-item, .am-lim, .am-seg, tbody tr, .am-kv-cell, .am-md > ul > li, .am-md > ol > li, .am-md > p, .am-md > blockquote, .am-callout';\n\n  // \u2500\u2500 1. Fit each scene's content to the frame \u2500\u2500\n  for (const sc of scenes) {\n    const fit = sc.querySelector('.amv-fit');\n    if (!fit || !fit.children.length) continue;\n    const s = Math.min(1600 / fit.offsetWidth, 740 / fit.offsetHeight, 3.4);\n    fit.style.transform = `scale(${s})`;\n  }\n\n  // Scene titles sit outside the camera, so they stay put when it zooms.\n  const heads = scenes.map((sc) => {\n    const h = sc.querySelector('.amv-scene-head');\n    if (h) stage.insertBefore(h, camera.nextSibling);\n    return h;\n  });\n\n  // Measure elements in stage coordinates (the camera is the identity transform here).\n  const sr = stage.getBoundingClientRect();\n  const k = sr.width / W;\n  const rectOf = (el) => {\n    const r = el.getBoundingClientRect();\n    return { x: (r.left - sr.left) / k, y: (r.top - sr.top) / k, w: r.width / k, h: r.height / k };\n  };\n\n  // \u2500\u2500 2. Steps: group by data-step when a component sets it, else one step per row / item \u2500\u2500\n  const items = [];   // { el, at, paths: [{ el, len }] }\n  scenes.forEach((sc, i) => {\n    if (i === 0) return;\n    const groups = [];\n    for (const block of sc.querySelectorAll('.amv-fit > *')) {\n      const marked = [...block.querySelectorAll('[data-step]')];\n      if (marked.length) {\n        const by = new Map();\n        for (const el of marked) {\n          const n = Number(el.dataset.step);\n          if (!by.has(n)) by.set(n, []);\n          by.get(n).push(el);\n        }\n        [...by.keys()].sort((a, b) => a - b).forEach((n) => groups.push(by.get(n)));\n      } else {\n        const found = [...block.querySelectorAll(STEP_SEL)].filter((el) => !el.parentElement.closest(STEP_SEL));\n        if (found.length) found.forEach((el) => groups.push([el]));\n        else groups.push([block]);\n      }\n    }\n    const beats = segs[i].beats;\n    const S = groups.length;\n    const B = beats.length;\n    const perBeat = new Map();\n    groups.forEach((g, gi) => {\n      // With more beats than steps, the extra beats open the scene: steps align to the last beats.\n      const b = S <= B ? gi + (B - S) : Math.floor((gi * B) / S);\n      const rank = perBeat.get(b) ?? 0;\n      perBeat.set(b, rank + 1);\n      const beat = beats[b];\n      const count = S <= B ? 1 : Math.ceil(S / B) || 1;\n      const slot = Math.min(0.45, (beat.end - beat.start) / count);\n      for (const el of g) {\n        const paths = (el.matches('path.am-edge') ? [el] : [...el.querySelectorAll('path.am-edge')])\n          .filter((p) => !p.classList.contains('am-edge--dashed'))\n          .map((p) => ({ el: p, len: p.getTotalLength() }));\n        items.push({ el, scene: i, at: beat.start + rank * slot, paths });\n      }\n    });\n  });\n\n  // \u2500\u2500 3. Morphs: elements with the same data-key in consecutive scenes \u2500\u2500\n  const morphs = [];  // { scene, from, to, ghost, a, b }\n  const keyed = (sc) => {\n    const m = new Map();\n    for (const el of sc.querySelectorAll('[data-key]')) if (!m.has(el.dataset.key)) m.set(el.dataset.key, el);\n    return m;\n  };\n  for (let i = 2; i < scenes.length; i++) {\n    const prev = keyed(scenes[i - 1]);\n    for (const [key, to] of keyed(scenes[i])) {\n      const from = prev.get(key);\n      // Morph only like with like (SVG to SVG, HTML to HTML); otherwise the shapes do not match.\n      if (!from || (from instanceof SVGElement) !== (to instanceof SVGElement)) continue;\n      try {\n        const ghost = makeGhost(from);\n        overlay.append(ghost.node);\n        morphs.push({ scene: i, from, to, ghost: ghost.node, a: ghost.place(rectOf(from)), b: ghost.place(rectOf(to)) });\n      } catch {\n        // Morphs are a nicety: skip an element whose measurement fails; playback is unaffected.\n      }\n    }\n  }\n  const carried = new Set(morphs.map((m) => m.to));\n\n  function makeGhost(el) {\n    const wrap = document.createElement('div');\n    const host = el.closest('.am-diagram, .am-tree, .am-timeline, .am-kv, .am-limits');\n    wrap.className = `amv-ghost ${host ? host.className : ''}`;\n    if (el instanceof SVGGraphicsElement) {\n      const bb = el.getBBox();\n      const pad = 4;\n      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');\n      svg.setAttribute('viewBox', `${bb.x - pad} ${bb.y - pad} ${bb.width + pad * 2} ${bb.height + pad * 2}`);\n      svg.setAttribute('width', bb.width + pad * 2);\n      svg.setAttribute('height', bb.height + pad * 2);\n      const clone = el.cloneNode(true);\n      clone.removeAttribute('style');\n      svg.append(clone);\n      wrap.append(svg);\n      return {\n        node: wrap,\n        place: (r) => {\n          const s = r.w / (bb.width || 1);\n          return { x: r.x - pad * s, y: r.y - pad * s, s };\n        },\n      };\n    }\n    const clone = el.cloneNode(true);\n    clone.removeAttribute('style');\n    clone.querySelectorAll('[data-key], ul').forEach((n) => n.remove());\n    const box = document.createElement(el.tagName === 'LI' ? 'ul' : 'div');\n    box.className = el.tagName === 'LI' ? 'am-tree-list' : '';\n    box.style.margin = '0';\n    box.append(clone);\n    wrap.append(box);\n    wrap.style.width = `${el.offsetWidth}px`;\n    const w0 = el.offsetWidth || 1;\n    return { node: wrap, place: (r) => ({ x: r.x, y: r.y, s: r.w / w0 }) };\n  }\n\n  // \u2500\u2500 4. Camera: the element named by [name] in the narration \u2500\u2500\n  const findKey = (sc, key) => {\n    const all = [...sc.querySelectorAll('[data-key]')];\n    const norm = (s) => s.replace(/[`*]/g, '').trim().toLowerCase();\n    return all.find((el) => norm(el.dataset.key) === norm(key))\n      ?? all.find((el) => norm(el.dataset.key).includes(norm(key)))\n      ?? [...sc.querySelectorAll(`${STEP_SEL}, text`)].find((el) => norm(el.textContent).includes(norm(key)));\n  };\n  const IDENT = { s: 1, x: 0, y: 0 };\n  // Zoom without cropping: the whole diagram must stay in the safe area between title and captions.\n  const SAFE = { left: 60, right: W - 60, top: 150, bottom: H - 200 }; // leave room for captions at the bottom\n  function focusCam(r, sc) {\n    const fit = sc.querySelector('.amv-fit');\n    const c = fit ? rectOf(fit) : { x: 0, y: 0, w: W, h: H };\n    const room = Math.min((SAFE.right - SAFE.left) / c.w, (SAFE.bottom - SAFE.top) / c.h);\n    const s = clamp(Math.min(0.5 * W / r.w, 0.42 * H / r.h, room, 1.4), 1, 1.4);\n    const fitAxis = (want, lo, hi, a, b) => (s * (b - a) <= hi - lo ? clamp(want, lo - s * a, hi - s * b) : want);\n    return {\n      s,\n      x: fitAxis(W / 2 - s * (r.x + r.w / 2), SAFE.left, SAFE.right, c.x, c.x + c.w),\n      y: fitAxis(H * 0.5 - s * (r.y + r.h / 2), SAFE.top, SAFE.bottom, c.y, c.y + c.h),\n    };\n  }\n  const camEvents = [];   // { t, cam, hl }\n  segs.forEach((seg, i) => {\n    camEvents.push({ t: seg.start, cam: IDENT, hl: null });\n    seg.beats.forEach((b) => {\n      const el = b.focus ? findKey(scenes[i], b.focus) : null;\n      let cam = IDENT;\n      if (el) cam = focusCam(rectOf(el), scenes[i]);\n      camEvents.push({ t: b.start, cam, hl: el });\n    });\n  });\n  const hlTargets = new Set(camEvents.map((e) => e.hl).filter(Boolean));\n\n  // Scene and title fades. Titles never overlap: the old one fades out in the first half of the transition, the new one fades in in the second half.\n  const show = (el, op) => {\n    el.style.opacity = op;\n    el.style.visibility = op > 0 ? 'visible' : 'hidden';\n  };\n  function drawScenes(t) {\n    scenes.forEach((sc, i) => {\n      const seg = segs[i];\n      const next = segs[i + 1];\n      const before = t < seg.start;\n      const fadeIn = i === 0 ? ease(t / 0.8) : ease((t - seg.start) / T);\n      const fadeOut = next ? 1 - ease((t - next.start) / T) : 1;\n      show(sc, before ? 0 : Math.min(fadeIn, fadeOut));\n      if (!heads[i]) return;\n      const hin = ease((t - seg.start - T / 2) / (T / 2));\n      const hout = next ? 1 - ease((t - next.start) / (T / 2)) : 1;\n      show(heads[i], before ? 0 : Math.min(hin, hout));\n    });\n  }\n\n  // Steps appear: edges draw in one stroke, other elements fade in and rise slightly.\n  function drawSteps(t) {\n    for (const it of items) {\n      if (carried.has(it.el)) continue;\n      const p = ease((t - it.at) / R);\n      it.el.style.opacity = clamp((t - it.at) / 0.25);\n      if (!it.paths.length) {\n        it.el.style.transform = p < 1 ? `translateY(${(1 - p) * 14}px)` : '';\n        continue;\n      }\n      for (const { el, len } of it.paths) {\n        el.style.strokeDasharray = `${len}`;\n        el.style.strokeDashoffset = `${len * (1 - p)}`;\n        el.style.markerEnd = p < 0.97 ? 'none' : '';\n      }\n    }\n  }\n\n  // Morphs: during the transition a stand-in moves from the old to the new position while the real elements are hidden.\n  // An element can end one morph and start the next; collect the elements to hide first, then apply, so the two do not overwrite each other.\n  const morphed = [...new Set(morphs.flatMap((m) => [m.from, m.to]))];\n  function drawMorphs(t) {\n    const hidden = new Set();\n    for (const m of morphs) {\n      const s0 = segs[m.scene].start;\n      const during = t >= s0 && t < s0 + T;\n      m.ghost.style.display = during ? '' : 'none';\n      if (during) {\n        const p = ease((t - s0) / T);\n        m.ghost.style.transform = `translate(${lerp(m.a.x, m.b.x, p)}px, ${lerp(m.a.y, m.b.y, p)}px) scale(${lerp(m.a.s, m.b.s, p)})`;\n        hidden.add(m.from);\n      }\n      if (t < s0 + T) hidden.add(m.to);\n      m.to.style.opacity = 1;\n    }\n    for (const el of morphed) el.style.visibility = hidden.has(el) ? 'hidden' : '';\n  }\n\n  // Camera and highlight: interpolate between the previous camera position and the current target.\n  function drawCamera(t) {\n    const ev = camEvents.findLastIndex((e) => t >= e.t);\n    const e = ev >= 0 ? camEvents[ev] : null;\n    const prev = ev > 0 ? camEvents[ev - 1].cam : IDENT;\n    const p = e ? ease((t - e.t) / CAM) : 0;\n    const to = e ? e.cam : IDENT;\n    camera.style.transform = `translate(${lerp(prev.x, to.x, p)}px, ${lerp(prev.y, to.y, p)}px) scale(${lerp(prev.s, to.s, p)})`;\n    for (const el of hlTargets) el.classList.toggle('amv-hl', el === e?.hl);\n  }\n\n  function drawCaption(t) {\n    const cur = segs.findLastIndex((s) => t >= s.start);\n    const beats = cur >= 0 ? segs[cur].beats : [];\n    const b = beats.find((x) => t >= x.start && t < x.end + 0.3);\n    const html = b ? b.html : '';\n    if (caption.dataset.html !== html) {\n      caption.innerHTML = html;\n      caption.dataset.html = html;\n    }\n    caption.style.opacity = b ? clamp((t - b.start) / 0.2) : 0;\n  }\n\n  // \u2500\u2500 5. Deterministic rendering: the same time always draws the same frame \u2500\u2500\n  function render(time) {\n    const t = clamp(time, 0, D.duration);\n    drawScenes(t);\n    drawSteps(t);\n    drawMorphs(t);\n    drawCamera(t);\n    drawCaption(t);\n    updateUi(t);\n  }\n\n  // \u2500\u2500 6. Player \u2500\u2500\n  const audio = document.getElementById('amv-audio');\n  const seek = document.querySelector('.amv-seek');\n  const timeEl = document.querySelector('.amv-time');\n  const toggleBtn = document.querySelector('[data-amv=\"toggle\"]');\n  const bigPlay = document.querySelector('.amv-bigplay');\n  const marks = document.querySelector('.amv-marks');\n  const fmt = (x) => `${Math.floor(x / 60)}:${String(Math.floor(x % 60)).padStart(2, '0')}`;\n  seek.max = D.duration;\n  segs.slice(1).forEach((s) => {\n    const m = document.createElement('i');\n    m.style.left = `${(s.start / D.duration) * 100}%`;\n    m.title = s.title;\n    marks.append(m);\n  });\n\n  let playing = false;\n  let base = 0;\n  let t0 = 0;\n  const now = () => (!playing ? base : audio ? audio.currentTime : base + (performance.now() - t0) / 1000);\n\n  function updateUi(t) {\n    if (document.activeElement !== seek) seek.value = t;\n    timeEl.textContent = `${fmt(t)} / ${fmt(D.duration)}`;\n  }\n\n  function play() {\n    if (base >= D.duration - 0.05) base = 0;\n    playing = true;\n    bigPlay.hidden = true;\n    toggleBtn.textContent = '\u275A\u275A';\n    toggleBtn.setAttribute('aria-label', toggleBtn.dataset.pause);\n    if (audio) {\n      audio.currentTime = base;\n      audio.play().catch(() => {});\n    } else {\n      t0 = performance.now();\n    }\n    requestAnimationFrame(tick);\n  }\n\n  function pause() {\n    base = now();\n    playing = false;\n    audio?.pause();\n    toggleBtn.textContent = '\u25B6';\n    toggleBtn.setAttribute('aria-label', toggleBtn.dataset.play);\n  }\n\n  function seekTo(x) {\n    base = clamp(x, 0, D.duration);\n    if (audio) audio.currentTime = base;\n    t0 = performance.now();\n    render(base);\n  }\n\n  function tick() {\n    if (!playing) return;\n    const t = now();\n    if (t >= D.duration) {\n      pause();\n      base = D.duration;\n      render(D.duration);\n      return;\n    }\n    render(t);\n    requestAnimationFrame(tick);\n  }\n\n  const toggle = () => (playing ? pause() : play());\n  toggleBtn.addEventListener('click', toggle);\n  bigPlay.addEventListener('click', play);\n  stage.addEventListener('click', (e) => { if (e.target !== bigPlay) toggle(); });\n  seek.addEventListener('input', () => seekTo(Number(seek.value)));\n  document.addEventListener('keydown', (e) => {\n    if (e.key === ' ') { e.preventDefault(); toggle(); }\n    if (e.key === 'ArrowRight') seekTo(now() + 5);\n    if (e.key === 'ArrowLeft') seekTo(now() - 5);\n  });\n  audio?.addEventListener('ended', () => { pause(); base = D.duration; });\n\n  function fitStage() {\n    if (root.hasAttribute('data-export')) return;\n    const vp = stage.parentElement;\n    const s = Math.min(vp.clientWidth / W, vp.clientHeight / H);\n    stage.style.transform = `translate(-50%, -50%) scale(${s})`;\n  }\n  window.addEventListener('resize', fitStage);\n\n  // Export: place the stage 1:1 at the top left and call render(t) frame by frame.\n  window.render = render;\n  window.__amv = {\n    duration: D.duration,\n    fps: D.fps,\n    exportMode() { root.setAttribute('data-export', ''); stage.style.transform = ''; },\n  };\n  fitStage();\n  // Poster: show the fully faded-in title card, but playback still starts at 0.\n  render(Math.min(1, segs[0].end));\n  updateUi(0);\n})();\n";
 
 // src/cli.js
 import { join as join6, resolve, dirname as dirname2 } from "node:path";
@@ -72,7 +72,7 @@ function applyOverrides(meta, overrides, choices = CHOICES) {
   const set = Object.entries(overrides).filter(([, v]) => v !== void 0);
   for (const [key, value] of set) {
     if (choices[key] && !choices[key].includes(String(value))) {
-      throw new ParseError(`${key} \u7684\u503C "${value}" \u65E0\u6548\uFF0C\u53EF\u9009\uFF1A${choices[key].join(" | ")}`, 0);
+      throw new ParseError(`Invalid ${key} value "${value}". Choose one of: ${choices[key].join(" | ")}`, 0);
     }
   }
   return { ...meta, ...Object.fromEntries(set) };
@@ -103,19 +103,19 @@ function parseDoc(source, { defaults: defaults2 = {}, choices = {} } = {}) {
 function parseFrontmatter(lines, base, allowed) {
   if (lines[0]?.trim() !== "---") return { meta: { ...base }, bodyStart: 0 };
   const end = lines.findIndex((l3, i) => i > 0 && l3.trim() === "---");
-  if (end === -1) throw new ParseError("frontmatter \u672A\u95ED\u5408\uFF1A\u7F3A\u5C11\u7ED3\u675F\u884C ---", 1);
+  if (end === -1) throw new ParseError("frontmatter is not closed: missing the closing --- line", 1);
   const entries = {};
   for (let i = 1; i < end; i++) {
     const raw = stripLineComment(lines[i]).trim();
     if (!raw || raw.startsWith("#")) continue;
     const m = raw.match(/^([\w-]+)\s*:\s*(.*)$/);
-    if (!m) throw new ParseError(`frontmatter \u65E0\u6CD5\u89E3\u6790\uFF1A"${lines[i]}"\uFF0C\u5E94\u4E3A key: value`, i + 1);
+    if (!m) throw new ParseError(`Cannot parse frontmatter line "${lines[i]}"; expected key: value`, i + 1);
     entries[m[1]] = { value: coerce(m[1], unquote(m[2])), line: i + 1 };
   }
   const meta = { ...base };
   for (const [key, { value, line }] of Object.entries(entries)) {
     if (allowed[key] && !allowed[key].includes(String(value))) {
-      throw new ParseError(`${key} \u7684\u503C "${value}" \u65E0\u6548\uFF0C\u53EF\u9009\uFF1A${allowed[key].join(" | ")}`, line);
+      throw new ParseError(`Invalid ${key} value "${value}". Choose one of: ${allowed[key].join(" | ")}`, line);
     }
     meta[key] = allowed[key] ? String(value) : value;
   }
@@ -138,7 +138,7 @@ function splitSections(lines, start) {
     if (fence) {
       flushMd();
       const close = findFenceClose(lines, i, fence[1]);
-      if (close === -1) throw new ParseError(`\u56F4\u680F\u5757 ${fence[1]}${fence[2]} \u672A\u95ED\u5408`, i + 1);
+      if (close === -1) throw new ParseError(`fenced block ${fence[1]}${fence[2]} is not closed`, i + 1);
       current.blocks.push({
         type: "fence",
         lang: fence[2].toLowerCase(),
@@ -1662,17 +1662,17 @@ function fields(text) {
 var KINDS = /* @__PURE__ */ new Set(["info", "ok", "warn", "err"]);
 var callout_default = {
   name: "callout",
-  summary: "\u7ED3\u8BBA / \u63D0\u793A / \u8B66\u544A\u6761",
-  syntax: `\`\`\`callout <info|ok|warn|err> [\u6807\u9898]
-\u6B63\u6587\uFF08Markdown\uFF09
+  summary: "Conclusion / tip / warning bar",
+  syntax: `\`\`\`callout <info|ok|warn|err> [title]
+Body (Markdown)
 \`\`\`
-- \u9996\u4E2A\u53C2\u6570\u4E0D\u662F\u7C7B\u578B\u65F6\uFF0C\u6574\u4E2A\u53C2\u6570\u4E32\u4F5C\u4E3A\u6807\u9898\uFF0C\u7C7B\u578B\u4E3A info\u3002`,
-  example: "```callout warn \u6CE8\u610F\n\u5148\u5173\u95ED\u9600\u95E8\uFF0C\u518D\u62C6\u5378\u6CF5\u3002\n```",
+- If the first argument is not a type, the whole argument string is the title and the type is info.`,
+  example: "```callout warn Caution\nClose the valve before you remove the pump.\n```",
   render(text, { args }) {
     const [first = "", ...rest] = args.split(/\s+/).filter(Boolean);
     const kind = KINDS.has(first) ? first : "info";
     const title = (KINDS.has(first) ? rest.join(" ") : args).trim();
-    if (!title && !text.trim()) throw new ComponentError("callout \u9700\u8981\u6807\u9898\u6216\u6B63\u6587", 1);
+    if (!title && !text.trim()) throw new ComponentError("callout needs a title or a body", 1);
     const head = title ? `<div class="am-callout-title">${esc(title)}</div>` : "";
     const body = text.trim() ? `<div class="am-callout-body am-md">${md(text)}</div>` : "";
     return `<div class="am-callout am-callout--${kind}" role="note">${head}${body}</div>`;
@@ -1682,12 +1682,12 @@ var callout_default = {
 // src/components/kv.js
 var kv_default = {
   name: "kv",
-  summary: "\u952E\u503C\u683C / \u6807\u9898\u680F\uFF08\u5143\u4FE1\u606F\uFF09",
+  summary: "Key-value grid / title block (metadata)",
   syntax: `\`\`\`kv [cols=2]
-\u952E: \u503C
-* \u5BBD\u683C\u952E: \u503C        \u2190 * \u5F00\u5934\uFF1A\u5360\u6EE1\u6574\u884C\uFF0C\u5B57\u53F7\u66F4\u5927
+key: value
+* wide key: value   \u2190 starts with *: spans the full row, larger text
 \`\`\`
-- \u6309\u7B2C\u4E00\u4E2A\u5192\u53F7\uFF08: \u6216 \uFF1A\uFF09\u5207\u5206\uFF0C\u503C\u91CC\u53EF\u4EE5\u518D\u51FA\u73B0\u5192\u53F7\u3002`,
+- Splits at the first colon (: or the fullwidth colon); the value may contain more colons.`,
   example: "```kv cols=2\n* Title: Simplified Technical English\nSpecification: ASD-STE100\nOwner: ASD\n```",
   render(text, { args }) {
     const cols = Math.max(1, Math.min(Number(parseAttrs(args).cols) || 2, 6));
@@ -1695,10 +1695,10 @@ var kv_default = {
       const wide = t.startsWith("*");
       const body = wide ? t.slice(1).trim() : t;
       const m = body.match(/^([^:：]+)[:：]\s*(.*)$/);
-      if (!m) throw new ComponentError(`kv \u884C\u7F3A\u5C11\u5192\u53F7\uFF1A"${t}"\uFF0C\u5E94\u4E3A \u952E: \u503C`, line);
+      if (!m) throw new ComponentError(`kv line has no colon: "${t}"; expected key: value`, line);
       return `<div class="am-kv-cell${wide ? " am-kv-cell--wide" : ""}"><dt>${esc(m[1].trim())}</dt><dd>${mdInline(m[2])}</dd></div>`;
     });
-    if (!cells.length) throw new ComponentError("kv \u81F3\u5C11\u9700\u8981\u4E00\u884C \u952E: \u503C", 1);
+    if (!cells.length) throw new ComponentError("kv needs at least one key: value line", 1);
     return `<dl class="am-kv" style="--kv-cols: ${cols}">${cells.join("")}</dl>`;
   }
 };
@@ -1706,21 +1706,21 @@ var kv_default = {
 // src/components/timeline.js
 var timeline_default = {
   name: "timeline",
-  summary: "\u65F6\u95F4\u7EBF / \u9636\u6BB5\u6F14\u8FDB",
+  summary: "Timeline / phases",
   syntax: `\`\`\`timeline [h|v]
-\u65F6\u95F4 | \u6807\u9898 | \u8BF4\u660E\uFF08\u53EF\u9009\uFF09
-*\u65F6\u95F4 | \u6807\u9898          \u2190 * \u5F00\u5934\uFF1A\u9AD8\u4EAE\u8BE5\u8282\u70B9
+time | title | note (optional)
+*time | title        \u2190 starts with *: highlights the item
 \`\`\`
-- \u9ED8\u8BA4 \u22646 \u9879\u6A2A\u5411\u3001>6 \u9879\u7EB5\u5411\uFF1B\u53C2\u6570 h / v \u5F3A\u5236\u65B9\u5411\u3002`,
-  example: "```timeline\n1979 | AECMA \u542F\u52A8\u7814\u7A76\n1986 | \u9996\u7248\u6307\u5357\u53D1\u5E03\n*Now | \u514D\u8D39\u4E0B\u8F7D | \u7531 ASD STEMG \u7EF4\u62A4\n```",
+- By default \u22646 items are horizontal and >6 are vertical; the h / v argument forces a direction.`,
+  example: "```timeline\n1979 | AECMA starts the study\n1986 | First guide published\n*Now | Free download | Maintained by ASD STEMG\n```",
   render(text, { args }) {
     const items = contentLines(text).map(({ text: t, line }) => {
       const parts = fields(t);
-      if (parts.length < 2 || !parts[1]) throw new ComponentError(`timeline \u884C\u683C\u5F0F\u5E94\u4E3A \u65F6\u95F4 | \u6807\u9898 | \u8BF4\u660E\uFF1A"${t}"`, line);
+      if (parts.length < 2 || !parts[1]) throw new ComponentError(`timeline line must be time | title | note: "${t}"`, line);
       const hi = parts[0].startsWith("*");
       return { when: hi ? parts[0].slice(1).trim() : parts[0], title: parts[1], detail: parts[2] ?? "", hi };
     });
-    if (!items.length) throw new ComponentError("timeline \u81F3\u5C11\u9700\u8981\u4E00\u9879", 1);
+    if (!items.length) throw new ComponentError("timeline needs at least one item", 1);
     const vertical = /\bv(ertical)?\b/.test(args) || !/\bh(orizontal)?\b/.test(args) && items.length > 6;
     const lis = items.map((it3) => `<li class="am-tl-item${it3.hi ? " am-tl-item--hi" : ""}"><span class="am-tl-when">${esc(it3.when)}</span><span class="am-tl-dot"></span><span class="am-tl-title">${mdInline(it3.title)}</span>${it3.detail ? `<span class="am-tl-text">${mdInline(it3.detail)}</span>` : ""}</li>`);
     return vertical ? `<ol class="am-timeline am-timeline--v">${lis.join("")}</ol>` : `<ol class="am-timeline am-timeline--h" style="--n: ${items.length}">${lis.join("")}</ol>`;
@@ -1734,14 +1734,14 @@ var NOTE_SIZE = 11;
 var NOTE_GAP = 10;
 var annot_default = {
   name: "annot",
-  summary: "\u53E5\u5B50\u9010\u6BB5\u6807\u6CE8\uFF08\u4E0B\u5212\u62EC\u53F7 + \u6CE8\u91CA\uFF09",
+  summary: "Sentence annotation by segment (underline bracket + note)",
   syntax: `\`\`\`annot
-# \u5C0F\u6807\u9898 | \u53F3\u4FA7\u8BF4\u660E\uFF08\u53EF\u9009\uFF09
-\u53E5\u5B50\u6587\u672C\uFF0C[\u88AB\u6807\u6CE8\u7247\u6BB5]{\u6CE8\u91CA}\uFF0C[\u9519\u8BEF\u7247\u6BB5]{!\u7EA2\u8272\u6CE8\u91CA}\u3002
-> \u5E95\u90E8\u8BF4\u660E\uFF08\u53EF\u9009\uFF09
+# Heading | right-side note (optional)
+Sentence text, [annotated span]{note}, [wrong span]{!red note}.
+> Caption below (optional)
 \`\`\`
-- \u4E00\u4E2A # \u5F00\u542F\u4E00\u7EC4\uFF1B\u540C\u7EC4\u53EF\u6709\u591A\u53E5\u3002\u6CE8\u91CA\u91CD\u53E0\u65F6\u81EA\u52A8\u9519\u884C\u3002`,
-  example: '```annot\n# 1 \u7A0B\u5E8F\u6027\u53E5\u5B50 | 13 words, limit 20\nMake sure that [the hydraulic reservoir]{Technical name} is [full]{!Not "replenished"}.\n> \u4E00\u53E5\u53EA\u5199\u4E00\u6761\u6307\u4EE4\n```',
+- Each # starts a group; a group can hold several sentences. Overlapping notes move to separate rows automatically.`,
+  example: '```annot\n# 1 Procedural sentence | 13 words, limit 20\nMake sure that [the hydraulic reservoir]{Technical name} is [full]{!Not "replenished"}.\n> Write one instruction per sentence\n```',
   render(text) {
     const groups = [];
     let group = null;
@@ -1756,7 +1756,7 @@ var annot_default = {
         ensure().lines.push(sentenceHtml(t, line));
       }
     }
-    if (!groups.length) throw new ComponentError("annot \u81F3\u5C11\u9700\u8981\u4E00\u4E2A\u53E5\u5B50", 1);
+    if (!groups.length) throw new ComponentError("annot needs at least one sentence", 1);
     return groups.map(groupHtml).join("");
   }
 };
@@ -1774,7 +1774,7 @@ function groupHtml(g) {
 function sentenceHtml(sentence, line) {
   const stripped = sentence.replace(SEG, "");
   if (/\[[^\]]*\]\{|\]\{[^}]*$/.test(stripped)) {
-    throw new ComponentError(`annot \u6807\u6CE8\u672A\u95ED\u5408\uFF0C\u5E94\u4E3A [\u7247\u6BB5]{\u6CE8\u91CA}\uFF1A"${sentence}"`, line);
+    throw new ComponentError(`annot has an unclosed annotation; expected [span]{note}: "${sentence}"`, line);
   }
   const rows = [];
   let out = "";
@@ -1808,20 +1808,20 @@ function placeNote(rows, start, end) {
 // src/components/tree.js
 var tree_default = {
   name: "tree",
-  summary: "\u5C42\u7EA7\u7ED3\u6784\u6811\uFF08\u7EC4\u7EC7\u56FE / \u7F29\u8FDB\u5217\u8868\uFF09",
+  summary: "Hierarchy tree (org chart / indented list)",
   syntax: `\`\`\`tree [list]
-\u6839\u8282\u70B9 | \u526F\u6807\u9898
-  \u5B50\u8282\u70B9
-    \u5B59\u8282\u70B9 | \u4E00\u884C\u8BF4\u660E
-  *\u9AD8\u4EAE\u5B50\u8282\u70B9
+Root | subtitle
+  Child
+    Grandchild | one-line note
+  *Highlighted child
 \`\`\`
-- \u7528\u7F29\u8FDB\uFF08\u7A7A\u683C\u6216 Tab\uFF09\u8868\u8FBE\u5C42\u7EA7\uFF1B"\u6807\u7B7E | \u8BF4\u660E" \u7ED9\u51FA\u7070\u8272\u8BF4\u660E\u3002
-- \u5355\u6839\u4E14 2~4 \u4E2A\u5B50\u8282\u70B9 \u2192 \u7EC4\u7EC7\u56FE\uFF1B\u5B50\u8282\u70B9\u66F4\u591A\u6216\u53C2\u6570 list \u2192 \u7F29\u8FDB\u5217\u8868\uFF1B\u591A\u4E2A\u6839 \u2192 \u5E76\u6392\u3002
-- \u6807\u7B7E\u652F\u6301\u884C\u5185 Markdown\uFF0C\u5982 \`Section 1\` Words\u3002`,
-  example: "```tree\nASD-STE100 | Simplified Technical English\n  Part 1: Writing rules\n    `Section 1` Words\n  Part 2: Dictionary\n    Approved words | \u4E00\u8BCD\u4E00\u4E49\n```",
+- Indentation (spaces or tabs) sets the level; "label | note" adds a gray note.
+- One root with 2 to 4 children \u2192 org chart; more children or the list argument \u2192 indented list; several roots \u2192 side by side.
+- Labels support inline Markdown, such as \`Section 1\` Words.`,
+  example: "```tree\nASD-STE100 | Simplified Technical English\n  Part 1: Writing rules\n    `Section 1` Words\n  Part 2: Dictionary\n    Approved words | one word, one meaning\n```",
   render(text, { args }) {
     const roots = buildTree(text);
-    if (!roots.length) throw new ComponentError("tree \u81F3\u5C11\u9700\u8981\u4E00\u4E2A\u8282\u70B9", 1);
+    if (!roots.length) throw new ComponentError("tree needs at least one node", 1);
     const listMode = /\blist\b/.test(args);
     if (roots.length === 1) {
       const [root] = roots;
@@ -1895,16 +1895,16 @@ var pct = (v, max) => `${Math.round(v / max * 1e4) / 100}%`;
 var NUM = /^(?:max\s+)?(-?\d+(?:\.\d+)?)$/i;
 var limits_default = {
   name: "limits",
-  summary: "\u6570\u503C vs \u4E0A\u9650 \u6761\u5F62\u5BF9\u7167",
+  summary: "Value vs limit bars",
   syntax: `\`\`\`limits
-\u6807\u7B7E | \u5F53\u524D\u503C / \u4E0A\u9650 | \u5355\u4F4D\uFF08\u53EF\u9009\uFF09 | \u5907\u6CE8\uFF08\u53EF\u9009\uFF09
-\u6807\u7B7E | \u4E0A\u9650 | \u5355\u4F4D          \u2190 \u53EA\u7ED9\u4E0A\u9650\uFF1A\u6761\u586B\u5145\u5230\u4E0A\u9650
+label | value / limit | unit (optional) | note (optional)
+label | limit | unit         \u2190 limit only: the bar fills to the limit
 \`\`\`
-- \u5F53\u524D\u503C\u8D85\u8FC7\u4E0A\u9650\u65F6\u6574\u884C\u6807\u7EA2\u3002\u4E0A\u9650\u53EF\u5199\u6210 "max 20"\u3002`,
-  example: "```limits\n\u7A0B\u5E8F\u6027\u53E5\u5B50 | 13 / 20 | words\n\u63CF\u8FF0\u6027\u53E5\u5B50 | max 25 | words\n\u540D\u8BCD\u7C07 | 4 / 3 | words | \u8D85\u9650\n```",
+- A row turns red when the value is over the limit. The limit may be written as "max 20".`,
+  example: "```limits\nProcedural sentence | 13 / 20 | words\nDescriptive sentence | max 25 | words\nNoun cluster | 4 / 3 | words | over\n```",
   render(text) {
     const rows = contentLines(text).map(({ text: t, line }) => parseRow(t, line));
-    if (!rows.length) throw new ComponentError("limits \u81F3\u5C11\u9700\u8981\u4E00\u884C", 1);
+    if (!rows.length) throw new ComponentError("limits needs at least one line", 1);
     return `<div class="am-limits">${rows.map(rowHtml).join("")}</div>`;
   }
 };
@@ -1913,7 +1913,7 @@ function parseRow(t, line) {
   const [a, b] = spec.split("/").map((s) => s.trim());
   const nums = (b === void 0 ? [a] : [a, b]).map((s) => s?.match(NUM)?.[1]);
   if (!spec || nums.some((n) => n === void 0)) {
-    throw new ComponentError(`limits \u884C\u683C\u5F0F\u5E94\u4E3A \u6807\u7B7E | \u5F53\u524D\u503C / \u4E0A\u9650 | \u5355\u4F4D\uFF1A"${t}"`, line);
+    throw new ComponentError(`limits line must be label | value / limit | unit: "${t}"`, line);
   }
   const [value, limit] = b === void 0 ? [null, Number(nums[0])] : nums.map(Number);
   return { label, value, limit, unit, note };
@@ -1998,25 +1998,25 @@ function parseSequence(text) {
       add(m[3]);
       steps.push({ kind: "msg", from: m[1], to: m[3], dashed: m[2] === "-->", label: (m[4] ?? "").trim(), line });
     } else {
-      throw new ComponentError(`sequence \u65E0\u6CD5\u89E3\u6790\uFF1A"${t}"\u3002\u6D88\u606F\u5199\u4F5C A -> B: \u6807\u7B7E\uFF08--> \u4E3A\u865A\u7EBF\u8FD4\u56DE\uFF09\uFF0C\u6CE8\u91CA\u5199\u4F5C note A: \u6587\u672C`, line);
+      throw new ComponentError(`sequence cannot parse "${t}". Write a message as A -> B: label (--> is a dashed return) and a note as note A: text`, line);
     }
   }
-  if (!participants.length) throw new ComponentError("sequence \u81F3\u5C11\u9700\u8981\u4E00\u6761\u6D88\u606F", 1);
+  if (!participants.length) throw new ComponentError("sequence needs at least one message", 1);
   return { participants, steps };
 }
 var sequence_default = {
   name: "sequence",
-  summary: "\u65F6\u5E8F\u56FE\uFF08\u53C2\u4E0E\u8005\u4E4B\u95F4\u7684\u6D88\u606F\u5F80\u6765\uFF09",
+  summary: "Sequence diagram (messages between participants)",
   syntax: `\`\`\`sequence [num]
-participants: A, B, C        \u2190 \u53EF\u9009\uFF0C\u56FA\u5B9A\u53C2\u4E0E\u8005\u987A\u5E8F
-A -> B: \u8BF7\u6C42                  \u2190 \u5B9E\u7EBF
-B --> A: \u54CD\u5E94                 \u2190 \u865A\u7EBF\uFF08\u8FD4\u56DE\uFF09
-B -> B: \u81EA\u8C03\u7528
-note A: \u5355\u4E2A\u53C2\u4E0E\u8005\u4E0A\u7684\u6CE8\u91CA
-note A, C: \u6A2A\u8DE8\u591A\u4E2A\u53C2\u4E0E\u8005\u7684\u6CE8\u91CA
-== \u9636\u6BB5\u5206\u9694 ==
+participants: A, B, C        \u2190 optional, fixes the participant order
+A -> B: request              \u2190 solid line
+B --> A: response            \u2190 dashed line (return)
+B -> B: self call
+note A: note on one participant
+note A, C: note across several participants
+== Phase divider ==
 \`\`\`
-- \u53C2\u6570 num\uFF1A\u7ED9\u6D88\u606F\u52A0\u5E8F\u53F7\u3002`,
+- Argument num: number the messages.`,
   example: "```sequence\nClient -> Server: SYN\nServer --> Client: SYN-ACK\nClient -> Server: ACK\nnote Client, Server: ESTABLISHED\n```",
   render(text, { args, uid }) {
     const model = parseSequence(text);
@@ -4020,18 +4020,18 @@ var BRACKETS = [
 var ARROW = /^\s*(-->|->)\s*/;
 var flow_default = {
   name: "flow",
-  summary: "\u6D41\u7A0B\u56FE / \u67B6\u6784\u56FE\uFF08\u81EA\u52A8\u5E03\u5C40\uFF09",
+  summary: "Flowchart / architecture diagram (automatic layout)",
   syntax: `\`\`\`flow [TB|LR|BT|RL]
-A -> B: \u6807\u7B7E                  \u2190 \u5B9E\u7EBF\uFF0C\u5192\u53F7\u540E\u4E3A\u8FB9\u6807\u7B7E
-A --> C                       \u2190 \u865A\u7EBF
-A -> B -> C                   \u2190 \u94FE\u5F0F
-A -> B & C                    \u2190 \u6247\u51FA
-(\u5F00\u59CB)  {\u5224\u65AD?}  [(\u6570\u636E\u5E93)]  [\u542B: \u5192\u53F7\u7684\u6587\u672C]   \u2190 \u5706\u89D2 / \u83F1\u5F62 / \u5706\u67F1 / \u77E9\u5F62
-*\u91CD\u70B9\u8282\u70B9                      \u2190 * \u524D\u7F00\u9AD8\u4EAE
-group \u5206\u7EC4\u540D: B, C            \u2190 \u628A\u8282\u70B9\u6846\u8FDB\u4E00\u4E2A\u5206\u7EC4
+A -> B: label                 \u2190 solid line; text after the colon is the edge label
+A --> C                       \u2190 dashed line
+A -> B -> C                   \u2190 chain
+A -> B & C                    \u2190 fan-out
+(Start)  {Valid?}  [(Database)]  [text with: a colon]   \u2190 rounded / diamond / cylinder / rectangle
+*Key node                     \u2190 * prefix highlights
+group Group name: B, C        \u2190 draw a group box around nodes
 \`\`\`
-- \u8282\u70B9\u4EE5\u62EC\u53F7\u5185\u7684\u6587\u5B57\u4F5C\u4E3A\u8EAB\u4EFD\uFF0C\u4E4B\u540E\u53EF\u76F4\u63A5\u5199\u6587\u5B57\u5F15\u7528\u3002\u9ED8\u8BA4\u65B9\u5411 TB\uFF08\u81EA\u4E0A\u800C\u4E0B\uFF09\u3002`,
-  example: "```flow LR\n(\u7528\u6237) -> \u7F51\u5173: HTTPS\n\u7F51\u5173 -> \u9274\u6743 & *\u4E1A\u52A1\u670D\u52A1\n\u4E1A\u52A1\u670D\u52A1 -> [(\u6570\u636E\u5E93)]\ngroup \u540E\u7AEF: \u9274\u6743, \u4E1A\u52A1\u670D\u52A1\n```",
+- The text inside the brackets is the node's identity; later lines can refer to the node by that text alone. The default direction is TB (top to bottom).`,
+  example: "```flow LR\n(User) -> Gateway: HTTPS\nGateway -> Auth & *Service\nService -> [(Database)]\ngroup Backend: Auth, Service\n```",
   render(text, { args, uid }) {
     const model = parseFlow(text);
     const dir = (args.match(/\b(TB|LR|BT|RL)\b/i)?.[1] ?? "TB").toUpperCase();
@@ -4065,10 +4065,10 @@ function parseFlow(text) {
       }
     }
   }
-  if (!nodes.size) throw new ComponentError("flow \u81F3\u5C11\u9700\u8981\u4E00\u4E2A\u8282\u70B9", 1);
+  if (!nodes.size) throw new ComponentError("flow needs at least one node", 1);
   for (const grp of groups) {
     const missing = grp.members.filter((m) => !nodes.has(m));
-    if (missing.length) throw new ComponentError(`group ${grp.name} \u5F15\u7528\u4E86\u4E0D\u5B58\u5728\u7684\u8282\u70B9\uFF1A${missing.join("\u3001")}`, grp.line);
+    if (missing.length) throw new ComponentError(`group ${grp.name} refers to nodes that do not exist: ${missing.join(", ")}`, grp.line);
   }
   return { nodes, edges, groups };
 }
@@ -4094,7 +4094,7 @@ function parseChain(t, line) {
   }
   const rest = t.slice(pos).trim();
   if (rest && !/^[:：]/.test(rest)) {
-    throw new ComponentError(`flow \u65E0\u6CD5\u89E3\u6790\uFF1A"${t}"\u3002\u5173\u7CFB\u5199\u4F5C A -> B: \u6807\u7B7E`, line);
+    throw new ComponentError(`flow cannot parse "${t}". Write a link as A -> B: label`, line);
   }
   return { chain, label: rest.replace(/^[:：]\s*/, "") };
 }
@@ -4107,7 +4107,7 @@ function parseNode(t, start, line) {
   let end;
   if (bracket) {
     const close = t.indexOf(bracket.close, pos + bracket.open.length);
-    if (close === -1) throw new ComponentError(`flow \u5F62\u72B6\u62EC\u53F7\u672A\u95ED\u5408\uFF1A\u7F3A\u5C11 ${bracket.close}`, line);
+    if (close === -1) throw new ComponentError(`flow: unclosed shape bracket, missing ${bracket.close}`, line);
     label = t.slice(pos + bracket.open.length, close).trim();
     end = close + bracket.close.length;
   } else {
@@ -4115,7 +4115,7 @@ function parseNode(t, start, line) {
     label = m[1].trim();
     end = pos + m[0].length;
   }
-  if (!label) throw new ComponentError(`flow \u5B58\u5728\u7A7A\u8282\u70B9\uFF1A"${t}"`, line);
+  if (!label) throw new ComponentError(`flow has an empty node: "${t}"`, line);
   return { node: { id: label, label, shape: bracket?.shape ?? "rect", explicit: Boolean(bracket), hi }, end };
 }
 function nodeSize(node) {
@@ -4313,7 +4313,7 @@ var JA_SERIF = '"CMU Serif", "Latin Modern Roman", "Iowan Old Style", "Palatino"
 var shared = { "--font-sans": SANS, "--font-mono": MONO };
 var THEMES = Object.freeze({
   blueprint: {
-    label: "\u56FE\u7EB8 Blueprint",
+    label: "Blueprint drawing",
     common: { ...shared, "--radius": "0px", "--shadow": "none", "--bw": "1.5px", "--head-font": "var(--font-sans)" },
     light: {
       "--bg": "#f6f6f3",
@@ -4357,7 +4357,7 @@ var THEMES = Object.freeze({
     }
   },
   shadcn: {
-    label: "\u5361\u7247 shadcn",
+    label: "shadcn cards",
     common: { ...shared, "--radius": "8px", "--shadow": "0 1px 2px 0 rgba(0,0,0,0.05)", "--bw": "1px", "--head-font": "var(--font-sans)" },
     light: {
       "--bg": "#fafafa",
@@ -4527,7 +4527,7 @@ function lintMarkdown(text, startLine, out) {
   let para = null;
   const flush = () => {
     if (para && para.count > MAX_SENTENCES) {
-      out.push({ line: para.line, rule: "paragraph-length", message: `\u6BB5\u843D ${para.count} \u53E5\uFF08\u4E0A\u9650 ${MAX_SENTENCES}\uFF09` });
+      out.push({ line: para.line, rule: "paragraph-length", message: `paragraph has ${para.count} sentences (max ${MAX_SENTENCES})` });
     }
     para = null;
   };
@@ -4566,28 +4566,28 @@ function checkUnit(text, line, kind, out) {
   const sentences = splitSentences(text);
   const ja = isJapanese(text);
   for (const s of sentences) {
-    const { lang, count } = sentenceLength(s);
+    const { lang, count: count2 } = sentenceLength(s);
     const limit = LIMITS[lang][kind];
-    if (count > limit) {
-      const unit = lang === "zh" ? "\u5B57" : "words";
+    if (count2 > limit) {
+      const unit = lang === "zh" ? "characters" : "words";
       const preview = s.length > 24 ? `${s.slice(0, 24)}\u2026` : s;
-      out.push({ line, rule: "sentence-length", message: `${kind === "procedural" ? "\u6B65\u9AA4" : "\u53E5\u5B50"} ${count} ${unit}\uFF08\u4E0A\u9650 ${limit}\uFF09\uFF1A"${preview}"` });
+      out.push({ line, rule: "sentence-length", message: `${kind === "procedural" ? "step" : "sentence"} has ${count2} ${unit} (max ${limit}): "${preview}"` });
     }
     if (lang === "en" && PASSIVE.test(s)) {
-      out.push({ line, rule: "passive", message: `\u7591\u4F3C\u88AB\u52A8\u8BED\u6001\uFF1A"${s.match(PASSIVE)[0]}"`, suggestion: "\u6539\u4E3A\u4E3B\u52A8\u8BED\u6001" });
+      out.push({ line, rule: "passive", message: `possible passive voice: "${s.match(PASSIVE)[0]}"`, suggestion: "use active voice" });
     }
   }
   const lexical = [
-    ...EN_RE.flatMap(({ re: re3, suggestion }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `\u4E0D\u63A8\u8350 "${m[0]}"`, suggestion }))),
-    ...(ja ? [] : ZH_LIGHT_VERBS).flatMap(({ re: re3, label }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `\u865A\u52A8\u8BCD "${m[0]}"\uFF08${label}\uFF09`, suggestion: `\u76F4\u63A5\u7528\u300C${m[1]}\u300D` })))
+    ...EN_RE.flatMap(({ re: re3, suggestion }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `not recommended: "${m[0]}"`, suggestion }))),
+    ...(ja ? [] : ZH_LIGHT_VERBS).flatMap(({ re: re3, label }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `light verb "${m[0]}" (${label})`, suggestion: `use "${m[1]}"` })))
   ];
   out.push(...lexical.sort((a, b) => a.index - b.index).map(({ index, ...w }) => ({ line, ...w })));
   for (const s of sentences) {
     if (isJapanese(s)) continue;
-    if ((s.match(/的/g) ?? []).length >= 3) out.push({ line, rule: "de-chain", message: `"\u7684"\u5B57\u8FDE\u7528\uFF1A${s}`, suggestion: '\u62C6\u53E5\u6216\u5220\u53BB\u591A\u4F59\u7684"\u7684"' });
+    if ((s.match(/的/g) ?? []).length >= 3) out.push({ line, rule: "de-chain", message: `chained "\u7684": ${s}`, suggestion: 'split the sentence or remove extra "\u7684"' });
   }
   for (const c of ja ? [] : ZH_CLICHES) {
-    if (text.includes(c)) out.push({ line, rule: "cliche", message: `\u5957\u8BDD "${c}"`, suggestion: "\u5220\u9664\uFF0C\u6216\u6362\u6210\u5177\u4F53\u4E8B\u5B9E" });
+    if (text.includes(c)) out.push({ line, rule: "cliche", message: `clich\xE9 "${c}"`, suggestion: "delete it or state a concrete fact" });
   }
   return sentences.length;
 }
@@ -4616,7 +4616,7 @@ function readPage(html) {
   return {
     source: m ? unescapeHtml(m[1]) : null,
     video,
-    // 正文里的 <main class="am-doc"> 不算；模板的 <main> 总在正文之前。
+    // A <main class="am-doc"> in the body does not count; the template's <main> always comes before the body.
     template: video ? "video" : s.match(/<main class="am-(doc|sheet)\b/)?.[1],
     theme: attr("data-theme"),
     mode: attr("data-mode"),
@@ -4641,7 +4641,7 @@ var RenderError = class extends Error {
 };
 var LintError = class extends Error {
   constructor(warnings) {
-    super(`STE \u68C0\u67E5\u672A\u901A\u8FC7\uFF08style: strict\uFF09\uFF1A${warnings.length} \u6761`);
+    super(`STE check failed (style: strict): ${warnings.length} warning${warnings.length === 1 ? "" : "s"}`);
     this.name = "LintError";
     this.warnings = warnings;
   }
@@ -4682,7 +4682,7 @@ function detectLang(text) {
 function renderDoc(source, overrides = {}, defaults2 = {}) {
   const parsed = parseDoc(source, { defaults: defaults2 });
   const doc2 = { ...parsed, meta: applyOverrides(parsed.meta, overrides) };
-  if (doc2.meta.template === "video") throw new ParseError("template: video \u662F\u89C6\u9891\u7A3F\uFF0C\u8BF7\u7528 am video \u6E32\u67D3", 0);
+  if (doc2.meta.template === "video") throw new ParseError("template: video is a video draft; render it with am video", 0);
   const warnings = doc2.meta.style === "off" ? [] : lintDoc(doc2);
   if (doc2.meta.style === "strict" && warnings.length) throw new LintError(warnings);
   const stats = { panels: doc2.panels.length, components: {} };
@@ -4758,10 +4758,10 @@ function parseVideo(source, { defaults: defaults2 = {} } = {}) {
   const intro = splitNarration(doc2.intro);
   const scenes = doc2.panels.map((p) => {
     const { blocks, beats } = splitNarration(p.blocks);
-    if (!beats.length) throw new ParseError(`\u573A\u666F "${p.title}" \u6CA1\u6709\u65C1\u767D\uFF1A\u6BCF\u4E2A\u573A\u666F\u81F3\u5C11\u5199\u4E00\u884C > \u65C1\u767D`, p.line);
+    if (!beats.length) throw new ParseError(`Scene "${p.title}" has no narration: write at least one > narration line in every scene`, p.line);
     return { id: p.id, title: p.title, line: p.line, attrs: p.attrs, blocks, beats };
   });
-  if (!scenes.length) throw new ParseError("\u89C6\u9891\u7A3F\u81F3\u5C11\u9700\u8981\u4E00\u4E2A\u573A\u666F\uFF08## \u573A\u666F\u6807\u9898\uFF09", 1);
+  if (!scenes.length) throw new ParseError("A video draft needs at least one scene (## Scene title)", 1);
   return { meta: doc2.meta, doc: doc2, intro: intro.blocks, introBeats: intro.beats, scenes };
 }
 function splitNarration(blocks) {
@@ -4798,15 +4798,15 @@ function estimateSeconds(text) {
 }
 var TIMING = Object.freeze({
   title: 2.4,
-  // 无旁白时片头停留
+  // intro hold when there is no narration
   transition: 0.9,
-  // 场景切换（含跨场景变形）
+  // scene change (including cross-scene morphs)
   gap: 0.35,
-  // 两句旁白之间的停顿
+  // pause between two narration lines
   tail: 0.8,
-  // 场景最后一句之后的停留
+  // hold after a scene's last line
   outro: 1.5
-  // 片尾停留
+  // outro hold
 });
 function buildTimeline(video, durations) {
   let t = 0;
@@ -4866,13 +4866,13 @@ function pickProvider(choice, env, { platform = process.platform, which = hasCom
   const system = () => systemVoice(platform, which);
   if (choice === "off") return null;
   if (choice === "elevenlabs") {
-    if (!env.ELEVENLABS_API_KEY) throw new TtsError("voice=elevenlabs \u9700\u8981\u73AF\u5883\u53D8\u91CF ELEVENLABS_API_KEY");
+    if (!env.ELEVENLABS_API_KEY) throw new TtsError("voice=elevenlabs needs the ELEVENLABS_API_KEY environment variable");
     return eleven();
   }
   if (choice === "local") return localSpeech(env);
   if (choice === "system") {
     const p = system();
-    if (!p) throw new TtsError("\u6CA1\u6709\u627E\u5230\u7CFB\u7EDF TTS\uFF1AmacOS \u81EA\u5E26 say\uFF1BLinux \u8BF7\u5B89\u88C5 espeak-ng");
+    if (!p) throw new TtsError("No system TTS found: macOS has say built in; on Linux install espeak-ng");
     return p;
   }
   if (env.ELEVENLABS_API_KEY) return eleven();
@@ -4896,16 +4896,16 @@ function elevenLabs(env) {
           signal: AbortSignal.timeout(ELEVEN_TIMEOUT_MS)
         });
       } catch (e) {
-        throw new TtsError(`\u65E0\u6CD5\u8FDE\u63A5 ElevenLabs\uFF1A${e.name === "TimeoutError" ? `${ELEVEN_TIMEOUT_MS / 1e3} \u79D2\u5185\u6CA1\u6709\u54CD\u5E94` : e.message}`);
+        throw new TtsError(`Cannot connect to ElevenLabs: ${e.name === "TimeoutError" ? `no response within ${ELEVEN_TIMEOUT_MS / 1e3} seconds` : e.message}`);
       }
-      if (!res.ok) throw new TtsError(`ElevenLabs \u8FD4\u56DE ${res.status}\uFF1A${(await res.text()).slice(0, 200)}`);
+      if (!res.ok) throw new TtsError(`ElevenLabs returned ${res.status}: ${(await res.text()).slice(0, 200)}`);
       const buf = Buffer.from(await res.arrayBuffer());
       return new Int16Array(buf.buffer, buf.byteOffset, Math.floor(buf.length / 2)).slice();
     }
   };
 }
 function localSpeech(env) {
-  if (!env.AM_TTS_URL) throw new TtsError("voice=local \u9700\u8981\u73AF\u5883\u53D8\u91CF AM_TTS_URL\uFF08\u5982 http://127.0.0.1:8000\uFF09");
+  if (!env.AM_TTS_URL) throw new TtsError("voice=local needs the AM_TTS_URL environment variable (such as http://127.0.0.1:8000)");
   const url = `${env.AM_TTS_URL.replace(/\/+$/, "").replace(/\/v1$/, "")}/v1/audio/speech`;
   let extra = {};
   if (env.AM_TTS_EXTRA) {
@@ -4914,10 +4914,10 @@ function localSpeech(env) {
     } catch {
       extra = null;
     }
-    if (!extra || typeof extra !== "object" || Array.isArray(extra)) throw new TtsError("AM_TTS_EXTRA \u5FC5\u987B\u662F JSON \u5BF9\u8C61");
+    if (!extra || typeof extra !== "object" || Array.isArray(extra)) throw new TtsError("AM_TTS_EXTRA must be a JSON object");
   }
   const attempts = env.AM_TTS_ATTEMPTS ? Number(env.AM_TTS_ATTEMPTS) : LOCAL_ATTEMPTS;
-  if (!Number.isInteger(attempts) || attempts < 1) throw new TtsError("AM_TTS_ATTEMPTS \u5FC5\u987B\u662F\u6B63\u6574\u6570");
+  if (!Number.isInteger(attempts) || attempts < 1) throw new TtsError("AM_TTS_ATTEMPTS must be a positive integer");
   const body = { ...extra, response_format: "wav", stream: false };
   delete body.input;
   if (env.AM_TTS_MODEL) body.model = env.AM_TTS_MODEL;
@@ -4926,7 +4926,7 @@ function localSpeech(env) {
   const headers = { "content-type": "application/json", ...env.AM_TTS_API_KEY ? { authorization: `Bearer ${env.AM_TTS_API_KEY}` } : {} };
   const request = async (text) => {
     const signal = AbortSignal.timeout(LOCAL_TIMEOUT_MS);
-    const why = (e) => signal.aborted ? `${LOCAL_TIMEOUT_MS / 1e3} \u79D2\u5185\u6CA1\u6709\u5B8C\u6210` : e.message;
+    const why = (e) => signal.aborted ? `not finished within ${LOCAL_TIMEOUT_MS / 1e3} seconds` : e.message;
     let res;
     try {
       res = await fetch(url, {
@@ -4936,19 +4936,19 @@ function localSpeech(env) {
         signal
       });
     } catch (e) {
-      throw new TtsError(`\u65E0\u6CD5\u8FDE\u63A5\u672C\u5730 TTS ${url}\uFF1A${why(e)}`);
+      throw new TtsError(`Cannot connect to the local TTS ${url}: ${why(e)}`);
     }
     let buf;
     try {
       buf = Buffer.from(await res.arrayBuffer());
     } catch (e) {
-      throw new TtsError(`\u8BFB\u53D6\u672C\u5730 TTS \u54CD\u5E94\u5931\u8D25\uFF08HTTP ${res.status}\uFF09\uFF1A${why(e)}`);
+      throw new TtsError(`Cannot read the local TTS response (HTTP ${res.status}): ${why(e)}`);
     }
-    if (!res.ok) throw new TtsError(`\u672C\u5730 TTS \u8FD4\u56DE ${res.status}\uFF1A${buf.toString("utf8", 0, 200)}`);
+    if (!res.ok) throw new TtsError(`The local TTS returned ${res.status}: ${buf.toString("utf8", 0, 200)}`);
     try {
       return readWav(buf);
     } catch (e) {
-      throw new TtsError(`\u672C\u5730 TTS \u8FD4\u56DE\u7684\u97F3\u9891\u65E0\u6CD5\u89E3\u7801\uFF08\u9700\u8981 16 \u4F4D PCM WAV\uFF09\uFF1A${e.message}`);
+      throw new TtsError(`Cannot decode the audio from the local TTS (needs 16-bit PCM WAV): ${e.message}`);
     }
   };
   return {
@@ -4966,7 +4966,7 @@ function localSpeech(env) {
         if (!best || Math.abs(Math.log(ratio)) < Math.abs(Math.log(best.ratio))) best = { samples, ratio };
         if (ratio >= LOCAL_RATIO[0] && ratio <= LOCAL_RATIO[1]) break;
       }
-      if (!best) throw new TtsError(`\u672C\u5730 TTS \u8FDE\u7EED ${attempts} \u6B21\u53EA\u8FD4\u56DE\u9759\u97F3`);
+      if (!best) throw new TtsError(`The local TTS returned only silence ${attempts} time${attempts === 1 ? "" : "s"} in a row`);
       return best.samples;
     }
   };
@@ -5028,7 +5028,7 @@ function run(cmd, args) {
       err += d;
     });
     p.on("error", reject);
-    p.on("close", (code) => code === 0 ? resolve2() : reject(new TtsError(`${cmd} \u5931\u8D25\uFF08${code}\uFF09\uFF1A${err.slice(0, 200)}`)));
+    p.on("close", (code) => code === 0 ? resolve2() : reject(new TtsError(`${cmd} failed (${code}): ${err.slice(0, 200)}`)));
   });
 }
 function textFile(wavFile, text) {
@@ -5045,7 +5045,7 @@ async function withTemp(fn3) {
   }
 }
 function readWav(buf) {
-  if (buf.toString("ascii", 0, 4) !== "RIFF" || buf.toString("ascii", 8, 12) !== "WAVE") throw new TtsError("\u4E0D\u662F WAV \u6587\u4EF6");
+  if (buf.toString("ascii", 0, 4) !== "RIFF" || buf.toString("ascii", 8, 12) !== "WAVE") throw new TtsError("Not a WAV file");
   let pos = 12;
   let fmt = null;
   while (pos + 8 <= buf.length) {
@@ -5053,7 +5053,7 @@ function readWav(buf) {
     const size = buf.readUInt32LE(pos + 4);
     if (id === "fmt ") fmt = { channels: buf.readUInt16LE(pos + 10), rate: buf.readUInt32LE(pos + 12), bits: buf.readUInt16LE(pos + 22) };
     if (id === "data") {
-      if (!fmt || fmt.bits !== 16) throw new TtsError("\u53EA\u652F\u6301 16 \u4F4D PCM WAV");
+      if (!fmt || fmt.bits !== 16) throw new TtsError("Only 16-bit PCM WAV is supported");
       const n = Math.floor(Math.min(size, buf.length - pos - 8) / 2 / fmt.channels);
       const samples = new Int16Array(n);
       for (let i = 0; i < n; i++) samples[i] = buf.readInt16LE(pos + 8 + i * 2 * fmt.channels);
@@ -5061,7 +5061,7 @@ function readWav(buf) {
     }
     pos += 8 + size + size % 2;
   }
-  throw new TtsError("WAV \u7F3A\u5C11 data \u5757");
+  throw new TtsError("The WAV has no data chunk");
 }
 function resample(input) {
   if (input instanceof Int16Array) return input;
@@ -5168,7 +5168,7 @@ async function renderVideo(source, { provider = null, cacheDir, defaults: defaul
 }
 async function voiceBeats(beats, provider, cacheDir, onProgress) {
   if (!provider) return { clips: null, durations: beats.map((b) => estimateSeconds(b.text)) };
-  onProgress?.(`\u914D\u97F3\uFF1A${provider.name}\uFF0C${beats.length} \u53E5`);
+  onProgress?.(`Voice-over: ${provider.name}, ${beats.length} line${beats.length === 1 ? "" : "s"}`);
   const clips = await synthAll(beats.map((b) => b.text), provider, { cacheDir });
   return { clips, durations: clips.map((c) => c.length / SAMPLE_RATE) };
 }
@@ -5301,10 +5301,10 @@ function findChrome(env = process.env, platform = process.platform) {
 }
 async function exportMp4(htmlFile, mp4File, { wav: wav2, env = process.env, onProgress = () => {
 } } = {}) {
-  if (typeof WebSocket === "undefined") throw new ExportError("\u5BFC\u51FA MP4 \u9700\u8981 Node.js 22 \u6216\u66F4\u9AD8\u7248\u672C\uFF08\u5185\u7F6E WebSocket\uFF09");
-  if (!hasCommand("ffmpeg")) throw new ExportError("\u5BFC\u51FA MP4 \u9700\u8981 ffmpeg\uFF1AmacOS \u7528 brew install ffmpeg\uFF0CLinux \u7528\u5305\u7BA1\u7406\u5668\u5B89\u88C5");
+  if (typeof WebSocket === "undefined") throw new ExportError("MP4 export needs Node.js 22 or later (built-in WebSocket)");
+  if (!hasCommand("ffmpeg")) throw new ExportError("MP4 export needs ffmpeg: on macOS run brew install ffmpeg; on Linux install it with the package manager");
   const chromePath = findChrome(env);
-  if (!chromePath) throw new ExportError("\u6CA1\u6709\u627E\u5230 Chrome / Chromium / Edge\u3002\u53EF\u7528\u73AF\u5883\u53D8\u91CF AM_CHROME \u6307\u5B9A\u6D4F\u89C8\u5668\u8DEF\u5F84");
+  if (!chromePath) throw new ExportError("No Chrome / Chromium / Edge found. Set the browser path with the AM_CHROME environment variable");
   const tmp = mkdtempSync2(join2(tmpdir2(), "am-export-"));
   const chrome = spawn2(chromePath, [
     "--headless=new",
@@ -5331,7 +5331,7 @@ async function exportMp4(htmlFile, mp4File, { wav: wav2, env = process.env, onPr
     await loaded;
     const evaluate = async (expression) => {
       const r = await page("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
-      if (r.exceptionDetails) throw new ExportError(`\u64AD\u653E\u9875\u811A\u672C\u51FA\u9519\uFF1A${r.exceptionDetails.exception?.description ?? r.exceptionDetails.text}`);
+      if (r.exceptionDetails) throw new ExportError(`Player page script error: ${r.exceptionDetails.exception?.description ?? r.exceptionDetails.text}`);
       return r.result.value;
     };
     const info = await evaluate("document.fonts.ready.then(() => { window.__amv.exportMode(); return { duration: window.__amv.duration, fps: window.__amv.fps }; })");
@@ -5373,12 +5373,12 @@ async function exportMp4(htmlFile, mp4File, { wav: wav2, env = process.env, onPr
     const done = new Promise((resolve2, reject) => {
       ffmpeg.on("error", (e) => {
         exited = true;
-        reject(new ExportError(`\u65E0\u6CD5\u8FD0\u884C ffmpeg\uFF1A${e.message}`));
+        reject(new ExportError(`Cannot run ffmpeg: ${e.message}`));
       });
       ffmpeg.on("close", (code) => {
         exited = true;
         if (code === 0) resolve2();
-        else reject(new ExportError(`ffmpeg \u5931\u8D25\uFF08${code}\uFF09\uFF1A${ffErr.slice(0, 300)}`));
+        else reject(new ExportError(`ffmpeg failed (${code}): ${ffErr.slice(0, 300)}`));
       });
     });
     done.catch(() => {
@@ -5417,10 +5417,10 @@ async function exportMp4(htmlFile, mp4File, { wav: wav2, env = process.env, onPr
 function devtoolsUrl(chrome) {
   return new Promise((resolve2, reject) => {
     let buf = "";
-    const timer = setTimeout(() => reject(new ExportError("Chrome \u542F\u52A8\u8D85\u65F6")), 2e4);
+    const timer = setTimeout(() => reject(new ExportError("Chrome did not start in time")), 2e4);
     chrome.on("error", (e) => {
       clearTimeout(timer);
-      reject(new ExportError(`\u65E0\u6CD5\u542F\u52A8 Chrome\uFF1A${e.message}`));
+      reject(new ExportError(`Cannot start Chrome: ${e.message}`));
     });
     chrome.stderr.on("data", (d) => {
       buf += d;
@@ -5438,7 +5438,7 @@ function connect(url) {
     const pending = /* @__PURE__ */ new Map();
     const waiters = /* @__PURE__ */ new Map();
     let id = 0;
-    ws.addEventListener("error", () => reject(new ExportError("\u65E0\u6CD5\u8FDE\u63A5 Chrome DevTools")));
+    ws.addEventListener("error", () => reject(new ExportError("Cannot connect to Chrome DevTools")));
     ws.addEventListener("message", (ev) => {
       const msg = JSON.parse(ev.data);
       if (msg.id && pending.has(msg.id)) {
@@ -5457,7 +5457,7 @@ function connect(url) {
           const msgId = ++id;
           const timer = setTimeout(() => {
             pending.delete(msgId);
-            fail(new ExportError(`Chrome \u65E0\u54CD\u5E94\uFF08${method} \u8D85\u8FC7 ${CDP_TIMEOUT_MS / 1e3} \u79D2\uFF09`));
+            fail(new ExportError(`Chrome is not responding (${method} took more than ${CDP_TIMEOUT_MS / 1e3} seconds)`));
           }, CDP_TIMEOUT_MS);
           pending.set(msgId, { ok: (v) => {
             clearTimeout(timer);
@@ -5524,18 +5524,18 @@ function newer(a, b) {
 }
 function updateCommand(scriptPath = "") {
   if (/[\\/]\.claude[\\/]plugins[\\/]/.test(scriptPath)) {
-    return "\u7EC8\u7AEF\u8FD0\u884C claude plugin update answer-me-with-html@answer-me-with-html\uFF08\u6216\u5728 /plugin \u7684 Installed \u9875\u70B9 Update now\uFF09\uFF0C\u518D /reload-plugins";
+    return "run claude plugin update answer-me-with-html@answer-me-with-html in a terminal (or click Update now on the Installed tab of /plugin), then /reload-plugins";
   }
   if (/[\\/]bin[\\/]am\.js$/.test(scriptPath)) {
-    return "\u5728 answer-me-with-html \u4ED3\u5E93\u76EE\u5F55\u8FD0\u884C git pull && npm install";
+    return "run git pull && npm install in the answer-me-with-html repository";
   }
-  return "\u8FD0\u884C npx skills update answer-me-with-html -y";
+  return "run npx skills update answer-me-with-html -y";
 }
 var updateEnabled = (env, config) => !(config.update_check === false || env.CI || env.AM_NO_UPDATE_CHECK);
 function updateHint(state, current, scriptPath, now = Date.now()) {
   if (!newer(state.latestVersion, current)) return null;
   if (state.lastUpdateHint && now - state.lastUpdateHint < UPDATE.hintEveryDays * DAY) return null;
-  return `! \u66F4\u65B0\u63D0\u793A\uFF1AAnswer me with HTML \u6709\u65B0\u7248\u672C ${state.latestVersion}\uFF08\u5F53\u524D ${current}\uFF09\u3002\u8BF7\u95EE\u7528\u6237\u662F\u5426\u66F4\u65B0\uFF1A${updateCommand(scriptPath)}\u3002`;
+  return `! Update hint: Answer me with HTML ${state.latestVersion} is available (current ${current}). Ask the user whether to update: ${updateCommand(scriptPath)}.`;
 }
 function shouldCheckUpdate(state, env, config, now = Date.now()) {
   if (!updateEnabled(env, config)) return false;
@@ -5565,15 +5565,15 @@ async function runUpdateCheck(home, fetchImpl = fetch) {
 // src/housekeeping.js
 var CLEAN = Object.freeze({
   days: 30,
-  // am clean 默认删除 30 天前的页面和视频
+  // am clean deletes pages and videos older than 30 days by default
   bigBytes: 200 * 2 ** 20,
-  // 超过 200 MB 立即提示
+  // notify at once above 200 MB
   staleDays: 30,
-  // 距上次清理超过 30 天……
+  // more than 30 days since the last cleanup…
   staleBytes: 20 * 2 ** 20,
-  // ……且超过 20 MB 时提示
+  // …and above 20 MB: notify
   hintEveryDays: 7
-  // 同一提示最多每 7 天出现一次
+  // the same notice at most once every 7 days
 });
 var DIRS2 = ["pages", "videos", "cache"];
 function walk(dir) {
@@ -5623,9 +5623,10 @@ function cleanHint(state, use, now = Date.now()) {
   const big = use.total >= CLEAN.bigBytes;
   const stale = days >= CLEAN.staleDays && use.total >= CLEAN.staleBytes;
   if (!big && !stale) return null;
-  const parts = `\u9875\u9762 ${use.pages.count} \u4E2A ${mb(use.pages.bytes)}\uFF0C\u89C6\u9891 ${mb(use.videos.bytes)}\uFF0C\u914D\u97F3\u7F13\u5B58 ${mb(use.cache.bytes)}`;
-  const when = state.lastClean ? `\u4E0A\u6B21\u6E05\u7406\u5728 ${days} \u5929\u524D` : "\u8FD8\u6CA1\u6709\u6E05\u7406\u8FC7";
-  return `! \u6E05\u7406\u63D0\u793A\uFF1A\u6570\u636E\u76EE\u5F55\u5DF2\u5360\u7528 ${mb(use.total)}\uFF08${parts}\uFF09\uFF0C${when}\u3002\u8BF7\u95EE\u7528\u6237\u662F\u5426\u8FD0\u884C am clean\uFF08\u5220\u9664 ${CLEAN.days} \u5929\u524D\u7684\u9875\u9762\u548C\u89C6\u9891\uFF0C\u5E76\u6E05\u7A7A\u914D\u97F3\u7F13\u5B58\uFF1B\u5168\u90E8\u6E05\u6389\u7528 am clean --all\uFF09\u3002`;
+  const pages = `${use.pages.count} page${use.pages.count === 1 ? "" : "s"}`;
+  const parts = `${pages} ${mb(use.pages.bytes)}, videos ${mb(use.videos.bytes)}, voice-over cache ${mb(use.cache.bytes)}`;
+  const when = state.lastClean ? `last cleaned ${days} days ago` : "never cleaned";
+  return `! Cleanup hint: the data directory uses ${mb(use.total)} (${parts}), ${when}. Ask the user whether to run am clean (deletes pages and videos older than ${CLEAN.days} days and empties the voice-over cache; am clean --all deletes everything).`;
 }
 function afterRender({ home, env, config, current, scriptPath, background, now = Date.now() }) {
   let state = readState(home);
@@ -5656,13 +5657,13 @@ var ConfigError = class extends Error {
   }
 };
 var CONFIG_KEYS = Object.freeze({
-  open: { type: "bool", default: true, label: "\u751F\u6210\u540E\u81EA\u52A8\u7528\u6D4F\u89C8\u5668\u6253\u5F00\u9875\u9762" },
-  always: { type: "bool", default: true, label: "\u9AD8\u9891\u6A21\u5F0F\uFF1A\u7ED9\u7ED3\u8BBA\u65F6\u90FD\u9644\u4E00\u9875\uFF08\u9700\u5B89\u88C5 answer-me-with-html-always \u63D2\u4EF6\uFF09" },
-  theme: { type: "enum", choices: CHOICES.theme, default: "blueprint", label: "\u9ED8\u8BA4\u4E3B\u9898" },
-  mode: { type: "enum", choices: CHOICES.mode, default: "auto", label: "\u9ED8\u8BA4\u660E\u6697\u6A21\u5F0F" },
-  style: { type: "enum", choices: CHOICES.style, default: "80", label: "STE \u5199\u4F5C\u68C0\u67E5\u4E25\u683C\u5EA6" },
-  update_check: { type: "bool", default: true, label: "\u6BCF\u5468\u5728\u540E\u53F0\u68C0\u67E5\u4E00\u6B21\u65B0\u7248\u672C\uFF0C\u6709\u65B0\u7248\u672C\u65F6\u63D0\u793A\uFF08\u4E0D\u4F1A\u81EA\u52A8\u66F4\u65B0\uFF09" },
-  voice: { type: "enum", choices: VOICES, default: "auto", label: "\u89C6\u9891\u65C1\u767D\u914D\u97F3\uFF08auto\uFF1A\u6709 ELEVENLABS_API_KEY \u7528 ElevenLabs\uFF0C\u5426\u5219\u7528\u7CFB\u7EDF TTS\uFF1Blocal\uFF1AAM_TTS_URL \u6307\u5411\u7684\u672C\u5730\u670D\u52A1\uFF09" }
+  open: { type: "bool", default: true, label: "Open the page in the browser after it is made" },
+  always: { type: "bool", default: true, label: "Always-on mode: add a page to every conclusion (needs the answer-me-with-html-always plugin)" },
+  theme: { type: "enum", choices: CHOICES.theme, default: "blueprint", label: "Default theme" },
+  mode: { type: "enum", choices: CHOICES.mode, default: "auto", label: "Default light/dark mode" },
+  style: { type: "enum", choices: CHOICES.style, default: "80", label: "STE writing-check strictness" },
+  update_check: { type: "bool", default: true, label: "Check for a new version once a week in the background and tell you (never updates by itself)" },
+  voice: { type: "enum", choices: VOICES, default: "auto", label: "Video narration voice-over (auto: ElevenLabs if ELEVENLABS_API_KEY is set, otherwise system TTS; local: the local service at AM_TTS_URL)" }
 });
 var TRUE = /* @__PURE__ */ new Set(["on", "true", "yes", "1", "\u5F00", "\u5F00\u542F", "\u6253\u5F00"]);
 var FALSE = /* @__PURE__ */ new Set(["off", "false", "no", "0", "\u5173", "\u5173\u95ED"]);
@@ -5675,16 +5676,16 @@ function configPath(env = process.env) {
 var defaults = () => Object.fromEntries(Object.entries(CONFIG_KEYS).map(([k2, s]) => [k2, s.default]));
 function coerce2(key, raw) {
   const spec = CONFIG_KEYS[key];
-  if (!spec) throw new ConfigError(`\u6CA1\u6709\u914D\u7F6E\u9879 "${key}"\u3002\u53EF\u7528\uFF1A${Object.keys(CONFIG_KEYS).join(" | ")}`);
+  if (!spec) throw new ConfigError(`No setting named "${key}". Available: ${Object.keys(CONFIG_KEYS).join(" | ")}`);
   if (spec.type === "bool") {
     if (typeof raw === "boolean") return raw;
     const v2 = String(raw).trim().toLowerCase();
     if (TRUE.has(v2)) return true;
     if (FALSE.has(v2)) return false;
-    throw new ConfigError(`${key} \u53EA\u63A5\u53D7 on / off`);
+    throw new ConfigError(`${key} accepts only on / off`);
   }
   const v = String(raw).trim();
-  if (!spec.choices.includes(v)) throw new ConfigError(`${key} \u7684\u503C "${v}" \u65E0\u6548\uFF0C\u53EF\u9009\uFF1A${spec.choices.join(" | ")}`);
+  if (!spec.choices.includes(v)) throw new ConfigError(`Invalid ${key} value "${v}". Choose one of: ${spec.choices.join(" | ")}`);
   return v;
 }
 function readStored(env) {
@@ -5694,7 +5695,7 @@ function readStored(env) {
     const data = JSON.parse(readFileSync3(file, "utf8"));
     return { stored: data && typeof data === "object" && !Array.isArray(data) ? data : {} };
   } catch (e) {
-    return { stored: {}, warning: `${file} \u65E0\u6CD5\u89E3\u6790\uFF0C\u5DF2\u4F7F\u7528\u9ED8\u8BA4\u914D\u7F6E\uFF08${e.message}\uFF09` };
+    return { stored: {}, warning: `Cannot parse ${file}; using the default settings (${e.message})` };
   }
 }
 function readConfig(env = process.env) {
@@ -5758,19 +5759,19 @@ function panelKeys(panel) {
 }
 function findPanel(doc2, query) {
   const q3 = normalizePanelQuery(query);
-  if (!q3) throw new PatchError("\u7F3A\u5C11 --panel \u6807\u9898");
+  if (!q3) throw new PatchError("Missing the --panel title");
   const matches = doc2.panels.filter((p) => panelKeys(p).has(q3));
-  if (matches.length === 0) throw new PatchError(`\u6CA1\u6709\u627E\u5230\u6807\u9898\u4E3A "${query}" \u7684\u9762\u677F`);
-  if (matches.length > 1) throw new PatchError(`\u6807\u9898 "${query}" \u5339\u914D\u5230\u591A\u4E2A\u9762\u677F`);
+  if (matches.length === 0) throw new PatchError(`No panel titled "${query}"`);
+  if (matches.length > 1) throw new PatchError(`The title "${query}" matches more than one panel`);
   return matches[0];
 }
 function asSinglePanelMarkdown(replacement) {
   const text = String(replacement).replace(/\r\n?/g, "\n");
-  if (!text.trim()) throw new PatchError("\u65B0\u9762\u677F\u7A3F\u4EF6\u4E3A\u7A7A");
+  if (!text.trim()) throw new PatchError("The new panel draft is empty");
   const looksLikeHeading = /^\s*##\s+/.test(text);
   const doc2 = parseDoc(looksLikeHeading ? text : `## _
 ${text}`);
-  if (doc2.panels.length !== 1) throw new PatchError("\u65B0\u9762\u677F\u7A3F\u4EF6\u5FC5\u987B\u53EA\u5305\u542B\u4E00\u4E2A ## \u9762\u677F");
+  if (doc2.panels.length !== 1) throw new PatchError("The new panel draft must contain exactly one ## panel");
   return { text, looksLikeHeading };
 }
 function replacePanel(source, query, replacement) {
@@ -5789,98 +5790,98 @@ ${text.replace(/^\n+/, "")}`;
 
 // src/cli.js
 var MAX_LISTED_WARNINGS = 20;
-var USAGE = `Answer me with HTML ${VERSION} \u2014 \u628A Markdown \u5185\u5BB9\u7A3F\u6E32\u67D3\u6210\u5355\u6587\u4EF6 HTML \u89E3\u91CA\u9875
+var USAGE = `Answer me with HTML ${VERSION} \u2014 renders a Markdown draft into a single-file HTML explainer page
 
-\u7528\u6CD5:
-  am render <file|->  [-o \u8F93\u51FA\u8DEF\u5F84] [--no-open] [--theme blueprint|shadcn]
+Usage:
+  am render <file|->  [-o <path>] [--no-open] [--theme blueprint|shadcn]
                       [--template sheet|doc] [--style off|80|strict] [--mode auto|light|dark]
-  am patch  <html> --panel <\u6807\u9898> [file|-] [--from file] [--theme \u2026] [--no-open]
-                                                  \u66FF\u6362\u5DF2\u6709\u9875\u9762\u4E2D\u7684\u4E00\u4E2A ## \u9762\u677F\uFF0C\u539F\u5730\u8986\u76D6\u8BE5 HTML
-  am video  <file|->  [-o \u8F93\u51FA\u8DEF\u5F84] [--voice auto|elevenlabs|local|system|off] [--mp4] [--no-open]
+  am patch  <html> --panel <title> [file|-] [--from file] [--theme \u2026] [--no-open]
+                                                  replace one ## panel of an existing page and overwrite that HTML in place
+  am video  <file|->  [-o <path>] [--voice auto|elevenlabs|local|system|off] [--mp4] [--no-open]
                       [--theme blueprint|shadcn|3b1b] [--mode light|dark]
-                                                  \u628A\u89C6\u9891\u7A3F\u6E32\u67D3\u6210 3b1b \u98CE\u683C\u7684\u89E3\u91CA\u89C6\u9891\u64AD\u653E\u9875\uFF08--mp4 \u53E6\u5B58\u89C6\u9891\u6587\u4EF6\uFF09
-  am lint   <file|->  [--style off|80|strict]     \u53EA\u505A STE \u53D7\u63A7\u5199\u4F5C\u68C0\u67E5
-  am config [set <\u952E> <\u503C> | get <\u952E> | reset [\u952E]] \u67E5\u770B\u6216\u4FEE\u6539\u914D\u7F6E
-  am clean  [--days 30] [--all] [--dry-run]       \u6E05\u7406\u65E7\u9875\u9762\u3001\u65E7\u89C6\u9891\u548C\u914D\u97F3\u7F13\u5B58
-  am list                                         \u5217\u51FA\u6A21\u677F\u3001\u4E3B\u9898\u3001\u7EC4\u4EF6
-  am help [\u7EC4\u4EF6\u540D|format|video|patch]              \u67E5\u770B\u7EC4\u4EF6\u8BED\u6CD5 / \u9875\u9762\u7A3F\u683C\u5F0F / \u89C6\u9891\u7A3F\u683C\u5F0F / patch \u7528\u6CD5
+                                                  render a video draft into a 3b1b-style explainer video player page (--mp4 also saves a video file)
+  am lint   <file|->  [--style off|80|strict]     run only the STE controlled-writing check
+  am config [set <key> <value> | get <key> | reset [key]]  show or change settings
+  am clean  [--days 30] [--all] [--dry-run]       delete old pages, old videos and the voice-over cache
+  am list                                         list templates, themes and components
+  am help [component|format|video|patch]          show component syntax / page draft format / video draft format / patch usage
 
-- \u6587\u4EF6\u53C2\u6570\u5199 - \u8868\u793A\u4ECE stdin \u8BFB\u53D6\uFF08\u9002\u5408 heredoc\uFF1Aam render - <<'EOF' ... EOF\uFF09\u3002
-- \u9ED8\u8BA4\u8F93\u51FA\u5230 ~/.answer-me-with-html/pages/\uFF08\u53EF\u7528\u73AF\u5883\u53D8\u91CF AM_HOME \u4FEE\u6539\uFF09\u3002
-- \u662F\u5426\u81EA\u52A8\u6253\u5F00\u6D4F\u89C8\u5668\u3001\u9ED8\u8BA4\u4E3B\u9898\u7B49\u7528 am config \u8BBE\u7F6E\uFF1B--open / --no-open \u53EA\u5F71\u54CD\u8FD9\u4E00\u6B21\u3002
-- am patch \u4ECE\u9875\u9762\u9690\u85CF\u7684 #am-source \u53D6\u56DE\u6E90\u7A3F\uFF0C\u53EA\u6539 --panel \u5BF9\u5E94\u7684 ## \u5C0F\u8282\uFF0C\u518D\u6309\u539F\u8DEF\u5F84\u5199\u56DE\u3002`;
-var FORMAT = `\u7A3F\u4EF6\u683C\u5F0F\uFF08\u6269\u5C55 Markdown\uFF09
+- A file argument of - reads from stdin (good for heredoc: am render - <<'EOF' ... EOF).
+- Output goes to ~/.answer-me-with-html/pages/ by default (change it with the AM_HOME environment variable).
+- Set auto-open, the default theme and more with am config; --open / --no-open apply to this run only.
+- am patch reads the source draft from the page's hidden #am-source, changes only the ## section that --panel names, and writes the page back to the same path.`;
+var FORMAT = `Draft format (extended Markdown)
 
 ---
-template: sheet        # sheet \u56FE\u7EB8\u677F\uFF08\u9ED8\u8BA4\uFF0C\u591A\u9762\u677F\u7F51\u683C\uFF09| doc \u7EBF\u6027\u8BB2\u89E3\uFF08\u5355\u680F + \u76EE\u5F55\uFF09
-theme: blueprint       # blueprint \u56FE\u7EB8\u98CE\uFF08\u9ED8\u8BA4\uFF09| shadcn \u5361\u7247\u98CE\uFF1B\u9875\u9762\u5185\u53EF\u5207\u6362
-title: \u9875\u9762\u6807\u9898         # \u4E5F\u53EF\u4EE5\u7528\u6B63\u6587\u7B2C\u4E00\u884C "# \u6807\u9898" \u4EE3\u66FF
-subtitle: \u526F\u6807\u9898        # \u53EF\u9009
-cols: 3                # sheet \u7F51\u683C\u5217\u6570\uFF0C\u9ED8\u8BA4 3
-style: 80              # STE \u68C0\u67E5\u4E25\u683C\u5EA6\uFF1Aoff | 80\uFF08\u9ED8\u8BA4\uFF0C\u53EA\u8B66\u544A\uFF09| strict\uFF08\u4E0D\u8FBE\u6807\u4E0D\u751F\u6210\uFF09
-mode: auto             # auto \u8DDF\u968F\u7CFB\u7EDF | light | dark
-source: asd-ste100.org # \u5176\u4ED6\u4EFB\u610F\u952E\u4F1A\u663E\u793A\u5728\u9875\u5934\u5143\u4FE1\u606F\u884C
+template: sheet        # sheet: blueprint board (default, multi-panel grid) | doc: linear explainer (one column + contents)
+theme: blueprint       # blueprint: drawing style (default) | shadcn: card style; switchable in the page
+title: Page title      # or use "# Title" as the first line of the body
+subtitle: Subtitle     # optional
+cols: 3                # number of sheet grid columns, default 3
+style: 80              # STE check strictness: off | 80 (default, warn only) | strict (no page if it fails)
+mode: auto             # auto follows the system | light | dark
+source: asd-ste100.org # any other key shows in the page header meta line
 ---
-\u5BFC\u8BED\uFF08\u53EF\u9009\uFF0C\u663E\u793A\u5728\u6807\u9898\u4E0B\u65B9\uFF09
+Intro (optional, shown below the title)
 
-## A \u9762\u677F\u6807\u9898 {span=2 meta="\u53F3\u4E0A\u89D2\u8BF4\u660E"}
-\u666E\u901A Markdown\uFF1A\u6BB5\u843D\u3001\u5217\u8868\u3001\u8868\u683C\u3001\u5F15\u7528\u3001\u884C\u5185\u4EE3\u7801\u2026\u2026
-\u8868\u683C\u5355\u5143\u683C\u5199 ok / no / warn\uFF08\u53EF\u8DDF\u6587\u5B57\uFF0C\u5982 "ok \u5DF2\u6279\u51C6"\uFF09\u4F1A\u6E32\u67D3\u6210 \u2713 / \u2717 / ! \u5FBD\u7AE0\u3002
+## A Panel title {span=2 meta="top-right note"}
+Plain Markdown: paragraphs, lists, tables, quotes, inline code...
+Write ok / no / warn in a table cell (text may follow, e.g. "ok approved") to get a \u2713 / \u2717 / ! badge.
 
-\`\`\`flow LR          \u2190 \u56F4\u680F\u5757\u8BED\u8A00\u540D = \u7EC4\u4EF6\u540D\uFF0C\u540E\u9762\u662F\u7EC4\u4EF6\u53C2\u6570
+\`\`\`flow LR          \u2190 fence language = component name, followed by component arguments
 A -> B
 \`\`\`
 
-\`\`\`html             \u2190 html / svg \u56F4\u680F\u5757\u539F\u6837\u5D4C\u5165\uFF08\u9003\u751F\u53E3\uFF09
-<div>\u4EFB\u610F\u5185\u5BB9</div>
+\`\`\`html             \u2190 html / svg fences are embedded as-is (escape hatch)
+<div>any content</div>
 \`\`\`
 
-- "## " \u5F00\u542F\u4E00\u4E2A\u9762\u677F\uFF1B\u5B57\u6BCD ID \u53EF\u7701\u7565\uFF08\u81EA\u52A8\u5206\u914D A\u3001B\u3001C\u2026\uFF09\u3002span \u8BA9\u9762\u677F\u8DE8\u5217\uFF1B\u6CA1\u5199 span \u65F6\uFF0C4 \u5217\u4EE5\u4E0A\u7684\u8868\u683C\u548C\u5BBD\u56FE\u4F1A\u81EA\u52A8\u52A0\u5BBD\u3002
-- \u7EC4\u4EF6\u5217\u8868\u89C1 am list\uFF1B\u5355\u4E2A\u7EC4\u4EF6\u8BED\u6CD5\u89C1 am help <\u7EC4\u4EF6\u540D>\u3002`;
-var RAW_HELP = `LANG \u2014 \u539F\u6837\u5D4C\u5165\uFF08\u9003\u751F\u53E3\uFF09
+- "## " starts a panel; the letter ID is optional (A, B, C... are assigned automatically). span makes a panel cover more columns; without span, tables with 4+ columns and wide diagrams widen automatically.
+- For the component list see am list; for one component's syntax see am help <component>.`;
+var RAW_HELP = `LANG \u2014 embed as-is (escape hatch)
 
-\u56F4\u680F\u5757\u8BED\u8A00\u540D\u5199 LANG \u65F6\uFF0C\u5185\u5BB9\u4E0D\u7ECF\u5904\u7406\u76F4\u63A5\u653E\u8FDB\u9875\u9762\u3002\u53EA\u5728\u73B0\u6709\u7EC4\u4EF6\u8868\u8FBE\u4E0D\u4E86\u65F6\u4F7F\u7528\uFF1B
-\u989C\u8272\u8BF7\u7528\u4E3B\u9898\u53D8\u91CF\uFF08\u5982 var(--ink)\u3001var(--accent)\uFF09\uFF0C\u8FD9\u6837\u5207\u6362\u4E3B\u9898\u548C\u660E\u6697\u65F6\u4E5F\u80FD\u770B\u6E05\u3002
+When the fence language is LANG, the content goes into the page unprocessed. Use it only when no component can show the content;
+use theme variables for colors (such as var(--ink), var(--accent)) so the content stays readable across themes and light/dark modes.
 
-\u793A\u4F8B\uFF1A
+Example:
 \`\`\`LANG
-<div style="color: var(--accent)">\u4EFB\u610F\u5185\u5BB9</div>
+<div style="color: var(--accent)">any content</div>
 \`\`\``;
-var VIDEO_FORMAT = `\u89C6\u9891\u7A3F\u683C\u5F0F\uFF08am video\uFF09
+var VIDEO_FORMAT = `Video draft format (am video)
 
 ---
-title: TCP \u4E09\u6B21\u63E1\u624B
-subtitle: \u4E3A\u4EC0\u4E48\u662F\u4E09\u6B21          # \u53EF\u9009\uFF0C\u7247\u5934\u526F\u6807\u9898
-theme: blueprint               # blueprint \u56FE\u7EB8\u98CE\uFF08\u9ED8\u8BA4\uFF0C\u8DDF\u968F am config \u7684 theme\uFF09| shadcn \u5361\u7247 | 3b1b \u6DF1\u8272
-mode: light                    # light | dark\uFF08blueprint + dark \u662F\u6DF1\u84DD\u56FE\u7EB8\uFF09
+title: TCP three-way handshake
+subtitle: Why three steps      # optional, subtitle on the title card
+theme: blueprint               # blueprint: drawing style (default, follows the theme in am config) | shadcn: cards | 3b1b: dark
+mode: light                    # light | dark (blueprint + dark is a dark-blue drawing)
 ---
-> \u7247\u5934\u65C1\u767D\uFF08\u53EF\u9009\uFF1B\u4E0D\u5199\u5219\u7247\u5934\u505C\u7559 2.4 \u79D2\uFF09
+> Title-card narration (optional; without it the title card stays for 2.4 seconds)
 
-## \u4E24\u7AEF\u90FD\u5728\u7B49\u5F85
+## Both ends are waiting
 \`\`\`sequence
 Client -> Server: SYN
 Server -> Client: SYN-ACK
 Client -> Server: ACK
 \`\`\`
-> \u5BA2\u6237\u7AEF\u5148\u53D1 SYN\uFF0C\u8BF7\u6C42\u5EFA\u7ACB\u8FDE\u63A5\u3002
-> [Server] \u6536\u5230\u540E\u56DE SYN-ACK\u3002
-> \u5BA2\u6237\u7AEF\u518D\u56DE ACK\uFF0C\u8FDE\u63A5\u5EFA\u7ACB\u3002
+> The client sends SYN first to ask for a connection.
+> [Server] replies with SYN-ACK.
+> The client sends ACK, and the connection is open.
 
-- "## " \u5F00\u542F\u4E00\u4E2A\u573A\u666F\uFF1B\u573A\u666F\u91CC\u653E\u7EC4\u4EF6\u6216 Markdown\uFF08\u753B\u9762\uFF09\uFF0C\u4EE5 > \u5F00\u5934\u7684\u884C\u662F\u65C1\u767D\uFF08\u6BCF\u884C\u4E00\u62CD\uFF09\u3002
-- \u7B2C N \u53E5\u65C1\u767D\u64AD\u51FA\u65F6\uFF0C\u753B\u9762\u51FA\u73B0\u7B2C N \u6B65\uFF1Aflow / sequence / tree \u6BCF\u884C\u6E90\u7801\u662F\u4E00\u6B65\uFF1B
-  timeline\u3001limits\u3001\u8868\u683C\u884C\u3001\u5217\u8868\u9879\u3001\u6BB5\u843D\u6309\u6761\u76EE\u81EA\u52A8\u5206\u6B65\u3002\u6B65\u6570\u591A\u4E8E\u65C1\u767D\u65F6\u5747\u5206\u5230\u5404\u53E5\uFF1B
-  \u65C1\u767D\u591A\u4E8E\u6B65\u6570\u65F6\uFF0C\u591A\u51FA\u7684\u524D\u51E0\u53E5\u5F53\u5F00\u573A\u767D\uFF0C\u4E0D\u51FA\u65B0\u5185\u5BB9\u3002
-- \u65C1\u767D\u91CC\u5199 [\u540D\u5B57]\uFF1A\u955C\u5934\u63A8\u8FD1\u540C\u540D\u5143\u7D20\u5E76\u9AD8\u4EAE\uFF0C\u5B57\u5E55\u91CC\u8BE5\u8BCD\u53D8\u9EC4\u3002
-- \u76F8\u90BB\u573A\u666F\u91CC\u540C\u540D\u7684\u8282\u70B9 / \u53C2\u4E0E\u8005\u4F1A\u4ECE\u65E7\u4F4D\u7F6E\u5E73\u6ED1\u79FB\u5230\u65B0\u4F4D\u7F6E\uFF08\u8DE8\u573A\u666F\u53D8\u5F62\uFF09\u3002
-- \u914D\u97F3\uFF1A--voice auto\uFF08\u9ED8\u8BA4\uFF0C\u6709 ELEVENLABS_API_KEY \u7528 ElevenLabs\uFF0C\u5426\u5219\u7528\u7CFB\u7EDF TTS\uFF09| elevenlabs | local | system | off\u3002
-  ElevenLabs \u58F0\u97F3\u53EF\u7528\u73AF\u5883\u53D8\u91CF ELEVENLABS_VOICE_ID \u6307\u5B9A\u3002
-  local \u8C03\u7528\u672C\u5730 OpenAI \u517C\u5BB9\u7684\u8BED\u97F3\u670D\u52A1\uFF08POST /v1/audio/speech\uFF0C\u8FD4\u56DE 16 \u4F4D PCM WAV\uFF09\uFF1A
-  AM_TTS_URL\uFF08\u5FC5\u586B\uFF0C\u670D\u52A1\u6839\u5730\u5740\uFF09\u3001AM_TTS_MODEL\u3001AM_TTS_VOICE\uFF08\u670D\u52A1\u6CA1\u6709\u9ED8\u8BA4\u503C\u65F6\u5FC5\u586B\uFF09\uFF0C
-  AM_TTS_API_KEY \u6709\u503C\u65F6\u4F5C\u4E3A Bearer \u4EE4\u724C\u53D1\u9001\uFF1BAM_TTS_EXTRA \u5199\u6A21\u578B\u4E13\u7528\u53C2\u6570\uFF08JSON \u5BF9\u8C61\uFF09\uFF1BAM_TTS_MODEL / AM_TTS_VOICE \u8986\u76D6\u5176\u4E2D\u7684\u540C\u540D\u5B57\u6BB5\uFF0C
-  input\u3001response_format\u3001stream \u603B\u7531 am \u51B3\u5B9A\u3002\u65F6\u957F\u660E\u663E\u4E0D\u5BF9\u7684\u53E5\u5B50\u4F1A\u91CD\u65B0\u5408\u6210\uFF0C
-  \u6BCF\u53E5\u6700\u591A AM_TTS_ATTEMPTS \u6B21\uFF08\u9ED8\u8BA4 3\uFF0C\u8BBE\u4E3A 1 \u5173\u95ED\uFF09\u3002
-  \u4F8B\uFF1AAM_TTS_URL=http://127.0.0.1:8000 AM_TTS_MODEL=mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-4bit       AM_TTS_VOICE=vivian am video draft.md --voice local
-- \u8F93\u51FA\u5230 ~/.answer-me-with-html/videos/\uFF1B--mp4 \u53E6\u5B58\u540C\u540D .mp4\uFF08\u9700\u8981 Chrome \u4E0E ffmpeg\uFF0CNode 22+\uFF09\u3002`;
+- "## " starts a scene; a scene holds components or Markdown (the picture), and lines that start with > are narration (one beat per line).
+- When narration line N plays, step N of the picture appears: in flow / sequence / tree each source line is one step;
+  timeline, limits, table rows, list items and paragraphs step item by item. With more steps than narration lines, the steps are spread across the lines;
+  with more narration lines than steps, the extra first lines act as an opening and show nothing new.
+- Write [name] in narration: the camera zooms in on the element with that name and highlights it, and the word turns yellow in the caption.
+- Nodes / participants with the same name in adjacent scenes move smoothly from the old position to the new one (cross-scene morph).
+- Voice-over: --voice auto (default: ElevenLabs if ELEVENLABS_API_KEY is set, otherwise system TTS) | elevenlabs | local | system | off.
+  Set the ElevenLabs voice with the ELEVENLABS_VOICE_ID environment variable.
+  local calls a local OpenAI-compatible speech service (POST /v1/audio/speech, returns 16-bit PCM WAV):
+  AM_TTS_URL (required, service base URL), AM_TTS_MODEL, AM_TTS_VOICE (required when the service has no default),
+  AM_TTS_API_KEY is sent as a Bearer token when set; AM_TTS_EXTRA holds model-specific parameters (a JSON object); AM_TTS_MODEL / AM_TTS_VOICE override the same fields in it,
+  and am always sets input, response_format and stream. A line whose duration is clearly wrong is synthesized again,
+  up to AM_TTS_ATTEMPTS times per line (default 3; set 1 to turn this off).
+  Example: AM_TTS_URL=http://127.0.0.1:8000 AM_TTS_MODEL=mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-4bit       AM_TTS_VOICE=vivian am video draft.md --voice local
+- Output goes to ~/.answer-me-with-html/videos/; --mp4 also saves an .mp4 with the same name (needs Chrome and ffmpeg, Node 22+).`;
 async function main(argv, io = {}) {
   const out = io.stdout ?? process.stdout;
   const err = io.stderr ?? process.stderr;
@@ -5942,7 +5943,7 @@ ${USAGE}`);
     case "help":
       return cmdHelp(arg, { print, fail });
     default:
-      fail(`\u2717 \u672A\u77E5\u547D\u4EE4 "${cmd}"
+      fail(`\u2717 Unknown command "${cmd}"
 
 ${USAGE}`);
       return 2;
@@ -5950,18 +5951,18 @@ ${USAGE}`);
 }
 async function withSource(arg, io, fail, fn3) {
   if (!arg) {
-    fail("\u2717 \u7F3A\u5C11\u7A3F\u4EF6\u53C2\u6570\uFF1A\u4F20\u5165\u6587\u4EF6\u8DEF\u5F84\uFF0C\u6216\u7528 - \u4ECE stdin \u8BFB\u53D6");
+    fail("\u2717 Missing the draft argument: pass a file path, or - to read from stdin");
     return 2;
   }
   let src;
   try {
     src = arg === "-" ? await readStream(io.stdin ?? process.stdin) : readFileSync4(resolve(io.cwd ?? process.cwd(), arg), "utf8");
   } catch (e) {
-    fail(`\u2717 \u65E0\u6CD5\u8BFB\u53D6\u7A3F\u4EF6\uFF1A${e.message}`);
+    fail(`\u2717 Cannot read the draft: ${e.message}`);
     return 2;
   }
   if (!src.trim()) {
-    fail("\u2717 \u7A3F\u4EF6\u4E3A\u7A7A");
+    fail("\u2717 The draft is empty");
     return 2;
   }
   return fn3(src);
@@ -5992,27 +5993,27 @@ function cmdRender(src, opts, ctx) {
   emit(result, file, ctx);
   return finish(file, opts, config, ctx);
 }
-var PATCH_HELP = `\u539F\u5730\u66FF\u6362\u5DF2\u6E32\u67D3\u9875\u9762\u4E2D\u7684\u4E00\u4E2A\u9762\u677F
+var PATCH_HELP = `Replace one panel of a rendered page in place
 
-\u7528\u6CD5:
-  am patch <html-file> --panel <\u6807\u9898> < new-panel.md
-  am patch <html-file> --panel <\u6807\u9898> --from new-panel.md
-  am patch <html-file> --panel <\u6807\u9898> -
+Usage:
+  am patch <html-file> --panel <title> < new-panel.md
+  am patch <html-file> --panel <title> --from new-panel.md
+  am patch <html-file> --panel <title> -
 
-- \u4ECE <html-file> \u91CC\u9690\u85CF\u7684 <textarea id="am-source"> \u53D6\u56DE\u6E90\u7A3F\u3002
-- --panel \u5339\u914D ## \u5C0F\u8282\u7684\u6807\u9898\u3001\u5B57\u6BCD ID\uFF0C\u6216 "ID \u6807\u9898"\u3002
-- \u65B0\u7A3F\u4EF6\u4ECE stdin \u6216 --from / \u7B2C\u4E8C\u4E2A\u6587\u4EF6\u53C2\u6570\u8BFB\u53D6\uFF1A\u53EF\u5E26 ## \u6807\u9898\uFF0C\u4E5F\u53EF\u53EA\u5199\u9762\u677F\u6B63\u6587\u3002
-- \u7528\u73B0\u6709 renderer \u91CD\u6E32\u540E\u8986\u76D6\u540C\u4E00\u4E2A HTML \u8DEF\u5F84\uFF0C\u4E0D\u53E6\u5199\u5E26\u65F6\u95F4\u6233\u7684\u65B0\u6587\u4EF6\u3002
-- \u6CBF\u7528\u539F\u9875\u9762\u7684\u6A21\u677F\u3001\u4E3B\u9898\u3001\u660E\u6697\u548C STE style\uFF08\u751F\u6210\u65F6\u8BB0\u5728\u9875\u9762\u6839\u6807\u7B7E\u4E0A\uFF09\u3002\u4E4B\u540E\u6539\u4E86\u914D\u7F6E\uFF0C\u65E7\u9875\u9762 patch \u4E0D\u4F1A\u8DDF\u968F\uFF1B\u8981\u6362\u5C31\u52A0 --theme / --mode / --style\u3002
-- \u627E\u4E0D\u5230\u8BE5\u9762\u677F\uFF0C\u6216\u9875\u9762\u6CA1\u6709 #am-source\uFF0C\u9000\u51FA\u7801\u975E 0 \u4E14\u4E0D\u6539\u6587\u4EF6\u3002`;
+- Reads the source draft from the hidden <textarea id="am-source"> in <html-file>.
+- --panel matches a ## section's title, its letter ID, or "ID title".
+- The new draft comes from stdin or from --from / a second file argument: it may include the ## heading or only the panel body.
+- Renders again with the current renderer and overwrites the same HTML path; it writes no new timestamped file.
+- Keeps the page's template, theme, light/dark mode and STE style (recorded on the page's root tag when it was made). Later config changes do not apply to patched pages; to change them add --theme / --mode / --style.
+- If the panel is not found, or the page has no #am-source, the exit code is non-zero and the file is not changed.`;
 async function cmdPatch(htmlArg, fromArg, opts, ctx) {
   const { fail, io } = ctx;
   if (!htmlArg || htmlArg === "-") {
-    fail(htmlArg ? "\u2717 patch \u9700\u8981\u5DF2\u6709 HTML \u6587\u4EF6\u8DEF\u5F84\uFF0C\u4E0D\u80FD\u4ECE stdin \u8BFB\u9875\u9762" : "\u2717 \u7F3A\u5C11 HTML \u6587\u4EF6\u8DEF\u5F84");
+    fail(htmlArg ? "\u2717 patch needs the path of an existing HTML file; it cannot read the page from stdin" : "\u2717 Missing the HTML file path");
     return 2;
   }
   if (!opts.panel || !String(opts.panel).trim()) {
-    fail("\u2717 \u7F3A\u5C11 --panel <\u6807\u9898>");
+    fail("\u2717 Missing --panel <title>");
     return 2;
   }
   const cwd = io.cwd ?? process.cwd();
@@ -6021,13 +6022,13 @@ async function cmdPatch(htmlArg, fromArg, opts, ctx) {
   try {
     html = readFileSync4(file, "utf8");
   } catch (e) {
-    fail(`\u2717 \u65E0\u6CD5\u8BFB\u53D6 HTML\uFF1A${e.message}`);
+    fail(`\u2717 Cannot read the HTML: ${e.message}`);
     return 2;
   }
   const page = readPage(html);
   const { source, video } = page;
   if (source == null) {
-    fail("\u2717 \u9875\u9762\u91CC\u6CA1\u6709 #am-source\uFF0C\u65E0\u6CD5\u53D6\u56DE\u6E90\u7A3F");
+    fail("\u2717 The page has no #am-source, so the source draft cannot be recovered");
     return 1;
   }
   const from = opts.from ?? fromArg;
@@ -6035,7 +6036,7 @@ async function cmdPatch(htmlArg, fromArg, opts, ctx) {
   try {
     replacement = !from || from === "-" ? await readStream(io.stdin ?? process.stdin) : readFileSync4(resolve(cwd, from), "utf8");
   } catch (e) {
-    fail(`\u2717 \u65E0\u6CD5\u8BFB\u53D6\u65B0\u9762\u677F\u7A3F\u4EF6\uFF1A${e.message}`);
+    fail(`\u2717 Cannot read the new panel draft: ${e.message}`);
     return 2;
   }
   let patched;
@@ -6065,12 +6066,12 @@ async function cmdPatch(htmlArg, fromArg, opts, ctx) {
     }
   } catch (e) {
     if (e instanceof TtsError) {
-      fail(`\u2717 \u914D\u97F3\u5931\u8D25\uFF1A${e.message}\u3002\u53EF\u52A0 --voice off \u53EA\u51FA\u5B57\u5E55`);
+      fail(`\u2717 Voice-over failed: ${e.message}. Add --voice off for captions only`);
       return 1;
     }
     return reportError(e, fail);
   }
-  emit(result, file, ctx, video ? "\uFF08\u540C\u540D MP4 \u4E0D\u4F1A\u81EA\u52A8\u66F4\u65B0\uFF0C\u9700\u8981\u65F6\u7528 am video --mp4 \u91CD\u65B0\u5BFC\u51FA\uFF09" : "");
+  emit(result, file, ctx, video ? " (an MP4 with the same name is not updated; run am video --mp4 again if you need it)" : "");
   return finish(file, opts, config, ctx);
 }
 async function cmdVideo(src, opts, ctx) {
@@ -6083,7 +6084,7 @@ async function cmdVideo(src, opts, ctx) {
     result = await buildVideo(src, voice, opts, config, ctx);
   } catch (e) {
     if (!(e instanceof TtsError)) return reportError(e, fail);
-    fail(`\u2717 \u914D\u97F3\u5931\u8D25\uFF1A${e.message}\u3002\u53EF\u52A0 --voice off \u53EA\u51FA\u5B57\u5E55`);
+    fail(`\u2717 Voice-over failed: ${e.message}. Add --voice off for captions only`);
     return 1;
   }
   const file = outputPath("videos", result.meta.title, opts, ctx);
@@ -6093,7 +6094,7 @@ async function cmdVideo(src, opts, ctx) {
 }
 function validVoice(voice, fail) {
   if (VOICES.includes(voice)) return true;
-  fail(`\u2717 voice \u7684\u503C "${voice}" \u65E0\u6548\uFF0C\u53EF\u9009\uFF1A${VOICES.join(" | ")}`);
+  fail(`\u2717 Invalid voice value "${voice}". Choose one of: ${VOICES.join(" | ")}`);
   return false;
 }
 async function buildVideo(src, voice, opts, config, { fail, env, io }) {
@@ -6105,19 +6106,19 @@ async function buildVideo(src, voice, opts, config, { fail, env, io }) {
     overrides: { style: opts.style, theme: opts.theme, mode: opts.mode },
     onProgress: (msg) => fail(`  ${msg}`)
   });
-  return { ...result, voiceName: provider ? provider.name : "\u65E0\uFF08\u53EA\u51FA\u5B57\u5E55\uFF09" };
+  return { ...result, voiceName: provider ? provider.name : "none (captions only)" };
 }
 async function exportVideoMp4(file, wav2, { print, fail, env }) {
   const mp4 = `${file.replace(/\.html?$/i, "")}.mp4`;
   const started = Date.now();
   try {
-    await exportMp4(file, mp4, { wav: wav2, env, onProgress: (i, n) => fail(`  \u5BFC\u51FA MP4\uFF1A${i}/${n} \u5E27`) });
+    await exportMp4(file, mp4, { wav: wav2, env, onProgress: (i, n) => fail(`  Exporting MP4: frame ${i}/${n}`) });
   } catch (e) {
     if (!(e instanceof ExportError)) throw e;
-    fail(`\u2717 MP4 \u5BFC\u51FA\u5931\u8D25\uFF1A${e.message}\u3002\u64AD\u653E\u9875\u5DF2\u751F\u6210\uFF0C\u53EF\u76F4\u63A5\u5728\u6D4F\u89C8\u5668\u64AD\u653E`);
+    fail(`\u2717 MP4 export failed: ${e.message}. The player page was written and plays in a browser`);
     return false;
   }
-  print(`\u2713 ${mp4}\uFF08${((Date.now() - started) / 1e3).toFixed(0)}s \u5BFC\u51FA\uFF09`);
+  print(`\u2713 ${mp4} (exported in ${((Date.now() - started) / 1e3).toFixed(0)}s)`);
   return true;
 }
 function loadConfig({ fail, env }) {
@@ -6139,11 +6140,12 @@ function emit(result, file, { print }, note = "") {
 function summaryLine(result) {
   const { meta, stats } = result;
   if (result.beats !== void 0) {
-    return `video \xB7 ${meta.theme} \xB7 ${stats.panels} \u573A\u666F \xB7 ${result.beats} \u53E5\u65C1\u767D \xB7 ${result.duration.toFixed(1)}s \xB7 \u914D\u97F3\uFF1A${result.voiceName}`;
+    return `video \xB7 ${meta.theme} \xB7 ${count(stats.panels, "scene")} \xB7 ${count(result.beats, "beat")} \xB7 ${result.duration.toFixed(1)}s \xB7 voice: ${result.voiceName}`;
   }
   const comps = Object.entries(stats.components).map(([k2, v]) => `${k2}\xD7${v}`).join(" ");
-  return `${meta.template} \xB7 ${meta.theme} \xB7 ${stats.panels} \u9762\u677F${comps ? ` \xB7 ${comps}` : ""}`;
+  return `${meta.template} \xB7 ${meta.theme} \xB7 ${count(stats.panels, "panel")}${comps ? ` \xB7 ${comps}` : ""}`;
 }
+var count = (n, noun) => `${n} ${noun}${n === 1 ? "" : "s"}`;
 function finish(file, opts, config, ctx) {
   printHints(config, ctx);
   if (shouldOpen(opts, ctx.env, config.values)) (ctx.io.open ?? openFile)(file);
@@ -6165,7 +6167,7 @@ function printHints(config, { env, io, print }) {
 }
 function cmdClean(opts, { print, fail, env }) {
   if (opts.days !== void 0 && !/^\d+$/.test(opts.days.trim())) {
-    fail("\u2717 --days \u9700\u8981\u975E\u8D1F\u6574\u6570");
+    fail("\u2717 --days needs a non-negative integer");
     return 2;
   }
   const days = opts.days === void 0 ? CLEAN.days : Number(opts.days);
@@ -6173,9 +6175,9 @@ function cmdClean(opts, { print, fail, env }) {
   const before = usage(home);
   const dry = Boolean(opts["dry-run"]);
   const r = clean2(home, { days, all: Boolean(opts.all), dryRun: dry });
-  const scope = opts.all ? "\u5168\u90E8\u9875\u9762\u548C\u89C6\u9891" : `${days} \u5929\u524D\u7684\u9875\u9762\u548C\u89C6\u9891`;
-  print(`\u6570\u636E\u76EE\u5F55\uFF1A${home}\uFF08\u5171 ${mb(before.total)}\uFF1A\u9875\u9762 ${before.pages.count} \u4E2A\uFF0C\u89C6\u9891 ${before.videos.count} \u4E2A\uFF0C\u914D\u97F3\u7F13\u5B58 ${mb(before.cache.bytes)}\uFF09`);
-  print(dry ? `\u5C06\u5220\u9664 ${r.files} \u4E2A\u6587\u4EF6\uFF0C\u91CA\u653E ${mb(r.bytes)}\uFF08${scope} + \u914D\u97F3\u7F13\u5B58\uFF09\u3002\u53BB\u6389 --dry-run \u6267\u884C\u3002` : `\u2713 \u5DF2\u5220\u9664 ${r.files} \u4E2A\u6587\u4EF6\uFF0C\u91CA\u653E ${mb(r.bytes)}\uFF08${scope} + \u914D\u97F3\u7F13\u5B58\uFF09\u3002\u914D\u7F6E\u5DF2\u4FDD\u7559\u3002`);
+  const scope = opts.all ? "all pages and videos" : `pages and videos older than ${count(days, "day")}`;
+  print(`Data directory: ${home} (${mb(before.total)} in total: ${count(before.pages.count, "page")}, ${count(before.videos.count, "video")}, ${mb(before.cache.bytes)} voice-over cache)`);
+  print(dry ? `Would delete ${count(r.files, "file")}, freeing ${mb(r.bytes)} (${scope} + voice-over cache). Run without --dry-run to delete.` : `\u2713 Deleted ${count(r.files, "file")}, freeing ${mb(r.bytes)} (${scope} + voice-over cache). Settings were kept.`);
   return 0;
 }
 function cmdLint(src, opts, { print, fail }) {
@@ -6187,7 +6189,7 @@ function cmdLint(src, opts, { print, fail }) {
   }
   const style = opts.style ?? doc2.meta.style;
   if (!CHOICES.style.includes(style)) {
-    fail(`\u2717 style \u7684\u503C "${style}" \u65E0\u6548\uFF0C\u53EF\u9009\uFF1A${CHOICES.style.join(" | ")}`);
+    fail(`\u2717 Invalid style value "${style}". Choose one of: ${CHOICES.style.join(" | ")}`);
     return 2;
   }
   const warnings = style === "off" ? [] : lintDoc(doc2);
@@ -6195,26 +6197,26 @@ function cmdLint(src, opts, { print, fail }) {
   return style === "strict" && warnings.length ? 1 : 0;
 }
 function printWarnings(warnings, print, style) {
-  if (style === "off") return print("  STE \u68C0\u67E5\u5DF2\u5173\u95ED");
-  if (!warnings.length) return print("  STE \u2713 0 \u6761\u8B66\u544A");
-  print(`  STE ${warnings.length} \u6761\u8B66\u544A\uFF08\u4FEE\u6B63\u7A3F\u4EF6\u540E\u91CD\u65B0\u6267\u884C\uFF09\uFF1A`);
+  if (style === "off") return print("  STE check is off");
+  if (!warnings.length) return print("  STE \u2713 0 warnings");
+  print(`  STE ${count(warnings.length, "warning")} (fix the draft and run again):`);
   warnings.slice(0, MAX_LISTED_WARNINGS).forEach((w) => print(`  ${formatWarning(w)}`));
-  if (warnings.length > MAX_LISTED_WARNINGS) print(`  \u2026 \u53E6\u6709 ${warnings.length - MAX_LISTED_WARNINGS} \u6761\uFF0C\u7528 am lint \u67E5\u770B\u5168\u90E8`);
+  if (warnings.length > MAX_LISTED_WARNINGS) print(`  \u2026 ${warnings.length - MAX_LISTED_WARNINGS} more; run am lint to see all`);
 }
 function reportError(e, fail) {
   if (e instanceof RenderError) {
     fail(`\u2717 L${e.line} [${e.component}] ${e.message}`);
-    if (e.example) fail(`  \u6B63\u786E\u793A\u4F8B\uFF1A
+    if (e.example) fail(`  Correct example:
 ${e.example.replace(/^/gm, "    ")}`);
-    fail(`  \u5B8C\u6574\u8BED\u6CD5\uFF1Aam help ${e.component}`);
+    fail(`  Full syntax: am help ${e.component}`);
     return 1;
   }
   if (e instanceof ParseError) {
-    fail(`\u2717 ${e.line ? `L${e.line} ` : ""}\u7A3F\u4EF6\u89E3\u6790\u5931\u8D25\uFF1A${e.message}`);
+    fail(`\u2717 ${e.line ? `L${e.line} ` : ""}Cannot parse the draft: ${e.message}`);
     return 1;
   }
   if (e instanceof LintError) {
-    fail(`\u2717 ${e.message}\uFF0C\u672A\u751F\u6210\u9875\u9762\uFF1A`);
+    fail(`\u2717 ${e.message}; no page was written:`);
     e.warnings.forEach((w) => fail(`  ${formatWarning(w)}`));
     return 1;
   }
@@ -6225,21 +6227,21 @@ function cmdConfig(args, { print, fail, env }) {
   const [action, key, value] = args;
   try {
     if (action === "set") {
-      if (key === void 0 || value === void 0) throw new ConfigError("\u7528\u6CD5\uFF1Aam config set <\u952E> <\u503C>");
+      if (key === void 0 || value === void 0) throw new ConfigError("Usage: am config set <key> <value>");
       print(`\u2713 ${key} = ${showValue(setConfig(key, value, env))}`);
       return 0;
     }
     if (action === "get") {
-      if (!CONFIG_KEYS[key]) throw new ConfigError(`\u6CA1\u6709\u914D\u7F6E\u9879 "${key}"\u3002\u53EF\u7528\uFF1A${Object.keys(CONFIG_KEYS).join(" | ")}`);
+      if (!CONFIG_KEYS[key]) throw new ConfigError(`No setting named "${key}". Available: ${Object.keys(CONFIG_KEYS).join(" | ")}`);
       print(showValue(readConfig(env).values[key]));
       return 0;
     }
     if (action === "reset") {
       resetConfig(key, env);
-      print(key ? `\u2713 ${key} \u5DF2\u6062\u590D\u9ED8\u8BA4` : "\u2713 \u5168\u90E8\u914D\u7F6E\u5DF2\u6062\u590D\u9ED8\u8BA4");
+      print(key ? `\u2713 ${key} reset to default` : "\u2713 All settings reset to default");
       return 0;
     }
-    if (action !== void 0) throw new ConfigError(`\u672A\u77E5\u64CD\u4F5C "${action}"\u3002\u7528\u6CD5\uFF1Aam config [set <\u952E> <\u503C> | get <\u952E> | reset [\u952E]]`);
+    if (action !== void 0) throw new ConfigError(`Unknown action "${action}". Usage: am config [set <key> <value> | get <key> | reset [key]]`);
   } catch (e) {
     if (!(e instanceof ConfigError)) throw e;
     fail(`\u2717 ${e.message}`);
@@ -6247,27 +6249,27 @@ function cmdConfig(args, { print, fail, env }) {
   }
   const { values, stored, warning, path } = readConfig(env);
   if (warning) fail(`! ${warning}`);
-  print(`\u914D\u7F6E\u6587\u4EF6\uFF1A${path}`);
+  print(`Config file: ${path}`);
   for (const [k2, spec] of Object.entries(CONFIG_KEYS)) {
     const mark = k2 in stored ? "*" : " ";
     const options = spec.type === "bool" ? "on | off" : spec.choices.join(" | ");
-    print(`${mark} ${k2.padEnd(13)}${showValue(values[k2]).padEnd(10)}${spec.label}\uFF08${options}\uFF09`);
+    print(`${mark} ${k2.padEnd(13)}${showValue(values[k2]).padEnd(10)}${spec.label} (${options})`);
   }
-  if (env.AM_NO_OPEN && env.AM_NO_OPEN !== "0") print("\u6CE8\u610F\uFF1A\u73AF\u5883\u53D8\u91CF AM_NO_OPEN \u751F\u6548\u4E2D\uFF0C\u4F1A\u8986\u76D6 open \u914D\u7F6E\u3002");
-  print("* \u8868\u793A\u4F60\u6539\u8FC7\u7684\u503C\u3002\u4FEE\u6539\uFF1Aam config set <\u952E> <\u503C>\uFF1B\u6062\u590D\u9ED8\u8BA4\uFF1Aam config reset [\u952E]");
+  if (env.AM_NO_OPEN && env.AM_NO_OPEN !== "0") print("Note: the AM_NO_OPEN environment variable is set and overrides the open setting.");
+  print("* marks a value you changed. Change: am config set <key> <value>; reset to default: am config reset [key]");
   return 0;
 }
 function cmdList(print) {
-  print("\u6A21\u677F (template):");
-  print("  sheet   \u56FE\u7EB8\u677F\uFF1A\u5B57\u6BCD\u7F16\u53F7\u9762\u677F\u7F51\u683C\uFF0C\u9002\u5408\u4E00\u5C4F\u603B\u89C8\uFF08\u9ED8\u8BA4\uFF09");
-  print("  doc     \u7EBF\u6027\u8BB2\u89E3\uFF1A\u5355\u680F\u9605\u8BFB\uFF0C\u22653 \u4E2A\u9762\u677F\u65F6\u5E26\u76EE\u5F55");
-  print("  video   \u89E3\u91CA\u89C6\u9891\uFF1A\u7528 am video \u6E32\u67D3\uFF0C\u89C1 am help video");
-  print("\n\u4E3B\u9898 (theme):");
+  print("Templates (template):");
+  print("  sheet   blueprint board: a grid of letter-numbered panels, for a one-screen overview (default)");
+  print("  doc     linear explainer: one-column reading, with contents when there are 3+ panels");
+  print("  video   explainer video: render with am video, see am help video");
+  print("\nThemes (theme):");
   for (const [name, t] of Object.entries(THEMES)) print(`  ${name.padEnd(10)}${t.label}`);
-  print("\n\u7EC4\u4EF6\uFF08\u56F4\u680F\u5757\u8BED\u8A00\u540D\uFF09:");
+  print("\nComponents (fence language):");
   for (const c of COMPONENTS.values()) print(`  ${c.name.padEnd(10)}${c.summary}`);
-  print("  html/svg  \u539F\u6837\u5D4C\u5165\uFF08\u9003\u751F\u53E3\uFF09");
-  print("\n\u8BED\u6CD5\uFF1Aam help <\u7EC4\u4EF6\u540D>\uFF1B\u7A3F\u4EF6\u683C\u5F0F\uFF1Aam help format");
+  print("  html/svg  embed as-is (escape hatch)");
+  print("\nSyntax: am help <component>; draft format: am help format");
 }
 function cmdHelp(name, { print, fail }) {
   if (!name) return print(USAGE), 0;
@@ -6277,14 +6279,14 @@ function cmdHelp(name, { print, fail }) {
   if (name === "html" || name === "svg") return print(RAW_HELP.replace(/LANG/g, name)), 0;
   const comp = COMPONENTS.get(name);
   if (!comp) {
-    fail(`\u2717 \u6CA1\u6709\u7EC4\u4EF6 "${name}"\u3002\u53EF\u7528\uFF1A${[...COMPONENTS.keys()].join(", ")}, html, svg, format, video, patch`);
+    fail(`\u2717 No component named "${name}". Available: ${[...COMPONENTS.keys()].join(", ")}, html, svg, format, video, patch`);
     return 2;
   }
   print(`${comp.name} \u2014 ${comp.summary}
 
 ${comp.syntax}
 
-\u793A\u4F8B\uFF1A
+Example:
 ${comp.example}`);
   return 0;
 }
@@ -6311,7 +6313,7 @@ main(process.argv.slice(2), { background: true, scriptPath: process.argv[1] }).t
     process.exitCode = code;
   },
   (err) => {
-    process.stderr.write(`\u2717 \u5185\u90E8\u9519\u8BEF\uFF1A${err.stack || err}
+    process.stderr.write(`\u2717 Internal error: ${err.stack || err}
 `);
     process.exitCode = 1;
   }

@@ -1,4 +1,4 @@
-// 中文受控写作：虚动词结构（建议直接用后面的动词）与空泛套话（建议换成具体事实）。
+// Chinese controlled writing: light-verb constructions (use the following verb directly) and empty clichés (replace with concrete facts).
 export const ZH_LIGHT_VERBS = Object.freeze([
   { re: /进行(?![中时])了?([一-龥]{2})/g, label: '进行' },
   { re: /(?:加以|予以)([一-龥]{2})/g, label: '加以/予以' },

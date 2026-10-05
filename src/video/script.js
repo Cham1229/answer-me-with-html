@@ -1,12 +1,12 @@
-// 视频稿件：复用 parseDoc 的面板切分。一个 "## " 面板 = 一个场景；面板里以 > 开头的行是旁白，
-// 每行旁白是一拍；旁白里的 [名字] 让镜头聚焦到同名元素。其余内容（组件、Markdown）是画面。
+// Video draft: reuses parseDoc's panel splitting. One "## " panel = one scene; lines starting with > in a panel are narration,
+// each narration line is one beat; [name] in narration focuses the camera on the same-named element. Everything else (components, Markdown) is visuals.
 import { parseDoc, ParseError, CHOICES } from '../parse.js';
 import { isCJK } from '../svg/text.js';
 
 const NARRATION = /^\s*>\s?(.*)$/;
 const FOCUS = /\[([^\]\n]+)\]/g;
 
-// 视频主题：页面的两套主题，外加深色的 3b1b。
+// Video themes: the page's two themes, plus the dark 3b1b.
 export const VIDEO_THEMES = Object.freeze([...CHOICES.theme, '3b1b']);
 
 export function parseVideo(source, { defaults = {} } = {}) {
@@ -14,14 +14,14 @@ export function parseVideo(source, { defaults = {} } = {}) {
   const intro = splitNarration(doc.intro);
   const scenes = doc.panels.map((p) => {
     const { blocks, beats } = splitNarration(p.blocks);
-    if (!beats.length) throw new ParseError(`场景 "${p.title}" 没有旁白：每个场景至少写一行 > 旁白`, p.line);
+    if (!beats.length) throw new ParseError(`Scene "${p.title}" has no narration: write at least one > narration line in every scene`, p.line);
     return { id: p.id, title: p.title, line: p.line, attrs: p.attrs, blocks, beats };
   });
-  if (!scenes.length) throw new ParseError('视频稿至少需要一个场景（## 场景标题）', 1);
+  if (!scenes.length) throw new ParseError('A video draft needs at least one scene (## Scene title)', 1);
   return { meta: doc.meta, doc, intro: intro.blocks, introBeats: intro.beats, scenes };
 }
 
-// 从 Markdown 块里取出旁白行；剩余的 Markdown 留作画面内容。
+// Take narration lines out of Markdown blocks; the remaining Markdown stays as visual content.
 function splitNarration(blocks) {
   const beats = [];
   const out = [];
@@ -46,7 +46,7 @@ function beat(raw, line) {
   return { raw, text: raw.replace(FOCUS, '$1'), focus: focus[0] ?? null, line };
 }
 
-// 没有配音时按字数估算朗读时长：中文约 4.2 字/秒，英文约 2.6 词/秒。
+// Without a voice-over, reading time is estimated from word count: Chinese about 4.2 characters/s, English about 2.6 words/s.
 export function estimateSeconds(text) {
   let cjk = 0;
   let latin = '';
@@ -59,14 +59,14 @@ export function estimateSeconds(text) {
 }
 
 export const TIMING = Object.freeze({
-  title: 2.4,      // 无旁白时片头停留
-  transition: 0.9, // 场景切换（含跨场景变形）
-  gap: 0.35,       // 两句旁白之间的停顿
-  tail: 0.8,       // 场景最后一句之后的停留
-  outro: 1.5,      // 片尾停留
+  title: 2.4,      // intro hold when there is no narration
+  transition: 0.9, // scene change (including cross-scene morphs)
+  gap: 0.35,       // pause between two narration lines
+  tail: 0.8,       // hold after a scene's last line
+  outro: 1.5,      // outro hold
 });
 
-// 把每拍时长排成时间轴。durations[i] 依次对应片头旁白和各场景旁白（扁平顺序）。
+// Lay out beat durations on a timeline. durations[i] follows the intro narration then each scene's narration (flat order).
 export function buildTimeline(video, durations) {
   let t = 0;
   let k = 0;

@@ -1,5 +1,5 @@
-// 用户配置：~/.answer-me-with-html/config.json（AM_HOME 可改位置）。
-// 只保存用户显式设置过的键；读取时与默认值合并，坏文件 / 非法值一律回退默认，不让配置问题挡住渲染。
+// User config: ~/.answer-me-with-html/config.json (AM_HOME moves it).
+// Only keys the user set explicitly are saved; reads merge with defaults, and a bad file / invalid value falls back to the default, so config problems never block rendering.
 
 import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -14,17 +14,17 @@ export class ConfigError extends Error {
 }
 
 export const CONFIG_KEYS = Object.freeze({
-  open: { type: 'bool', default: true, label: '生成后自动用浏览器打开页面' },
-  always: { type: 'bool', default: true, label: '高频模式：给结论时都附一页（需安装 answer-me-with-html-always 插件）' },
-  theme: { type: 'enum', choices: CHOICES.theme, default: 'blueprint', label: '默认主题' },
-  mode: { type: 'enum', choices: CHOICES.mode, default: 'auto', label: '默认明暗模式' },
-  style: { type: 'enum', choices: CHOICES.style, default: '80', label: 'STE 写作检查严格度' },
-  update_check: { type: 'bool', default: true, label: '每周在后台检查一次新版本，有新版本时提示（不会自动更新）' },
-  voice: { type: 'enum', choices: VOICES, default: 'auto', label: '视频旁白配音（auto：有 ELEVENLABS_API_KEY 用 ElevenLabs，否则用系统 TTS；local：AM_TTS_URL 指向的本地服务）' },
+  open: { type: 'bool', default: true, label: 'Open the page in the browser after it is made' },
+  always: { type: 'bool', default: true, label: 'Always-on mode: add a page to every conclusion (needs the answer-me-with-html-always plugin)' },
+  theme: { type: 'enum', choices: CHOICES.theme, default: 'blueprint', label: 'Default theme' },
+  mode: { type: 'enum', choices: CHOICES.mode, default: 'auto', label: 'Default light/dark mode' },
+  style: { type: 'enum', choices: CHOICES.style, default: '80', label: 'STE writing-check strictness' },
+  update_check: { type: 'bool', default: true, label: 'Check for a new version once a week in the background and tell you (never updates by itself)' },
+  voice: { type: 'enum', choices: VOICES, default: 'auto', label: 'Video narration voice-over (auto: ElevenLabs if ELEVENLABS_API_KEY is set, otherwise system TTS; local: the local service at AM_TTS_URL)' },
 });
 
-const TRUE = new Set(['on', 'true', 'yes', '1', '开', '开启', '打开']);
-const FALSE = new Set(['off', 'false', 'no', '0', '关', '关闭']);
+const TRUE = new Set(['on', 'true', 'yes', '1', '开', '开启', '打开']); // lang-ok: accepted Chinese input aliases
+const FALSE = new Set(['off', 'false', 'no', '0', '关', '关闭']); // lang-ok: accepted Chinese input aliases
 
 export function amHome(env = process.env) {
   return env.AM_HOME || join(homedir(), '.answer-me-with-html');
@@ -38,16 +38,16 @@ const defaults = () => Object.fromEntries(Object.entries(CONFIG_KEYS).map(([k, s
 
 function coerce(key, raw) {
   const spec = CONFIG_KEYS[key];
-  if (!spec) throw new ConfigError(`没有配置项 "${key}"。可用：${Object.keys(CONFIG_KEYS).join(' | ')}`);
+  if (!spec) throw new ConfigError(`No setting named "${key}". Available: ${Object.keys(CONFIG_KEYS).join(' | ')}`);
   if (spec.type === 'bool') {
     if (typeof raw === 'boolean') return raw;
     const v = String(raw).trim().toLowerCase();
     if (TRUE.has(v)) return true;
     if (FALSE.has(v)) return false;
-    throw new ConfigError(`${key} 只接受 on / off`);
+    throw new ConfigError(`${key} accepts only on / off`);
   }
   const v = String(raw).trim();
-  if (!spec.choices.includes(v)) throw new ConfigError(`${key} 的值 "${v}" 无效，可选：${spec.choices.join(' | ')}`);
+  if (!spec.choices.includes(v)) throw new ConfigError(`Invalid ${key} value "${v}". Choose one of: ${spec.choices.join(' | ')}`);
   return v;
 }
 
@@ -58,7 +58,7 @@ function readStored(env) {
     const data = JSON.parse(readFileSync(file, 'utf8'));
     return { stored: data && typeof data === 'object' && !Array.isArray(data) ? data : {} };
   } catch (e) {
-    return { stored: {}, warning: `${file} 无法解析，已使用默认配置（${e.message}）` };
+    return { stored: {}, warning: `Cannot parse ${file}; using the default settings (${e.message})` };
   }
 }
 
@@ -70,7 +70,7 @@ export function readConfig(env = process.env) {
     try {
       values[k] = coerce(k, v);
     } catch {
-      // 非法值保持默认。
+      // Invalid values keep the default.
     }
   }
   return { values, stored, warning, path: configPath(env) };

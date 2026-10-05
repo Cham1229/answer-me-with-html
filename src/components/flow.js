@@ -1,4 +1,4 @@
-// 流程 / 架构图：模型只写关系（A -> B: 标签），dagre 计算坐标，这里负责把布局结果画成 SVG。
+// Flow / architecture diagram: the model writes only relations (A -> B: label), dagre computes coordinates, this file draws the layout as SVG.
 import dagre from '@dagrejs/dagre';
 import { esc, measure, wrap } from '../svg/text.js';
 import { f, smoothPath, arrowDefs, svgOpen, textLines } from '../svg/shapes.js';
@@ -10,7 +10,7 @@ const TEXT_MAX = 150;
 const EDGE_FS = 11.5;
 const DIRS = new Set(['TB', 'LR', 'BT', 'RL']);
 
-// 形状括号：先匹配更长的开括号。
+// Shape brackets: match longer opening brackets first.
 const BRACKETS = [
   { open: '[(', close: ')]', shape: 'db' },
   { open: '[', close: ']', shape: 'rect' },
@@ -21,18 +21,18 @@ const ARROW = /^\s*(-->|->)\s*/;
 
 export default {
   name: 'flow',
-  summary: '流程图 / 架构图（自动布局）',
+  summary: 'Flowchart / architecture diagram (automatic layout)',
   syntax: `\`\`\`flow [TB|LR|BT|RL]
-A -> B: 标签                  ← 实线，冒号后为边标签
-A --> C                       ← 虚线
-A -> B -> C                   ← 链式
-A -> B & C                    ← 扇出
-(开始)  {判断?}  [(数据库)]  [含: 冒号的文本]   ← 圆角 / 菱形 / 圆柱 / 矩形
-*重点节点                      ← * 前缀高亮
-group 分组名: B, C            ← 把节点框进一个分组
+A -> B: label                 ← solid line; text after the colon is the edge label
+A --> C                       ← dashed line
+A -> B -> C                   ← chain
+A -> B & C                    ← fan-out
+(Start)  {Valid?}  [(Database)]  [text with: a colon]   ← rounded / diamond / cylinder / rectangle
+*Key node                     ← * prefix highlights
+group Group name: B, C        ← draw a group box around nodes
 \`\`\`
-- 节点以括号内的文字作为身份，之后可直接写文字引用。默认方向 TB（自上而下）。`,
-  example: '```flow LR\n(用户) -> 网关: HTTPS\n网关 -> 鉴权 & *业务服务\n业务服务 -> [(数据库)]\ngroup 后端: 鉴权, 业务服务\n```',
+- The text inside the brackets is the node's identity; later lines can refer to the node by that text alone. The default direction is TB (top to bottom).`,
+  example: '```flow LR\n(User) -> Gateway: HTTPS\nGateway -> Auth & *Service\nService -> [(Database)]\ngroup Backend: Auth, Service\n```',
   render(text, { args, uid }) {
     const model = parseFlow(text);
     const dir = (args.match(/\b(TB|LR|BT|RL)\b/i)?.[1] ?? 'TB').toUpperCase();
@@ -68,15 +68,15 @@ export function parseFlow(text) {
       }
     }
   }
-  if (!nodes.size) throw new ComponentError('flow 至少需要一个节点', 1);
+  if (!nodes.size) throw new ComponentError('flow needs at least one node', 1);
   for (const grp of groups) {
     const missing = grp.members.filter((m) => !nodes.has(m));
-    if (missing.length) throw new ComponentError(`group ${grp.name} 引用了不存在的节点：${missing.join('、')}`, grp.line);
+    if (missing.length) throw new ComponentError(`group ${grp.name} refers to nodes that do not exist: ${missing.join(', ')}`, grp.line);
   }
   return { nodes, edges, groups };
 }
 
-// 一行 = 节点组（& 分隔）以箭头相连，末尾可带 ": 标签"。
+// One line = node groups (separated by &) joined by arrows, optionally ending with ": label".
 function parseChain(t, line) {
   const chain = [];
   let pos = 0;
@@ -99,7 +99,7 @@ function parseChain(t, line) {
   }
   const rest = t.slice(pos).trim();
   if (rest && !/^[:：]/.test(rest)) {
-    throw new ComponentError(`flow 无法解析："${t}"。关系写作 A -> B: 标签`, line);
+    throw new ComponentError(`flow cannot parse "${t}". Write a link as A -> B: label`, line);
   }
   return { chain, label: rest.replace(/^[:：]\s*/, '') };
 }
@@ -113,7 +113,7 @@ function parseNode(t, start, line) {
   let end;
   if (bracket) {
     const close = t.indexOf(bracket.close, pos + bracket.open.length);
-    if (close === -1) throw new ComponentError(`flow 形状括号未闭合：缺少 ${bracket.close}`, line);
+    if (close === -1) throw new ComponentError(`flow: unclosed shape bracket, missing ${bracket.close}`, line);
     label = t.slice(pos + bracket.open.length, close).trim();
     end = close + bracket.close.length;
   } else {
@@ -121,7 +121,7 @@ function parseNode(t, start, line) {
     label = m[1].trim();
     end = pos + m[0].length;
   }
-  if (!label) throw new ComponentError(`flow 存在空节点："${t}"`, line);
+  if (!label) throw new ComponentError(`flow has an empty node: "${t}"`, line);
   return { node: { id: label, label, shape: bracket?.shape ?? 'rect', explicit: Boolean(bracket), hi }, end };
 }
 
@@ -144,7 +144,7 @@ function layout({ nodes, edges, groups }, rankdir, id) {
   const g = new dagre.graphlib.Graph({ compound: groups.length > 0, multigraph: true });
   g.setGraph({ rankdir, nodesep: 36, ranksep: 46, marginx: 14, marginy: groups.length ? 26 : 14 });
   g.setDefaultEdgeLabel(() => ({}));
-  // dagre 内部用 "\x00" 等作保留 id；节点与分组一律换成内部编号，用户写什么名字都不会冲突。
+  // dagre reserves ids such as "\x00" internally; nodes and groups always get internal numbers, so no user-written name can collide.
   const key = new Map([...nodes.keys()].map((name, i) => [name, `n${i}`]));
   const gkey = (i) => `g${i}`;
   const sizes = new Map();
@@ -170,7 +170,7 @@ function layout({ nodes, edges, groups }, rankdir, id) {
     return `<rect class="am-cluster" x="${f(x)}" y="${f(y)}" width="${f(c.width)}" height="${f(c.height)}" rx="4"/><text class="am-cluster-label" x="${f(x + 8)}" y="${f(y + 14)}">${esc(grp.name)}</text>`;
   });
 
-  // 视频模式按源码行逐步出现：同一行写出的边和首次出现的节点属于同一步。
+  // In video mode, items appear step by step by source line: edges written on one line and nodes first seen there form one step.
   const stepOf = new Map([...new Set([...[...nodes.values()].map((n) => n.line), ...edges.map((e) => e.line)])].sort((a, b) => a - b).map((l, k) => [l, k]));
   const edgeSvg = edges.map((e, i) => {
     const data = g.edge({ v: key.get(e.from), w: key.get(e.to), name: `e${i}` });
@@ -188,7 +188,7 @@ function layout({ nodes, edges, groups }, rankdir, id) {
   });
 
   const { width, height } = g.graph();
-  const label = `流程图：${[...nodes.keys()].slice(0, 8).join('、')}`;
+  const label = `流程图：${[...nodes.keys()].slice(0, 8).join('、')}`; // lang-ok: known gap, page aria-label is always Chinese (tracked in #47)
   return `${svgOpen(width, height, label)}${arrowDefs(id)}<g>${clusters.join('')}</g><g>${edgeSvg.join('')}</g><g>${nodeSvg.join('')}</g></svg>`;
 }
 
@@ -206,7 +206,7 @@ function shapeSvg(shape, x, y, w, h) {
   return `<rect class="am-node-shape" x="${f(l)}" y="${f(t)}" width="${f(w)}" height="${f(h)}" rx="${f(rx)}"/>`;
 }
 
-// dagre 按矩形边界裁剪边端点；菱形需要重新求与斜边的交点，否则箭头悬空。
+// dagre clips edge endpoints to the rectangle bounds; diamonds need the intersection with the slanted side recomputed, or arrows float.
 function clipEnds(points, from, fromShape, to, toShape) {
   const pts = points.map((p) => ({ ...p }));
   if (fromShape === 'diamond' && pts.length > 1) pts[0] = diamondPoint(from, pts[1]);

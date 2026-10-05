@@ -1,4 +1,4 @@
-// Markdown → HTML（GFM）。附加两项装饰：表格包一层可横向滚动容器；单元格里的状态词渲染为徽章。
+// Markdown → HTML (GFM). Two extras: tables get a horizontally scrolling wrapper; status words in cells render as badges.
 
 import { Marked } from 'marked';
 

@@ -1,13 +1,13 @@
-// 页面信封：页面根标签上的设置、视频配音、文末隐藏源稿。
-// render / video 用这里写出信封，patch 用 readPage 读回。格式只在这个文件里定义。
+// Page envelope: settings on the page's root tag, video voice-over, hidden source draft at the end.
+// render / video write the envelope here, patch reads it back with readPage. The format is defined only in this file.
 import { esc } from './svg/text.js';
 
 const SOURCE_OPEN = '<textarea id="am-source"';
 const SOURCE_RE = new RegExp(`^${SOURCE_OPEN}[^>]*>([\\s\\S]*?)<\\/textarea>`);
 const AUDIO_OPEN = '<audio id="amv-audio"';
 
-// lang 传入时已是 html lang 值（如 zh-CN）。
-// voice 只在有配音的视频页写出（elevenlabs / local / system），patch 时沿用同一种配音。
+// lang is already an html lang value when passed in (e.g. zh-CN).
+// voice is written only on voiced video pages (elevenlabs / local / system); patch keeps the same voice.
 export function rootTag({ lang, theme, mode, style, voice, video = false }) {
   return `<html lang="${lang}" data-theme="${esc(theme)}" data-mode="${esc(mode)}" data-style="${esc(style)}"${voice ? ` data-voice="${esc(voice)}"` : ''}${video ? ' data-video' : ''}>`;
 }
@@ -16,14 +16,14 @@ export function audioTag(wav) {
   return `${AUDIO_OPEN} preload="auto" src="data:audio/wav;base64,${wav.toString('base64')}"></audio>`;
 }
 
-// 必须是页面最后一个 textarea，紧跟在可选的 audioTag 之后。
+// Must be the page's last textarea, right after the optional audioTag.
 export function sourceTag(source) {
   return `${SOURCE_OPEN} hidden readonly aria-hidden="true">${esc(source)}</textarea>`;
 }
 
-// 读回信封：{ source, video, template, theme, mode, style, voice, voiced }。没有源稿时 source 为 null。
-// 正文的 html / markdown 里可能写出同名标签，所以：设置只认文档根上的 <html>，
-// 源稿只认文末那一枚 textarea，配音只认紧挨源稿之前的 audio。
+// Read the envelope back: { source, video, template, theme, mode, style, voice, voiced }. source is null when there is no source draft.
+// The body html / markdown may contain tags with the same names, so: settings come only from the document-root <html>,
+// the source only from the final textarea, the voice only from the audio right before the source.
 export function readPage(html) {
   const s = String(html);
   const root = s.match(/<html\b[^>]*>/)?.[0] ?? '';
@@ -35,7 +35,7 @@ export function readPage(html) {
   return {
     source: m ? unescapeHtml(m[1]) : null,
     video,
-    // 正文里的 <main class="am-doc"> 不算；模板的 <main> 总在正文之前。
+    // A <main class="am-doc"> in the body does not count; the template's <main> always comes before the body.
     template: video ? 'video' : s.match(/<main class="am-(doc|sheet)\b/)?.[1],
     theme: attr('data-theme'),
     mode: attr('data-mode'),
