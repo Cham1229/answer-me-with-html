@@ -36,21 +36,30 @@ https://github.com/user-attachments/assets/d3063a28-5dfd-4c44-a562-be901c49b249
 
 You can. Models write decent HTML now. The problem is the bill you pay in output tokens: the model has to type every line of CSS, every wrapper `div` and every SVG coordinate. Output tokens are also what you sit and wait for.
 
-With this skill, the model writes only the content. We asked the same questions with the same model both ways (3 topics × 3 runs, medians, Claude Sonnet 5.5):
+With this skill, the model writes only the content. We asked the same questions with the same model both ways, in a plain Claude Code setup (3 topics × 3 runs, medians, Claude Sonnet 5.5):
 
 | | Ask for HTML directly | Answer me with HTML | |
 | :--- | ---: | ---: | :--- |
-| Output tokens | 6,873 | **923** | **7.4× fewer** |
-| Time | 46 s | **13 s** | **3.6× faster** |
-| Cost per answer | $0.22 | $0.26 | about the same |
+| Output tokens | 5,341 | **870** | **6.1× fewer** |
+| Time | 33 s | **12 s** | **2.8× faster** |
+| Cost per answer | $0.092 | **$0.067** | **27% cheaper** |
 
 <p align="center">
   <img src="docs/images/plain-vs-skill.png" alt="The same TCP question answered both ways" width="100%">
 </p>
 
-<p align="center"><sub>One run from the benchmark: same prompt, same model, and both pages are usable. This run took 9,351 output tokens for the plain page and 899 with the skill. The table above shows the medians.</sub></p>
+<p align="center"><sub>One run from an earlier benchmark in a heavily loaded setup: same prompt, same model, and both pages are usable. This run took 9,351 output tokens for the plain page and 899 with the skill.</sub></p>
 
-Why the cost doesn't drop too: the skill adds two short turns (load the skill, run the CLI), and every turn re-reads the conversation context. You save the waiting, not the bill. Per-topic numbers and the script to reproduce them are in [bench/](bench/README.md).
+The cost depends on how much context your setup loads. Every turn re-reads that context, and the skill adds two short turns (load the skill, run the CLI). In the plain setup (about 22,000 tokens of context) the saved output tokens win, and the skill was cheaper in 9 of 9 paired runs. We also ran the first version of this test in our own heavily loaded setup (about 51,000 tokens of tools, rules and skills): 6,873 → 923 output tokens and 46 s → 13 s, but the cost went the other way, $0.22 → $0.26, and the skill was more expensive in 9 of 9 runs. The more your setup loads, the less the saved output tokens matter. The speed-up holds in both.
+
+Explainer videos show a bigger gap. We asked for the TCP handshake as a 3Blue1Brown-style video, no voice, both ways, in the loaded setup (3 hand-written runs, 2 runs with `am video`, medians):
+
+| | Write the video page by hand | `am video` | |
+| :--- | ---: | ---: | :--- |
+| Output tokens | 27,839 | **1,566** | **17.8× fewer** |
+| Time | 202 s | **17 s** | **11.8× faster** |
+
+The hand-written pages play, with scenes, captions and a progress bar; `am video` also gives camera focus and morphs between scenes. This is one topic with five runs, so read it as a rough size, not a precise ratio. Per-topic numbers and the script to reproduce them are in [bench/](bench/README.md).
 
 ## Install
 
