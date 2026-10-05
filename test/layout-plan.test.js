@@ -112,6 +112,44 @@ test('no panels give no rows', () => {
   assert.deepEqual(plan([]).rows, []);
 });
 
+// Diagrams on one page stay in one scale band (spec #50, ticket #53): the page shows a diagram at min(result.maxScale, (width - pad) / natural).
+const BAND_RATIO = 1.25;
+const scales = (panels, result) => result.rows.flatMap((r) => r.columns.flatMap((c) => c.panels.filter((k) => panels[k].natural > 0).map((k) => Math.min(result.maxScale, (c.width - panels[k].pad) / panels[k].natural))));
+const assertBand = (panels, result) => {
+  const s = scales(panels, result);
+  assert.ok(Math.max(...s) / Math.min(...s) <= BAND_RATIO + 1e-9, `scales ${s.map((x) => x.toFixed(2)).join(', ')} differ by more than ${BAND_RATIO}x`);
+};
+
+test('diagrams on one page differ in scale by at most the band ratio', () => {
+  const cases = [
+    [diagram(673, 0.6), text(50000), diagram(656, 0.6), text(50000), diagram(580, 0.7)],
+    [diagram(699, 0.6), text(50000), diagram(200, 1), text(50000), diagram(541, 0.7), diagram(618, 0.6)],
+    [diagram(337, 0.8), diagram(443, 0.7), text(50000), text(50000), text(50000), text(50000)],
+    [diagram(300, 0.9), text(40000), text(40000), diagram(600, 0.5), text(30000)],
+  ];
+  for (const panels of cases) {
+    const result = plan(panels);
+    assert.deepEqual(order(result), panels.map((_, i) => i));
+    assertBand(panels, result);
+  }
+});
+
+test('a diagram that can only be small pulls the band of the others down', () => {
+  // The wide diagram cannot show at more than about 0.92 on this page, so the others may not grow to 1.25 beside it.
+  const panels = [diagram(460, 0.7), diagram(227, 0.7), diagram(918, 0.5), diagram(225, 0.7)];
+  const result = plan(panels, { width: 882, cols: 2 });
+  assert.deepEqual(order(result), panels.map((_, i) => i));
+  for (const row of result.rows) assert.equal(row.columns.reduce((s, c) => s + c.width, 0) + GAP * (row.columns.length - 1), 882);
+  assertBand(panels, result);
+});
+
+test('a diagram wider than the page can ever show it still gets a complete plan', () => {
+  const panels = [diagram(1500, 0.4), diagram(300, 0.9), text(40000)];
+  const result = plan(panels);
+  assert.deepEqual(order(result), [0, 1, 2]);
+  for (const row of result.rows) assert.equal(row.columns.reduce((s, c) => s + c.width, 0) + GAP * (row.columns.length - 1), WIDTH);
+});
+
 test('the planner source can be inlined into a page script by dropping its export keyword', async () => {
   const { readFileSync } = await import('node:fs');
   const src = readFileSync(new URL('../src/runtime/layout-plan.js', import.meta.url), 'utf8');

@@ -2,7 +2,8 @@
 // (which defines planLayout) inside one function scope of the page script.
 //
 // It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
-// The rendered HTML keeps the plain CSS grid: with JavaScript off, or at the single-column breakpoint, nothing here runs or is undone.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
 
 const grid = document.querySelector('.am-grid');
 const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
@@ -116,11 +117,20 @@ if (panels.length > 1) {
     }
   }
 
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
   const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
 
   function justify() {
     const t0 = performance.now();
     try {
+      if (printing.matches) return;
       // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
       for (let pass = 0, planned = -1; pass < 3 && planned !== containerWidth(); pass++) {
         restore();
@@ -130,6 +140,7 @@ if (panels.length > 1) {
         const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
         const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
         apply(plan, gap);
+        capDiagrams(plan.maxScale);
       }
     } catch {
       restore();
@@ -138,6 +149,14 @@ if (panels.length > 1) {
     }
   }
 
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  const printing = matchMedia('print');
+  const enterPrint = () => {
+    clearTimeout(timer);
+    restore();
+    performance.mark('am-print');
+  };
   let timer = 0;
   const later = () => {
     clearTimeout(timer);
@@ -145,6 +164,9 @@ if (panels.length > 1) {
   };
   justify();
   addEventListener('resize', later);
+  addEventListener('beforeprint', enterPrint);
+  addEventListener('afterprint', later);
+  printing.addEventListener('change', (e) => (e.matches ? enterPrint() : later()));
   // Switching theme changes paddings and fonts, hence panel heights.
   document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
 }

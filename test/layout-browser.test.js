@@ -18,6 +18,9 @@ const SKIP = process.env.AM_E2E !== '1'
 const DESKTOP = 1440;
 const TABLET = 1000;
 const PHONE = 390;
+const A4_PORTRAIT = 794; // CSS px: A4 at 96 dpi, before margins
+const BAND_RATIO = 1.25; // diagrams on one page differ in scale by at most this (see BAND_RATIO in src/runtime/layout-plan.js)
+const SCALE_TOLERANCE = 0.03; // the browser rounds widths to whole pixels
 const BUDGET_MS = 1000; // generous: a laid-out page takes well under 300 ms on a developer laptop
 
 const filler = (id, n) => `## ${id} 说明${n}\n这一段是普通文字，用来和其他面板排成一行，长度适中，换行后大约占四五行。这一段是普通文字，用来和其他面板排成一行。\n`;
@@ -92,6 +95,44 @@ Receiver -> Sender: confirm
 ${fillerEn('C', 1)}
 ${fillerEn('D', 2)}
 ${fillerEn('E', 3)}`,
+  'mixed-diagrams.en': `---
+title: Mixed diagram sizes stress test
+cols: 3
+lang: en
+---
+## A Many actors
+\`\`\`sequence
+participants: Browser, Gateway, Auth service, Orders service, Database
+Browser -> Gateway: POST /orders
+Gateway -> Auth service: check the token
+Auth service -> Gateway: token is valid
+Gateway -> Orders service: create the order
+Orders service -> Database: insert one row
+Database -> Orders service: done
+Orders service -> Gateway: order created
+Gateway -> Browser: 201 Created
+\`\`\`
+
+## B Short
+\`\`\`flow
+Ask -> Reply: answer
+\`\`\`
+
+${fillerEn('C', 1)}
+## D Small states
+\`\`\`flow LR
+(A) -> B: go
+B -> *C: stop
+\`\`\`
+
+## E Handshake
+\`\`\`flow
+Client -> Server: request
+Server -> Client: reply
+\`\`\`
+
+${fillerEn('F', 2)}
+${fillerEn('G', 3)}`,
 };
 
 // Everything the checks need, read in the page in one call. A "row" is the set of grid children with the same top edge.
@@ -115,6 +156,12 @@ const MEASURE = `(() => {
   }
   const panels = [...grid.querySelectorAll('.am-panel')];
   const gridBox = box(grid);
+  // Rendered scale of every panel that holds only a diagram (the planner controls those): rendered width / natural width.
+  const diagramScales = panels.map((p) => {
+    const body = p.querySelector(':scope > .am-panel-body');
+    const svg = body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+    return svg ? { id: p.id, scale: box(svg).width / Number(svg.getAttribute('width')) } : null;
+  }).filter(Boolean);
   return {
     display: getComputedStyle(grid).display,
     gap: parseFloat(getComputedStyle(grid).columnGap) || 0,
@@ -126,6 +173,9 @@ const MEASURE = `(() => {
     panelWidths: panels.map((p) => box(p).width),
     pageOverflow: document.documentElement.scrollWidth - window.innerWidth,
     gridLeft: gridBox.left,
+    diagramScales,
+    gridOverflow: grid.scrollWidth - grid.clientWidth,
+    printed: performance.getEntriesByName('am-print').length,
     layouts: performance.getEntriesByName('am-layout').map((m) => m.duration),
   };
 })()`;
@@ -224,6 +274,15 @@ function assertJustified(name, width, m, ids) {
   });
   assert.deepEqual(m.clipped, [], `${where}: nothing overflows or is clipped`);
   assert.ok(m.pageOverflow <= 0, `${where}: the page does not scroll sideways`);
+  assertScaleBand(where, m);
+}
+
+// Diagram-only panels on one page stay in one scale band.
+function assertScaleBand(where, m) {
+  if (m.diagramScales.length < 2) return;
+  const scales = m.diagramScales.map((d) => d.scale);
+  const ratio = Math.max(...scales) / Math.min(...scales);
+  assert.ok(ratio <= BAND_RATIO + SCALE_TOLERANCE, `${where}: diagram scales ${scales.map((x) => x.toFixed(2)).join(', ')} differ by ${ratio.toFixed(2)}x (limit ${BAND_RATIO}x)`);
 }
 
 test('e2e: sheet pages lay out as justified rows at 1440 px, and the layout finishes within budget', { skip: SKIP, timeout: 180000 }, async () => {
@@ -266,6 +325,49 @@ test('e2e: resizing re-lays out the page, and a phone width restores one column'
 
     await setWidth(DESKTOP);
     await waitFor("document.querySelector('.am-grid').style.display === 'flex'", `${name} to lay out again at ${DESKTOP}px`);
+    assertJustified(name, DESKTOP, await measure(), p.ids);
+  }
+});
+
+// Print: the justified widths are tied to the screen width, so printing falls back to the plain grid (never a mix of both).
+// Emulating print media tests the layout; Page.printToPDF checks that real printing goes through the same path.
+const assertPrintLayout = (where, m, ids) => {
+  assert.equal(m.display, 'grid', `${where}: the print layout is the plain grid`);
+  assert.equal(m.wrappers, 0, `${where}: no column wrappers in print`);
+  assert.deepEqual(m.order, ids, `${where}: panel order is unchanged in print`);
+  assert.deepEqual(m.clipped, [], `${where}: no panel is clipped or overflows in print`);
+  assert.ok(m.gridOverflow <= 0, `${where}: the grid does not overflow its box in print`);
+  assert.ok(m.pageOverflow <= 0, `${where}: the printed page does not scroll sideways`);
+  assert.ok(m.panelWidths.every((w) => w <= m.width + 1), `${where}: every panel fits the printed width ${m.width}px`);
+};
+
+test('e2e: printing restores the plain grid with complete panels, and screen layout comes back afterwards', { skip: SKIP, timeout: 180000 }, async () => {
+  if (!cdp) await launch();
+  for (const p of pages) {
+    await open(p.file, DESKTOP);
+    await waitFor('performance.getEntriesByName("am-layout").length > 0', `${p.name} to lay out`).catch(() => {});
+    assertJustified(p.name, DESKTOP, await measure(), p.ids);
+
+    await page('Emulation.setEmulatedMedia', { media: 'print' });
+    await setWidth(A4_PORTRAIT);
+    await waitFor("getComputedStyle(document.querySelector('.am-grid')).display === 'grid'", `${p.name} to switch to the print layout`);
+    assertPrintLayout(`${p.name} (print, ${A4_PORTRAIT}px)`, await measure(), p.ids);
+
+    await page('Emulation.setEmulatedMedia', { media: '' });
+    await setWidth(DESKTOP);
+    await waitFor("document.querySelector('.am-grid').style.display === 'flex'", `${p.name} to lay out again after print`);
+    assertJustified(p.name, DESKTOP, await measure(), p.ids);
+  }
+
+  // Real printing: Chrome prints the page (A4 portrait, 10 mm margins) and the script goes through its print path.
+  for (const name of ['tcp', 'wide-table.zh', 'narrow-diagrams.en']) {
+    const p = pages.find((x) => x.name === name);
+    await open(p.file, DESKTOP);
+    await waitFor('performance.getEntriesByName("am-layout").length > 0', `${name} to lay out`).catch(() => {});
+    const { data } = await page('Page.printToPDF', { paperWidth: 8.27, paperHeight: 11.69, marginTop: 0.4, marginBottom: 0.4, marginLeft: 0.4, marginRight: 0.4, printBackground: true });
+    assert.equal(Buffer.from(data, 'base64').subarray(0, 5).toString(), '%PDF-', `${name}: Chrome produced a PDF`);
+    assert.ok(await evaluate('performance.getEntriesByName("am-print").length > 0'), `${name}: the page script handled printing`);
+    await waitFor("document.querySelector('.am-grid').style.display === 'flex'", `${name} to lay out again after printing`);
     assertJustified(name, DESKTOP, await measure(), p.ids);
   }
 });
