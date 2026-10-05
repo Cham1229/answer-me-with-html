@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { renderDoc, RenderError, detectLang } from '../src/render.js';
 import { ParseError } from '../src/parse.js';
 import { THEMES } from '../src/themes/index.js';
+import { COMPONENTS } from '../src/components/index.js';
 
 const SRC = `---
 title: 测试页
@@ -126,6 +127,33 @@ test('render: English drafts use English UI labels', () => {
   const { html } = renderDoc('# Hello world\n## A Overview\nThis is a plain English page about things.');
   assert.match(html, /<html lang="en"/);
   assert.match(html, /Copy source/);
+});
+
+// Diagrams and the table of contents are named for screen readers in the page's language (#47).
+const A11Y_DRAFT = (a, b, c) => `---\ntemplate: doc\n---\n## A ${a}\n\`\`\`flow\nClient -> Server\n\`\`\`\n## B ${b}\n\`\`\`sequence\nClient -> Server: hello\n\`\`\`\n## C ${c}\nx`;
+
+test('render: aria-labels of diagrams and the table of contents follow the page language', () => {
+  const en = renderDoc(A11Y_DRAFT('The request path', 'The handshake between them', 'Notes on what happens')).html;
+  assert.match(en, /<nav class="am-toc" aria-label="Contents">/);
+  assert.match(en, /aria-label="Flowchart: Client, Server"/);
+  assert.match(en, /aria-label="Sequence diagram: Client, Server"/);
+
+  const zh = renderDoc(A11Y_DRAFT('请求从客户端发出的路径', '客户端和服务器之间的握手过程', '关于整个过程的补充说明和注意事项')).html;
+  assert.match(zh, /<nav class="am-toc" aria-label="目录">/);
+  assert.match(zh, /aria-label="流程图：Client、Server"/);
+  assert.match(zh, /aria-label="时序图：Client、Server"/);
+
+  const ja = renderDoc(A11Y_DRAFT('クライアントから出るリクエストの流れ', 'クライアントとサーバーのあいだのハンドシェイクの手順', 'この流れについてのほかのメモと注意点')).html;
+  assert.match(ja, /<html lang="ja"/);
+  assert.match(ja, /<nav class="am-toc" aria-label="目次">/);
+  assert.match(ja, /aria-label="フローチャート：Client、Server"/);
+  assert.match(ja, /aria-label="シーケンス図：Client、Server"/);
+});
+
+test('render: a diagram rendered without a page context is named in English', () => {
+  const uid = () => 'am1';
+  assert.match(COMPONENTS.get('flow').render('A -> B', { args: '', uid }), /aria-label="Flowchart: A, B"/);
+  assert.match(COMPONENTS.get('sequence').render('A -> B: hi', { args: '', uid }), /aria-label="Sequence diagram: A, B"/);
 });
 
 test('detectLang: decides by the share of Chinese', () => {
