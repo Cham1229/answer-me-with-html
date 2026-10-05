@@ -1,7 +1,7 @@
 {
   "name": "answer-me-with-html",
   "version": "0.4.7",
-  "description": "LLM 写 Markdown 内容稿，CLI 秒出零依赖单文件 HTML 解释页（模板 + slot + SVG 自动布局 + STE 受控写作检查）",
+  "description": "Answer hard questions with a one-page HTML: the model writes a short Markdown draft; the bundled CLI handles templates, SVG auto-layout and an STE controlled-writing check.",
   "type": "module",
   "bin": {
     "am": "bin/am.js",

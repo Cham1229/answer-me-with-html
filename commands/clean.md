@@ -1,6 +1,6 @@
 ---
 description: Clean up old Answer me with HTML pages, videos and the narration cache
-argument-hint: "[--days <天数>] | [--all]"
+argument-hint: "[--days <days>] | [--all]"
 allowed-tools: Bash(node *)
 ---
 
