@@ -1,5 +1,5 @@
-// 安装形态的回归测试：清单之间版本一致、引用的文件真实存在、打包后的 skill 目录脱离仓库也能独立运行。
-// 真实的 npx skills / claude plugin validate 安装检查在 CI 的 install 任务里跑（scripts/smoke-install.mjs）。
+// Regression tests for install layouts: manifests agree on the version, referenced files exist, and the bundled skill directory runs outside the repository.
+// The real npx skills / claude plugin validate install checks run in the CI install job (scripts/smoke-install.mjs).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync, mkdtempSync, cpSync, rmSync, readdirSync } from 'node:fs';
@@ -12,21 +12,21 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const json = (rel) => JSON.parse(readFileSync(join(ROOT, rel), 'utf8'));
 const VERSION = json('package.json').version;
 
-test('install: package.json、两个 plugin.json、marketplace.json 的版本一致', () => {
+test('install: package.json, both plugin.json files and marketplace.json have the same version', () => {
   assert.equal(json('.claude-plugin/plugin.json').version, VERSION);
   assert.equal(json('plugins/answer-me-with-html-always/.claude-plugin/plugin.json').version, VERSION);
   for (const p of json('.claude-plugin/marketplace.json').plugins) assert.equal(p.version, VERSION, p.name);
 });
 
-test('install: marketplace 里的插件都能找到，名字与 plugin.json 一致', () => {
+test('install: every marketplace plugin exists and its name matches plugin.json', () => {
   for (const p of json('.claude-plugin/marketplace.json').plugins) {
     const manifest = join(p.source, '.claude-plugin/plugin.json');
-    assert.ok(existsSync(join(ROOT, manifest)), `${p.name}: 缺少 ${manifest}`);
+    assert.ok(existsSync(join(ROOT, manifest)), `${p.name}: missing ${manifest}`);
     assert.equal(json(manifest).name, p.name);
   }
 });
 
-test('install: hook、命令、SKILL.md 引用的脚本路径都存在', () => {
+test('install: script paths referenced by hooks, commands and SKILL.md exist', () => {
   const hooks = json('plugins/answer-me-with-html-always/hooks/hooks.json');
   const args = hooks.hooks.UserPromptSubmit.flatMap((h) => h.hooks).flatMap((h) => h.args ?? []);
   for (const a of args) {
@@ -43,7 +43,7 @@ test('install: hook、命令、SKILL.md 引用的脚本路径都存在', () => {
   }
 });
 
-test('install: skill 目录拷到别处后，不依赖 node_modules 也能出页面', () => {
+test('install: the skill directory copied elsewhere renders a page without node_modules', () => {
   const dir = mkdtempSync(join(tmpdir(), 'am-install-'));
   try {
     cpSync(join(ROOT, 'skills/answer-me-with-html'), join(dir, 'skill'), { recursive: true });

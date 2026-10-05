@@ -20,6 +20,15 @@ const PARTS = {
   // Interpolations and "quoted" spans are dropped: they hold the flagged Chinese text, which is the subject.
   lintMessages: (text) =>
     [...text.matchAll(/\b(?:message|suggestion):\s*(`[^`]*`|'[^']*')/g)].map((m) => m[1].slice(1, -1).replace(/\$\{[^}]*\}|"[^"]*"/g, '')).join('\n'),
+  // Test files: test names and comments only; fixtures, expected output and other code are blanked (line breaks kept).
+  // Tokens: a test name (first string argument of test/it/describe), a comment, a string, template or regex
+  // literal (blanked whole, so `//` inside one is not a comment), or any other character.
+  // A template-literal name gets quotes instead of backticks, so it is not mistaken for an inline code span.
+  testText: (text) =>
+    text.replace(
+      /(\b(?:test|it|describe)(?:\.\w+)?\(\s*(?:'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"|`(?:\\.|[^`\\])*`))|(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"|`(?:\\.|\$\{(?:[^{}]|\{[^{}]*\})*\}|[^`\\])*`|\/(?![*/])(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^/\\\n])+\/[a-z]*|[\s\S]/g,
+      (m, name, comment) => (name ? m.replace(/\(\s*`([\s\S]*)`$/, '("$1"') : comment ? m : m.replace(/[^\n]/g, ' ')),
+    ),
 };
 
 // JavaScript string and template-literal text only; comments, regex literals and code are blanked
@@ -70,6 +79,7 @@ const SCOPE = [
   { files: commandFiles, part: 'frontmatter' },
   { files: cliTextFiles, part: 'strings' },
   { files: () => ['src/lint/ste.js'], part: 'lintMessages' },
+  { files: () => readdirSync(join(ROOT, 'test')).filter((f) => f.endsWith('.test.js')).map((f) => join('test', f)), part: 'testText' },
 ];
 
 // Spans where Chinese is the subject, not the medium. They are removed before the check.

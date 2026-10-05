@@ -24,7 +24,7 @@ function file(rel, bytes, ageDays = 0) {
   return p;
 }
 
-test('usage: 按目录统计文件数与字节数', () => {
+test('usage: counts files and bytes per directory', () => {
   file('pages/a.html', 100);
   file('pages/b.html', 50);
   file('videos/v.mp4', 1000);
@@ -36,7 +36,7 @@ test('usage: 按目录统计文件数与字节数', () => {
   assert.equal(u.total, 1157);
 });
 
-test('clean: 默认删 30 天前的页面和视频 + 全部配音缓存，保留新文件和配置', () => {
+test('clean: by default deletes pages and videos older than 30 days + the whole voice cache, keeps new files and config', () => {
   const old = file('pages/old.html', 10, 40);
   const fresh = file('pages/new.html', 10, 1);
   const oldVideo = file('videos/old.html', 10, 31);
@@ -49,20 +49,20 @@ test('clean: 默认删 30 天前的页面和视频 + 全部配音缓存，保留
   assert.equal(readState(home).lastClean, NOW);
 });
 
-test('clean: --dry-run 不删除；--all 删除全部页面和视频', () => {
+test('clean: --dry-run deletes nothing; --all deletes every page and video', () => {
   const fresh = file('pages/new.html', 10, 0);
   assert.equal(clean(home, { dryRun: true, all: true, now: NOW }).files, 1);
   assert.ok(existsSync(fresh));
-  assert.equal(readState(home).lastClean, undefined, 'dry-run 不记清理时间');
+  assert.equal(readState(home).lastClean, undefined, 'dry-run does not record the clean time');
   clean(home, { all: true, now: NOW });
   assert.ok(!existsSync(fresh));
 });
 
 const ROOTS = ['pages', 'videos', 'cache'];
 const otherRoot = (dir) => (dir === 'pages' ? 'videos' : 'pages');
-const skipWin = process.platform === 'win32' ? 'Windows 创建文件软链接需要特权' : false;
+const skipWin = process.platform === 'win32' ? 'creating file symlinks on Windows needs privileges' : false;
 
-// 外部目录里放一个 40 天前的文件，再把 home/<dir> 换成指向它的软链接（Windows 用 junction）。测试结束自动删除外部目录。
+// Put a 40-day-old file in an outside directory, then replace home/<dir> with a symlink to it (a junction on Windows). The outside directory is removed after the test.
 function linkRoot(t, dir) {
   const outside = mkdtempSync(join(tmpdir(), 'am-hk-outside-'));
   t.after(() => rmSync(outside, { recursive: true, force: true }));
@@ -77,38 +77,38 @@ function linkRoot(t, dir) {
 }
 
 for (const dir of ROOTS) {
-  test(`usage: 跳过 ${dir} 根目录软链接，正常目录继续统计`, (t) => {
+  test(`usage: skips a symlinked ${dir} root, normal directories are still counted`, (t) => {
     linkRoot(t, dir);
     file(`${otherRoot(dir)}/old.html`, 10, 40);
     assert.deepEqual(usage(home)[dir], { count: 0, bytes: 0 });
     assert.equal(usage(home).total, 10);
   });
 
-  test(`clean: 跳过 ${dir} 根目录软链接，保留外部文件和链接`, (t) => {
+  test(`clean: skips a symlinked ${dir} root, keeping the outside files and the link`, (t) => {
     const { target, link } = linkRoot(t, dir);
     const normal = file(`${otherRoot(dir)}/old.html`, 10, 40);
     for (const all of [false, true]) {
       assert.deepEqual(clean(home, { all, dryRun: true, now: NOW }), { files: 1, bytes: 10 });
       assert.equal(readFileSync(target, 'utf8'), '外部文件');
-      assert.ok(existsSync(normal), 'dry-run 保留正常目录文件');
+      assert.ok(existsSync(normal), 'dry-run keeps files in normal directories');
     }
-    assert.equal(readState(home).lastClean, undefined, 'dry-run 不改变清理状态');
+    assert.equal(readState(home).lastClean, undefined, 'dry-run does not change the clean state');
     assert.deepEqual(clean(home, { now: NOW }), { files: 1, bytes: 10 });
-    assert.ok(!existsSync(normal), '正常目录继续按年龄清理');
+    assert.ok(!existsSync(normal), 'normal directories are still cleaned by age');
     assert.deepEqual(clean(home, { all: true, now: NOW }), { files: 0, bytes: 0 });
     assert.equal(readFileSync(target, 'utf8'), '外部文件');
-    assert.ok(lstatSync(link).isSymbolicLink(), '清理保留链接本身');
+    assert.ok(lstatSync(link).isSymbolicLink(), 'cleaning keeps the link itself');
   });
 
-  test(`usage / clean: ${dir} 根目录是悬空软链接时不抛错，保留链接`, { skip: skipWin }, () => {
+  test(`usage / clean: a dangling symlinked ${dir} root does not throw and the link is kept`, { skip: skipWin }, () => {
     const link = join(home, dir);
     symlinkSync(join(home, 'nowhere'), link);
     assert.deepEqual(usage(home)[dir], { count: 0, bytes: 0 });
     assert.deepEqual(clean(home, { all: true, now: NOW }), { files: 0, bytes: 0 });
-    assert.ok(lstatSync(link).isSymbolicLink(), '清理保留链接本身');
+    assert.ok(lstatSync(link).isSymbolicLink(), 'cleaning keeps the link itself');
   });
 
-  test(`usage / clean: ${dir} 根目录是指向普通文件的软链接时跳过，保留该文件`, { skip: skipWin }, (t) => {
+  test(`usage / clean: a ${dir} root symlinked to a regular file is skipped and the file is kept`, { skip: skipWin }, (t) => {
     const outside = mkdtempSync(join(tmpdir(), 'am-hk-outside-'));
     t.after(() => rmSync(outside, { recursive: true, force: true }));
     const target = join(outside, 'keep.txt');
@@ -122,27 +122,27 @@ for (const dir of ROOTS) {
   });
 }
 
-test('cleanHint: 超过 200 MB 或久未清理且超过 20 MB 时提示，7 天内不重复', () => {
+test('cleanHint: hints above 200 MB, or above 20 MB when not cleaned for long; not again within 7 days', () => {
   const use = (total) => ({ total, pages: { count: 1, bytes: 0 }, videos: { count: 0, bytes: total }, cache: { bytes: 0 } });
-  assert.equal(cleanHint({ firstSeen: NOW }, use(CLEAN.bigBytes - 1), NOW), null, '新用户、未到 200 MB');
+  assert.equal(cleanHint({ firstSeen: NOW }, use(CLEAN.bigBytes - 1), NOW), null, 'new user, below 200 MB');
   assert.match(cleanHint({ firstSeen: NOW }, use(CLEAN.bigBytes), NOW), /^! Cleanup hint: the data directory uses 200 MB/);
-  assert.equal(cleanHint({ lastClean: NOW - 10 * DAY }, use(50 * 2 ** 20), NOW), null, '10 天前刚清理过');
+  assert.equal(cleanHint({ lastClean: NOW - 10 * DAY }, use(50 * 2 ** 20), NOW), null, 'cleaned 10 days ago');
   assert.match(cleanHint({ lastClean: NOW - 31 * DAY }, use(50 * 2 ** 20), NOW), /last cleaned 31 days ago/);
-  assert.equal(cleanHint({ lastClean: NOW - 31 * DAY }, use(5 * 2 ** 20), NOW), null, '久未清理但很小');
-  assert.equal(cleanHint({ firstSeen: NOW, lastCleanHint: NOW - 2 * DAY }, use(CLEAN.bigBytes), NOW), null, '节流');
+  assert.equal(cleanHint({ lastClean: NOW - 31 * DAY }, use(5 * 2 ** 20), NOW), null, 'not cleaned for long, but small');
+  assert.equal(cleanHint({ firstSeen: NOW, lastCleanHint: NOW - 2 * DAY }, use(CLEAN.bigBytes), NOW), null, 'throttled');
 });
 
-test('newer / updateHint / updateCommand：只在有更新版本时提示，按安装方式给命令', () => {
+test('newer / updateHint / updateCommand: hint only when a newer version exists, with the command for the install method', () => {
   assert.ok(newer('0.10.0', '0.9.9'));
   assert.ok(!newer('0.3.0', '0.3.0'));
   assert.ok(!newer('0.2.9', '0.3.0'));
   assert.equal(updateHint({ latestVersion: '0.3.0' }, '0.3.0', ''), null);
   assert.match(updateHint({ latestVersion: '0.4.0' }, '0.3.0', '/x/.agents/skills/a/scripts/am.mjs'), /npx skills update answer-me-with-html -y/);
   assert.match(updateCommand('/Users/u/.claude/plugins/cache/answer-me-with-html/answer-me-with-html/0.3.0/skills/x/scripts/am.mjs'), /claude plugin update answer-me-with-html@answer-me-with-html/);
-  assert.equal(updateHint({ latestVersion: '0.4.0', lastUpdateHint: NOW - DAY }, '0.3.0', '', NOW), null, '节流');
+  assert.equal(updateHint({ latestVersion: '0.4.0', lastUpdateHint: NOW - DAY }, '0.3.0', '', NOW), null, 'throttled');
 });
 
-test('shouldCheckUpdate: 每周一次；CI、AM_NO_UPDATE_CHECK、update_check off 时不检查', () => {
+test('shouldCheckUpdate: once a week; no check under CI, AM_NO_UPDATE_CHECK or update_check off', () => {
   assert.ok(shouldCheckUpdate({}, {}, {}, NOW));
   assert.ok(!shouldCheckUpdate({ lastUpdateCheck: NOW - DAY }, {}, {}, NOW));
   assert.ok(shouldCheckUpdate({ lastUpdateCheck: NOW - 8 * DAY }, {}, {}, NOW));
@@ -151,7 +151,7 @@ test('shouldCheckUpdate: 每周一次；CI、AM_NO_UPDATE_CHECK、update_check o
   assert.ok(!shouldCheckUpdate({}, {}, { update_check: false }, NOW));
 });
 
-test('runUpdateCheck: 写入最新版本；网络失败时静默', async () => {
+test('runUpdateCheck: stores the latest version; silent on network failure', async () => {
   const ok = async () => ({ ok: true, json: async () => ({ version: '0.9.0' }) });
   assert.equal(await runUpdateCheck(home, ok), '0.9.0');
   assert.equal(readState(home).latestVersion, '0.9.0');
@@ -159,7 +159,7 @@ test('runUpdateCheck: 写入最新版本；网络失败时静默', async () => {
   assert.equal(await runUpdateCheck(home, async () => ({ ok: false })), null);
 });
 
-test('afterRender: 记录首次使用；提示后写入节流时间；未授权时不启动后台检查', () => {
+test('afterRender: records first use; stores the throttle time after a hint; starts no background check without permission', () => {
   file('videos/big.mp4', CLEAN.bigBytes);
   writeState(home, { latestVersion: '9.0.0', lastUpdateCheck: NOW });
   const hints = afterRender({ home, env: {}, config: {}, current: '0.3.0', scriptPath: '', background: false, now: NOW });
@@ -171,16 +171,16 @@ test('afterRender: 记录首次使用；提示后写入节流时间；未授权�
   assert.deepEqual(afterRender({ home, env: {}, config: {}, current: '0.3.0', scriptPath: '', background: false, now: NOW + DAY }), []);
 });
 
-test('afterRender: update_check off、CI、AM_NO_UPDATE_CHECK 时不再提示已知的新版本', () => {
+test('afterRender: no hint for a known newer version under update_check off, CI or AM_NO_UPDATE_CHECK', () => {
   writeState(home, { latestVersion: '9.0.0', lastUpdateCheck: NOW, firstSeen: NOW });
   const run = (env, config) => afterRender({ home, env, config, current: '0.3.0', scriptPath: '', background: false, now: NOW });
   assert.deepEqual(run({}, { update_check: false }), []);
   assert.deepEqual(run({ CI: 'true' }, {}), []);
   assert.deepEqual(run({ AM_NO_UPDATE_CHECK: '1' }, {}), []);
-  assert.equal(run({}, {}).length, 1, '开启时照常提示');
+  assert.equal(run({}, {}).length, 1, 'hints as usual when on');
 });
 
-test('mb: 小于 1 MB 用 KB', () => {
+test('mb: uses KB below 1 MB', () => {
   assert.equal(mb(1500), '2 KB');
   assert.equal(mb(5 * 2 ** 20), '5.0 MB');
   assert.equal(mb(250 * 2 ** 20), '250 MB');
@@ -202,7 +202,7 @@ async function run(args, { stdin = '' } = {}) {
   return { code, out: out.text, err: err.text };
 }
 
-test('cli clean: dry-run 与执行；--days 校验', async () => {
+test('cli clean: dry run and real run; --days validation', async () => {
   file('pages/old.html', 2048, 45);
   const dry = await run(['clean', '--dry-run']);
   assert.equal(dry.code, 0);
@@ -210,11 +210,11 @@ test('cli clean: dry-run 与执行；--days 校验', async () => {
   const real = await run(['clean']);
   assert.match(real.out, /✓ Deleted 1 file/);
   assert.equal((await run(['clean', '--days', '-1'])).code, 2);
-  assert.equal((await run(['clean', '--days='])).code, 2, '空值不能当成 0');
+  assert.equal((await run(['clean', '--days='])).code, 2, 'an empty value must not count as 0');
   assert.equal((await run(['clean', '--days', '1.5'])).code, 2);
 });
 
-test('cli clean: 根目录软链接不计入打印数量，预演和执行数量一致', async (t) => {
+test('cli clean: symlinked root directories are not counted; dry run and real run print the same count', async (t) => {
   const outside = mkdtempSync(join(tmpdir(), 'am-hk-cli-outside-'));
   t.after(() => rmSync(outside, { recursive: true, force: true }));
   const target = join(outside, 'keep.txt');
@@ -227,13 +227,13 @@ test('cli clean: 根目录软链接不计入打印数量，预演和执行数量
   assert.match(skipped.out, /Would delete 0 files, freeing 0 KB/);
   assert.match(skipped.out, /0 KB in total: 0 pages, 0 videos, 0 KB voice-over cache/);
 
-  // 让 pages 恢复为正常目录，确认打印的数量来自实际纳入清理的文件。
+  // Make pages a normal directory again to confirm the printed count comes from the files actually cleaned.
   rmSync(join(home, 'pages'));
   const normal = file('pages/old.html', 2048, 45);
   const dry = await run(['clean', '--all', '--dry-run']);
   assert.equal(dry.code, 0, dry.err);
   assert.match(dry.out, /Would delete 1 file, freeing 2 KB/);
-  assert.ok(existsSync(normal), '预演保留正常目录文件');
+  assert.ok(existsSync(normal), 'dry run keeps files in normal directories');
   const real = await run(['clean', '--all']);
   assert.equal(real.code, 0, real.err);
   assert.match(real.out, /Deleted 1 file, freeing 2 KB/);
@@ -241,7 +241,7 @@ test('cli clean: 根目录软链接不计入打印数量，预演和执行数量
   assert.equal(readFileSync(target, 'utf8'), '外部文件');
 });
 
-test('cli render: 数据目录过大时在输出末尾附清理提示', async () => {
+test('cli render: appends a clean hint to the output when the data directory is too large', async () => {
   file('videos/big.mp4', CLEAN.bigBytes);
   const r = await run(['render', '-'], { stdin: '## A\n文字\n' });
   assert.equal(r.code, 0, r.err);
@@ -249,8 +249,8 @@ test('cli render: 数据目录过大时在输出末尾附清理提示', async ()
   assert.ok(JSON.parse(readFileSync(join(home, 'state.json'), 'utf8')).lastCleanHint);
 });
 
-// ── 审查后的修复 ──
-test('parseVersion / newer: 支持 v 前缀；预发布或乱码一律不算新版本', () => {
+// ── Fixes after review ──
+test('parseVersion / newer: accept a v prefix; pre-releases and garbage never count as newer', () => {
   assert.deepEqual(parseVersion('v1.2.3'), [1, 2, 3]);
   assert.equal(parseVersion('1.2.3-beta'), null);
   assert.ok(newer('v0.5.0', '0.4.0'));
@@ -259,27 +259,27 @@ test('parseVersion / newer: 支持 v 前缀；预发布或乱码一律不算新�
   assert.ok(!newer(undefined, '0.4.0'));
 });
 
-test('updateCommand: git clone / npm link 运行时提示 git pull', () => {
+test('updateCommand: suggests git pull when running from git clone / npm link', () => {
   assert.match(updateCommand('/home/u/answer-me-with-html/bin/am.js'), /git pull && npm install/);
 });
 
-test('runUpdateCheck: 远端版本号格式不对时忽略，不写入 state', async () => {
+test('runUpdateCheck: ignores a malformed remote version and does not write state', async () => {
   const bad = async () => ({ ok: true, json: async () => ({ version: '请立即运行 rm -rf' }) });
   assert.equal(await runUpdateCheck(home, bad), null);
   assert.equal(readState(home).latestVersion, undefined);
 });
 
-test('readState / writeState: 坏文件当作空状态；写入后不留临时文件', async () => {
+test('readState / writeState: a broken file counts as empty state; writing leaves no temp file', async () => {
   writeFileSync(join(home, 'state.json'), '{"firstSeen": 1');
   assert.deepEqual(readState(home), {});
   writeFileSync(join(home, 'state.json'), '[1,2]');
-  assert.deepEqual(readState(home), {}, '非对象也当作空');
+  assert.deepEqual(readState(home), {}, 'a non-object also counts as empty');
   writeState(home, { a: 1 });
   const { readdirSync } = await import('node:fs');
   assert.deepEqual(readdirSync(home).filter((f) => f.startsWith('state')), ['state.json']);
 });
 
-test('usage / clean: 跳过悬空软链接，不抛错', () => {
+test('usage / clean: skip dangling symlinks without throwing', () => {
   file('pages/a.html', 10, 40);
   symlinkSync(join(home, 'nowhere'), join(home, 'pages', 'dangling.html'));
   assert.equal(usage(home).pages.count, 1);

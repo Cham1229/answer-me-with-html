@@ -6,63 +6,63 @@ import { lintDoc, splitSentences, sentenceLength, formatWarning } from '../src/l
 const lint = (body) => lintDoc(parseDoc(body));
 const rules = (ws) => ws.map((w) => w.rule);
 
-test('splitSentences: 中英文句末标点，保留缩写不切断', () => {
+test('splitSentences: Chinese and English sentence-end punctuation, abbreviations are not split', () => {
   assert.deepEqual(splitSentences('先关阀门。再拆泵！好吗？'), ['先关阀门。', '再拆泵！', '好吗？']);
   assert.deepEqual(splitSentences('Close the valve. Remove the pump, e.g. the main one.'), ['Close the valve.', 'Remove the pump, e.g. the main one.']);
   assert.deepEqual(splitSentences('Version 3.5 is out.'), ['Version 3.5 is out.']);
 });
 
-test('sentenceLength: 中文按字计（英文单词算 1），英文按词计', () => {
+test('sentenceLength: Chinese counts characters (an English word counts 1), English counts words', () => {
   assert.deepEqual(sentenceLength('用 Node 运行脚本。'), { lang: 'zh', count: 6 });
   assert.deepEqual(sentenceLength('Close the valve now.'), { lang: 'en', count: 4 });
 });
 
-test('超长中文描述句（>45 字）报 sentence-length，带行号', () => {
+test('a long Chinese descriptive sentence (>45 characters) reports sentence-length with the line number', () => {
   const long = '这'.repeat(46) + '。';
   const ws = lint(`## A\n第一行。\n${long}`);
   assert.deepEqual(rules(ws), ['sentence-length']);
   assert.equal(ws[0].line, 3);
 });
 
-test('有序列表视为程序性内容，上限更严（中文 35 字 / 英文 20 词）', () => {
+test('ordered lists count as procedural, with a stricter limit (35 Chinese characters / 20 English words)', () => {
   const zh = '步'.repeat(36);
   assert.deepEqual(rules(lint(`## A\n1. ${zh}`)), ['sentence-length']);
-  assert.deepEqual(rules(lint(`## A\n- ${zh}`)), [], '无序列表按描述性 45 字');
+  assert.deepEqual(rules(lint(`## A\n- ${zh}`)), [], 'unordered lists use the descriptive 45-character limit');
   const en = Array.from({ length: 21 }, () => 'go').join(' ');
   assert.deepEqual(rules(lint(`## A\n1. ${en}.`)), ['sentence-length']);
 });
 
-test('段落超过 6 句报 paragraph-length', () => {
+test('a paragraph over 6 sentences reports paragraph-length', () => {
   const ws = lint(`## A\n一。二。三。\n四。五。六。七。`);
   assert.deepEqual(rules(ws), ['paragraph-length']);
   assert.equal(ws[0].line, 2);
 });
 
-test('英文禁用词给出替换建议，大小写不敏感，多词短语可识别', () => {
+test('banned English words get a replacement, case-insensitive, multi-word phrases match', () => {
   const ws = lint('## A\nUtilize the tool prior to the test.');
   assert.deepEqual(ws.map((w) => w.suggestion), ['use', 'before']);
 });
 
-test('英文被动语态启发式', () => {
+test('English passive voice heuristic', () => {
   assert.deepEqual(rules(lint('## A\nThe valve is closed by the operator.')), ['passive']);
   assert.deepEqual(rules(lint('## A\nThe operator closes the valve.')), []);
 });
 
-test('中文虚动词：进行优化 → 优化；进行中不误报', () => {
+test('Chinese light verbs: `进行优化` → `优化`; `进行中` is not flagged', () => {
   const ws = lint('## A\n我们对接口进行优化。任务进行中。');
   assert.equal(ws.length, 1);
   assert.equal(ws[0].rule, 'word');
   assert.match(ws[0].suggestion, /优化/);
 });
 
-test('中文“的”字连用与套话', () => {
+test('Chinese chained `的` and clichés', () => {
   assert.deepEqual(rules(lint('## A\n我的朋友的同事的电脑坏了。')), ['de-chain']);
   assert.deepEqual(rules(lint('## A\n基本的には具体的で効果的な手順を選ぶ。')), []);
-  assert.deepEqual(rules(lint('## A\nこの文はとても長くて、四十五文字をこえるようにわざと言葉をたくさん足して書いた説明の文章になっている。')), ['sentence-length'], '日文仍查句长');
+  assert.deepEqual(rules(lint('## A\nこの文はとても長くて、四十五文字をこえるようにわざと言葉をたくさん足して書いた説明の文章になっている。')), ['sentence-length'], 'Japanese is still checked for sentence length');
   assert.deepEqual(rules(lint('## A\n这一步至关重要。')), ['cliche']);
 });
 
-test('跳过：代码、行内代码、删除线、no 状态行、标题、组件', () => {
+test('skipped: code, inline code, strikethrough, no-status rows, headings, components', () => {
   const src = `## A
 \`\`\`python
 utilize = 1
@@ -78,21 +78,21 @@ utilize = 1
   assert.deepEqual(lint(src), []);
 });
 
-test('callout 正文参与检查；表格普通单元格参与检查', () => {
+test('callout bodies are checked; plain table cells are checked', () => {
   const ws = lint('## A\n```callout warn 注意\nUtilize it.\n```\n| a |\n|---|\n| Commence now. |');
   assert.deepEqual(ws.map((w) => [w.line, w.suggestion]), [[3, 'use'], [7, 'start']]);
 });
 
-test('intro 导语也参与检查', () => {
+test('the intro is checked too', () => {
   assert.equal(lint('导语里 utilize 一下。\n## A\nx').length, 1);
 });
 
-test('formatWarning: 行号 + 规则 + 信息 + 建议', () => {
+test('formatWarning: line + rule + message + suggestion', () => {
   const s = formatWarning({ line: 4, rule: 'word', message: 'not recommended: "utilize"', suggestion: 'use' });
   assert.equal(s, 'L4 [word] not recommended: "utilize" → use');
 });
 
-test('中文句子里夹一个片假名词，仍按中文规则检查', async () => {
+test('a Chinese sentence with one katakana word is still checked by the Chinese rules', async () => {
   const { lintDoc } = await import('../src/lint/ste.js');
   const { parseDoc } = await import('../src/parse.js');
   const w = lintDoc(parseDoc('## A\n我们的团队的项目的《ワンピース》很重要。\n'));
@@ -126,7 +126,7 @@ test('messages: passive voice quotes the verb phrase', () => {
   assert.deepEqual([w.message, w.suggestion], ['possible passive voice: "is closed"', 'use active voice']);
 });
 
-test('messages: chained 的 and clichés quote the Chinese text', () => {
+test('messages: chained `的` and clichés quote the Chinese text', () => {
   const [de] = lint('## A\n我的朋友的同事的电脑坏了。');
   assert.deepEqual([de.message, de.suggestion], ['chained "的": 我的朋友的同事的电脑坏了。', 'split the sentence or remove extra "的"']);
   const [c] = lint('## A\n这一步至关重要。');

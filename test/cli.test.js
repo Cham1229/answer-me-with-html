@@ -28,12 +28,12 @@ async function run(args, { stdin = '', env = {} } = {}) {
 
 const GOOD = '---\ntitle: CLI 测试\n---\n## A 流程\n```flow\nA -> B\n```\n';
 
-test('cli: --version 与 --help', async () => {
+test('cli: --version and --help', async () => {
   assert.match((await run(['--version'])).out, /^\d+\.\d+\.\d+/);
   assert.match((await run([])).out, /Usage:/);
 });
 
-test('cli render: 从 stdin 读取，写入 AM_HOME/pages，打印路径与统计', async () => {
+test('cli render: reads stdin, writes to AM_HOME/pages, prints the path and stats', async () => {
   const r = await run(['render', '-'], { stdin: GOOD });
   assert.equal(r.code, 0, r.err);
   const file = r.out.match(/✓ (.+\.html)/)[1];
@@ -43,7 +43,7 @@ test('cli render: 从 stdin 读取，写入 AM_HOME/pages，打印路径与统�
   assert.match(r.out, /STE ✓ 0 warnings/);
 });
 
-test('cli render: 默认文件名由注入的时钟决定；按配置调用注入的 open', async () => {
+test('cli render: the injected clock sets the default file name; the injected open runs as configured', async () => {
   const opened = [];
   const now = new Date(2026, 0, 2, 3, 4, 5).getTime();
   const call = (args) => main(args, {
@@ -53,29 +53,29 @@ test('cli render: 默认文件名由注入的时钟决定；按配置调用注�
   assert.equal(await call(['render', '-']), 0);
   assert.deepEqual(opened, [join(dir, 'pages', 'CLI-测试-20260102-030405.html')]);
   assert.equal(await call(['render', '-', '--no-open']), 0);
-  assert.equal(opened.length, 1, '--no-open 时不打开');
+  assert.equal(opened.length, 1, '--no-open does not open');
 });
 
-test('cli video: 摘要行带主题', async () => {
+test('cli video: the summary line names the theme', async () => {
   const r = await run(['video', '-', '--voice', 'off', '--theme', 'shadcn'], { stdin: '---\ntitle: V\n---\n## A\n> 一句。\n' });
   assert.equal(r.code, 0, r.err);
   assert.match(r.out, /video · shadcn · 1 scene · 1 beat/);
 });
 
-test('cli render: 文件参数 + -o + 主题覆盖', async () => {
+test('cli render: file argument + -o + theme override', async () => {
   writeFileSync(join(dir, 'in.md'), GOOD);
   const r = await run(['render', 'in.md', '-o', 'out/x.html', '--theme', 'shadcn']);
   assert.equal(r.code, 0, r.err);
   assert.match(readFileSync(join(dir, 'out/x.html'), 'utf8'), /data-theme="shadcn"/);
 });
 
-test('cli render: limits 0 / 0 能出页，不挂起', { timeout: 5000 }, async () => {
+test('cli render: limits 0 / 0 renders a page and does not hang', { timeout: 5000 }, async () => {
   const r = await run(['render', '-', '-o', 'zero.html'], { stdin: '## A\n```limits\nx | 0 / 0\n```\n' });
   assert.equal(r.code, 0, r.err);
   assert.match(readFileSync(join(dir, 'zero.html'), 'utf8'), /am-lim/);
 });
 
-test('cli render: 组件语法错误 → 绝对行号 + 组件名 + 正确示例，退出码 1', async () => {
+test('cli render: a component syntax error gives the absolute line, component name and a correct example, exit code 1', async () => {
   const r = await run(['render', '-'], { stdin: '## A\n文本\n```flow\nA -> B\n(未闭合 -> C\n```' });
   assert.equal(r.code, 1);
   assert.match(r.err, /✗ L5 \[flow\] flow: unclosed shape bracket/);
@@ -83,13 +83,13 @@ test('cli render: 组件语法错误 → 绝对行号 + 组件名 + 正确示例
   assert.match(r.err, /am help flow/);
 });
 
-test('cli render: 解析错误给出行号', async () => {
+test('cli render: a parse error gives the line number', async () => {
   const r = await run(['render', '-'], { stdin: '## A\n```flow\nA -> B' });
   assert.equal(r.code, 1);
   assert.match(r.err, /✗ L2 Cannot parse the draft: fenced block/);
 });
 
-test('cli render: style 80 打印警告但仍生成；strict 拒绝生成', async () => {
+test('cli render: style 80 prints warnings and still renders; strict refuses to render', async () => {
   const bad = '## A\nUtilize the tool.';
   const soft = await run(['render', '-'], { stdin: bad });
   assert.equal(soft.code, 0);
@@ -99,10 +99,10 @@ test('cli render: style 80 打印警告但仍生成；strict 拒绝生成', asyn
   const strict = await run(['render', '-', '--style', 'strict'], { stdin: bad });
   assert.equal(strict.code, 1);
   assert.match(strict.err, /STE check failed/);
-  assert.equal(readdirSync(join(dir, 'pages')).length, before, 'strict 失败时不写文件');
+  assert.equal(readdirSync(join(dir, 'pages')).length, before, 'a strict failure writes no file');
 });
 
-test('cli lint: 仅检查；strict 下有警告返回 1；off 跳过', async () => {
+test('cli lint: checks only; warnings under strict return 1; off skips the check', async () => {
   const bad = '## A\nUtilize the tool.';
   assert.equal((await run(['lint', '-'], { stdin: bad })).code, 0);
   assert.equal((await run(['lint', '-', '--style', 'strict'], { stdin: bad })).code, 1);
@@ -130,7 +130,7 @@ test('cli: usage, list, config and every help topic print English only', async (
   }
 });
 
-test('cli: 参数错误与缺失', async () => {
+test('cli: invalid and missing arguments', async () => {
   assert.equal((await run(['bogus'])).code, 2);
   assert.equal((await run(['render'])).code, 2);
   assert.equal((await run(['render', 'missing.md'])).code, 2);
@@ -138,25 +138,25 @@ test('cli: 参数错误与缺失', async () => {
   assert.equal((await run(['render', '--wat'])).code, 2);
 });
 
-test('cli config: 显示全部配置项、当前值与配置文件路径', async () => {
+test('cli config: shows every setting, its current value and the config file path', async () => {
   const r = await run(['config']);
   assert.equal(r.code, 0, r.err);
   assert.match(r.out, /config\.json/);
   for (const key of ['open', 'always', 'theme', 'mode', 'style']) assert.match(r.out, new RegExp(`\\b${key}\\b`));
 });
 
-test('cli config: set / get / reset，改过的值带 * 标记', async () => {
+test('cli config: set / get / reset, changed values are marked with *', async () => {
   assert.equal((await run(['config', 'set', 'theme', 'shadcn'])).code, 0);
   assert.equal((await run(['config', 'get', 'theme'])).out.trim(), 'shadcn');
   assert.match((await run(['config'])).out, /\* theme\s+shadcn/);
   const rendered = await run(['render', '-', '-o', 'cfg.html'], { stdin: '## A\nx' });
-  assert.match(readFileSync(join(dir, 'cfg.html'), 'utf8'), /data-theme="shadcn"/, 'render 读取配置里的默认主题');
+  assert.match(readFileSync(join(dir, 'cfg.html'), 'utf8'), /data-theme="shadcn"/, 'render reads the default theme from config');
   assert.equal(rendered.code, 0);
   assert.equal((await run(['config', 'reset', 'theme'])).code, 0);
   assert.equal((await run(['config', 'get', 'theme'])).out.trim(), 'blueprint');
 });
 
-test('cli config: 布尔值输出 on/off；非法键或值返回 2', async () => {
+test('cli config: booleans print as on/off; an unknown key or invalid value returns 2', async () => {
   await run(['config', 'set', 'open', 'off']);
   assert.equal((await run(['config', 'get', 'open'])).out.trim(), 'off');
   await run(['config', 'reset']);
@@ -183,7 +183,7 @@ title: 三面板
 丙旧文。
 `;
 
-test('cli patch: 渲染后改一个面板，其余面板不变，仍写回原文件', async () => {
+test('cli patch: changing one panel after render keeps the other panels and writes back to the same file', async () => {
   const rendered = await run(['render', '-', '-o', 'page.html'], { stdin: THREE });
   assert.equal(rendered.code, 0, rendered.err);
   const file = rendered.out.match(/✓ (.+\.html)/)[1];
@@ -197,16 +197,16 @@ test('cli patch: 渲染后改一个面板，其余面板不变，仍写回原文
   const patched = await run(['patch', 'page.html', '--panel', '甲'], { stdin: '## A 甲\n甲新文。\n' });
   assert.equal(patched.code, 0, patched.err);
   const outFile = patched.out.match(/✓ (.+\.html)/)[1];
-  assert.equal(outFile, file, '必须覆盖原 HTML，不能另写时间戳文件');
+  assert.equal(outFile, file, 'must overwrite the original HTML, not write a new timestamped file');
 
   const after = readFileSync(file, 'utf8');
   assert.match(after, /甲新文/);
   assert.doesNotMatch(after, /甲旧文/);
-  assert.equal(panelSection(after, 'B'), beforeB, '未点名的面板 B 应保持不变');
-  assert.equal(panelSection(after, 'C'), beforeC, '未点名的面板 C 应保持不变');
+  assert.equal(panelSection(after, 'B'), beforeB, 'panel B, not named, stays unchanged');
+  assert.equal(panelSection(after, 'C'), beforeC, 'panel C, not named, stays unchanged');
 });
 
-test('cli patch: --from 读文件；缺面板或缺 #am-source 不改文件', async () => {
+test('cli patch: --from reads a file; a missing panel or missing #am-source leaves the file unchanged', async () => {
   const rendered = await run(['render', '-', '-o', 'keep.html'], { stdin: THREE });
   const file = rendered.out.match(/✓ (.+\.html)/)[1];
   const original = readFileSync(file, 'utf8');
@@ -220,7 +220,7 @@ test('cli patch: --from 读文件；缺面板或缺 #am-source 不改文件', as
   const missingPanel = await run(['patch', 'keep.html', '--panel', '不存在'], { stdin: 'x\n' });
   assert.equal(missingPanel.code, 1);
   assert.match(missingPanel.err, /No panel titled/);
-  assert.equal(readFileSync(file, 'utf8'), afterFrom, '找不到面板时不得改文件');
+  assert.equal(readFileSync(file, 'utf8'), afterFrom, 'a missing panel must not change the file');
 
   writeFileSync(join(dir, 'plain.html'), '<html><body>no source</body></html>');
   const beforePlain = readFileSync(join(dir, 'plain.html'), 'utf8');
@@ -235,18 +235,18 @@ test('cli patch: --from 读文件；缺面板或缺 #am-source 不改文件', as
   assert.notEqual(original, readFileSync(file, 'utf8'));
 });
 
-test('shouldOpen: --no-open > AM_NO_OPEN > 配置 open；--open 强制打开', async () => {
+test('shouldOpen: --no-open > AM_NO_OPEN > config open; --open forces opening', async () => {
   const { shouldOpen } = await import('../src/cli.js');
   assert.equal(shouldOpen({}, {}, { open: true }), true);
   assert.equal(shouldOpen({}, {}, { open: false }), false);
   assert.equal(shouldOpen({ 'no-open': true }, {}, { open: true }), false);
   assert.equal(shouldOpen({}, { AM_NO_OPEN: '1' }, { open: true }), false);
-  assert.equal(shouldOpen({}, { AM_NO_OPEN: '0' }, { open: true }), true, 'AM_NO_OPEN=0 不算关闭');
+  assert.equal(shouldOpen({}, { AM_NO_OPEN: '0' }, { open: true }), true, 'AM_NO_OPEN=0 does not count as off');
   assert.equal(shouldOpen({}, { CI: 'true' }, { open: true }), false);
   assert.equal(shouldOpen({ open: true }, { AM_NO_OPEN: '1' }, { open: false }), true);
 });
 
-test('cli patch: 正文假 #am-source 不得覆盖页面', async () => {
+test('cli patch: a fake #am-source in the body must not overwrite the page', async () => {
   const src = `---
 title: 假源
 ---
@@ -269,7 +269,7 @@ title: 假源
   assert.match(after, /保留/);
 });
 
-test('cli patch: 沿用原页面的主题与模板；本次 --theme 优先', async () => {
+test('cli patch: keeps the theme and template of the page; --theme on this run wins', async () => {
   const src = '---\ntitle: 保留主题\n---\n## A 一\n旧\n\n## B 二\n旧\n';
   assert.equal((await run(['render', '-', '-o', 'keep.html', '--theme', 'shadcn', '--template', 'doc'], { stdin: src })).code, 0);
   const r = await run(['patch', 'keep.html', '--panel', 'B'], { stdin: '新内容\n' });
@@ -292,7 +292,7 @@ Utilize the tool.
 保留。
 `;
 
-test('cli patch: 沿用页面 data-style，不回落到配置 strict', async (t) => {
+test('cli patch: keeps the data-style of the page instead of falling back to config strict', async (t) => {
   assert.equal((await run(['render', '-', '-o', 'style-off.html', '--style', 'off'], { stdin: STE_BAD })).code, 0);
   assert.match(readFileSync(join(dir, 'style-off.html'), 'utf8'), /data-style="off"/);
   assert.equal((await run(['config', 'set', 'style', 'strict'])).code, 0);
@@ -305,16 +305,16 @@ test('cli patch: 沿用页面 data-style，不回落到配置 strict', async (t)
   assert.match(html, /Utilize the tool/);
 });
 
-test('cli patch: 本次 --style 优先于页面记录的 style', async () => {
+test('cli patch: --style on this run wins over the style stored in the page', async () => {
   assert.equal((await run(['render', '-', '-o', 'style-cli.html', '--style', 'off'], { stdin: STE_BAD })).code, 0);
   const before = readFileSync(join(dir, 'style-cli.html'), 'utf8');
   const r = await run(['patch', 'style-cli.html', '--panel', '乙', '--style', 'strict'], { stdin: '新文。\n' });
   assert.equal(r.code, 1);
   assert.match(r.err, /STE check failed/);
-  assert.equal(readFileSync(join(dir, 'style-cli.html'), 'utf8'), before, 'strict 失败时不得改文件');
+  assert.equal(readFileSync(join(dir, 'style-cli.html'), 'utf8'), before, 'a strict failure must not change the file');
 });
 
-test('cli patch: 旧页没有 data-style 时，frontmatter style 仍优先于配置', async (t) => {
+test('cli patch: on an old page without data-style, the frontmatter style still wins over config', async (t) => {
   const src = `---
 title: 旧页
 style: off
@@ -339,7 +339,7 @@ Utilize the tool.
   assert.match(html, /data-style="off"/);
 });
 
-test('cli patch: 正文假 data-video 不得把图纸页当成视频', async () => {
+test('cli patch: a fake data-video in the body must not turn a sheet page into a video', async () => {
   const src = `---
 title: 假视频
 ---
@@ -363,7 +363,7 @@ title: 假视频
   assert.match(html, /新文/);
 });
 
-test('cli patch: 正文假 am-doc 不得把图纸页重渲成 doc', async () => {
+test('cli patch: a fake am-doc in the body must not re-render a sheet page as doc', async () => {
   const src = `---
 title: 假文档
 ---
@@ -385,7 +385,7 @@ title: 假文档
   assert.match(html, /新文/);
 });
 
-test('cli patch: --voice off 的视频页默认保持无声，不按配置重配音', async () => {
+test('cli patch: a video page made with --voice off stays silent and is not re-voiced from config', async () => {
   const src = '## 场景\n- 画面\n> 旁白。\n';
   assert.equal((await run(['video', '-', '--voice', 'off', '-o', 'silent.html'], { stdin: src })).code, 0);
   assert.doesNotMatch(readFileSync(join(dir, 'silent.html'), 'utf8'), /<audio id="amv-audio"/);
@@ -400,7 +400,7 @@ test('cli patch: --voice off 的视频页默认保持无声，不按配置重配
   assert.equal((await run(['config', 'reset', 'voice'])).code, 0);
 });
 
-test('cli patch: 视频页沿用原主题（3b1b），输出视频摘要', async () => {
+test('cli patch: a video page keeps its theme (3b1b) and prints the video summary', async () => {
   const src = '## 场景\n```flow\nA -> B\n```\n> [A] 连到 B。\n';
   assert.equal((await run(['video', '-', '--voice', 'off', '--theme', '3b1b', '-o', 'v3b.html'], { stdin: src })).code, 0);
   const r = await run(['patch', 'v3b.html', '--panel', '场景', '--voice', 'off'], { stdin: '> 新旁白。\n```flow\nA -> C\n```\n' });
@@ -420,7 +420,7 @@ const VIDEO_STE_BAD = `## 甲
 > 第二句旁白。
 `;
 
-test('cli patch: 视频页同样沿用 data-style，不回落到配置 strict', async (t) => {
+test('cli patch: a video page also keeps data-style instead of falling back to config strict', async (t) => {
   assert.equal((await run(['video', '-', '--voice', 'off', '--style', 'off', '-o', 'vstyle.html'], { stdin: VIDEO_STE_BAD })).code, 0);
   assert.match(readFileSync(join(dir, 'vstyle.html'), 'utf8'), /data-style="off"/);
   assert.equal((await run(['config', 'set', 'style', 'strict'])).code, 0);
@@ -432,11 +432,11 @@ test('cli patch: 视频页同样沿用 data-style，不回落到配置 strict', 
   assert.match(html, /新旁白|新画面/);
 });
 
-test('cli patch: 视频页本次 --style 优先于页面记录的 style', async () => {
+test('cli patch: on a video page, --style on this run wins over the style stored in the page', async () => {
   assert.equal((await run(['video', '-', '--voice', 'off', '--style', 'off', '-o', 'vstyle-cli.html'], { stdin: VIDEO_STE_BAD })).code, 0);
   const before = readFileSync(join(dir, 'vstyle-cli.html'), 'utf8');
   const r = await run(['patch', 'vstyle-cli.html', '--panel', '乙', '--voice', 'off', '--style', 'strict'], { stdin: '> 新旁白。\n- 新画面\n' });
   assert.equal(r.code, 1);
   assert.match(r.err, /STE check failed/);
-  assert.equal(readFileSync(join(dir, 'vstyle-cli.html'), 'utf8'), before, 'strict 失败时不得改文件');
+  assert.equal(readFileSync(join(dir, 'vstyle-cli.html'), 'utf8'), before, 'a strict failure must not change the file');
 });

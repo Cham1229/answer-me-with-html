@@ -1,6 +1,6 @@
-// 不变量：用面板自己的原文 patch 页面，页面必须不变（时间戳除外）。
-// 覆盖 render / video 两类页面、主题 × 明暗 × 模板全组合、有无配置文件，以及"换一份配置再 patch"。
-// 这条不变量同时验证：页面把设置写全了、patch 能读回、读回的设置优先于配置文件。
+// Invariant: patching a page with a panel's own source must leave the page unchanged (except timestamps).
+// Covers render and video pages, every theme × mode × template combination, with and without a config file, and "patch with a different config".
+// The invariant also verifies that the page stores all settings, patch reads them back, and those settings win over the config file.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { Readable, Writable } from 'node:stream';
@@ -35,12 +35,12 @@ async function run(args, home, stdin = '') {
   return { code, err };
 }
 
-// 生成时间精确到分钟，跨分钟时会变；比较前只抹掉页脚 / 播放条的生成时间和视频片头的 DATE 格。
+// The render time has minute precision and changes across minutes; before comparing, blank only the footer / player bar time and the video title DATE cell.
 const stable = (html) => html
   .replace(/(Answer me with HTML [\d.]+ · )\d{4}-\d{2}-\d{2} \d{2}:\d{2}/g, '$1<time>')
   .replace(/(<b>DATE<\/b><span>)\d{4}-\d{2}-\d{2}/, '$1<time>');
 
-// 第一个 ## 面板的标题与原文。
+// Title and source of the first ## panel.
 function firstPanel(source) {
   const lines = source.split('\n');
   const start = lines.findIndex((l) => /^##\s/.test(l));
@@ -72,18 +72,18 @@ function cases() {
 }
 
 for (const [renderHome, patchHome] of [['none', 'none'], ['cfg', 'cfg'], ['none', 'cfg'], ['cfg', 'none']]) {
-  test(`不变量：原文 patch 页面不变（渲染配置 ${renderHome}，patch 配置 ${patchHome}）`, async () => {
+  test(`invariant: patching with the source leaves the page unchanged (render config ${renderHome}, patch config ${patchHome})`, async () => {
     const failures = [];
     for (const [i, c] of cases().entries()) {
-      const label = `${c.cmd} ${c.f} ${c.args.join(' ') || '(默认)'}`;
+      const label = `${c.cmd} ${c.f} ${c.args.join(' ') || '(default)'}`;
       const file = join(dir, `${renderHome}-${patchHome}-${i}.html`);
       const made = await run([c.cmd, fileURLToPath(new URL(c.f, EXAMPLES)), '-o', file, '--no-open', ...c.args], renderHome);
       assert.equal(made.code, 0, `${label}: ${made.err}`);
       const before = readFileSync(file, 'utf8');
       const { title, text } = firstPanel(readFileSync(new URL(c.f, EXAMPLES), 'utf8'));
       const patched = await run(['patch', file, '--panel', title, '--no-open'], patchHome, text);
-      if (patched.code !== 0) failures.push(`${label}: patch 退出码 ${patched.code} ${patched.err}`);
-      else if (stable(readFileSync(file, 'utf8')) !== stable(before)) failures.push(`${label}: patch 后页面变了`);
+      if (patched.code !== 0) failures.push(`${label}: patch exit code ${patched.code} ${patched.err}`);
+      else if (stable(readFileSync(file, 'utf8')) !== stable(before)) failures.push(`${label}: the page changed after patch`);
     }
     assert.deepEqual(failures, []);
   });
