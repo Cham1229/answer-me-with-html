@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>一个 Agent Skill：遇到复杂问题，Agent 不再甩给你一堵文字墙，而是给你一页能看懂的 HTML。<br>模型要写的 token，只有它直接手写 HTML 的约 1/7。</b>
-</p>
+</p
 
 <p align="center">
   <a href="https://github.com/QingYunA/answer-me-with-html/releases"><img src="https://img.shields.io/github/v/release/QingYunA/answer-me-with-html?style=flat-square&logo=github&labelColor=16181d&color=2ea44f" alt="Release"></a>
@@ -16,6 +16,10 @@
 
 <p align="center">
   <a href="README.md">English</a> · <b>简体中文</b>
+</p>
+
+<p align="center">
+  <img src="docs/images/text-vs-page-zh.png" alt="同一个 TCP 问题的两种回答：左边是终端里的一堵文字墙，右边是带图表的一页能看懂的页面" width="100%">
 </p>
 
 装好之后，像平时一样提问就行：
@@ -31,10 +35,6 @@ Agent 会写一份很短的 Markdown 稿件，交给 skill 自带的 CLI。大�
 https://github.com/user-attachments/assets/1f13b1fe-70a9-4c39-8530-b12e553e17ea
 
 <p align="center"><sub>24 秒演示，打开声音可以听到配乐。</sub></p>
-
-<p align="center">
-  <img src="docs/images/text-vs-page-zh.png" alt="同一个 TCP 问题的两种回答：左边是终端里的一堵文字墙，右边是带图表的一页能看懂的页面" width="100%">
-</p>
 
 ## 为什么不直接让 AI 输出 HTML？
 
