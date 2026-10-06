@@ -290,7 +290,6 @@ code, pre, kbd { font-family: var(--font-mono); }
 .am-lightbox-actions {
   display: flex; align-items: center; gap: 8px; pointer-events: auto;
 }
-.am-lightbox-mode-btn,
 .am-lightbox-close {
   width: 32px; height: 32px;
   background: var(--paper);
@@ -303,11 +302,9 @@ code, pre, kbd { font-family: var(--font-mono); }
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
 }
-.am-lightbox-mode-btn:hover,
 .am-lightbox-close:hover {
   color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
 }
-.am-lightbox-mode-btn:focus-visible,
 .am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 .am-lightbox-stage {
@@ -336,39 +333,6 @@ code, pre, kbd { font-family: var(--font-mono); }
   display: block;
   font-family: var(--font-sans, sans-serif);
 }
-
-.am-lightbox-bar {
-  position: absolute; bottom: 32px; left: 50%;
-  transform: translateX(-50%);
-  display: flex; align-items: center; gap: 2px;
-  padding: 4px 6px;
-  background: var(--paper);
-  border: var(--bw, 1px) solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-  z-index: 10;
-}
-.am-lightbox-btn {
-  font: 14px/1 var(--font-mono, monospace); font-weight: 600;
-  color: var(--ink); background: transparent;
-  border: 0; border-radius: var(--radius);
-  width: 28px; height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; padding: 0;
-}
-.am-lightbox-btn:hover { background: var(--fill); color: var(--accent); }
-.am-lightbox-btn:focus-visible { outline: 2px solid var(--accent); }
-
-.am-lightbox-scale {
-  font: 12px/1 var(--font-mono, monospace);
-  color: var(--ink-2); background: transparent;
-  border: 0; border-radius: var(--radius);
-  padding: 0 8px; height: 28px; min-width: 52px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-.am-lightbox-scale:hover { color: var(--accent); background: var(--fill); }
-.am-lightbox-scale:focus-visible { outline: 2px solid var(--accent); }
 
 /* ── doc template ────────────────────────── */
 .am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
@@ -399,7 +363,6 @@ code, pre, kbd { font-family: var(--font-mono); }
   .am-diagram svg { max-width: none; }
   .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
   .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
-  .am-lightbox-bar { bottom: 20px; }
 }
 .am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
 

@@ -580,3 +580,21 @@ test('e2e: doc pages have no sheet grid and stay untouched', { skip: SKIP, timeo
   assert.equal(await evaluate('document.querySelector(".am-grid")'), null);
   assert.equal(await evaluate('document.querySelectorAll(".am-panel[style*=width]").length'), 0);
 });
+
+test('e2e: diagram expand button opens lightbox and Escape closes it', { skip: SKIP, timeout: 60000 }, async () => {
+  if (!cdp) await launch();
+  const tcp = pages.find((x) => x.name === 'tcp');
+  assert.ok(tcp, 'tcp page with diagram');
+  await open(tcp.file, DESKTOP);
+  await waitFor(SETTLED, 'tcp to lay out');
+
+  assert.ok(await evaluate('document.querySelectorAll(".am-diagram-expand").length') > 0, 'diagram expand button rendered');
+  assert.equal(await evaluate('document.querySelector(".am-lightbox").hasAttribute("hidden")'), true, 'lightbox starts hidden');
+
+  await evaluate('document.querySelector(".am-diagram-expand").click()');
+  assert.equal(await evaluate('document.querySelector(".am-lightbox").hasAttribute("hidden")'), false, 'lightbox opens after clicking expand');
+  assert.equal(await evaluate('document.activeElement.classList.contains("am-lightbox-close")'), true, 'close button is focused');
+
+  await evaluate("window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))");
+  assert.equal(await evaluate('document.querySelector(".am-lightbox").hasAttribute("hidden")'), true, 'lightbox closes on Escape');
+});

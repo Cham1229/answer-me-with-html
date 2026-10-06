@@ -31,9 +31,9 @@
   if (diagrams.length) {
     const lang = (root.getAttribute('lang') || 'zh').slice(0, 2);
     const I18N = {
-      zh: { expand: '展开查看图表', in: '放大', out: '缩小', reset: '重置比例', close: '关闭', diagram: '图表查看', mode: '切换明暗' }, // lang-ok: viewer UI labels
-      en: { expand: 'Expand diagram', in: 'Zoom in', out: 'Zoom out', reset: 'Reset zoom', close: 'Close', diagram: 'Diagram Viewer', mode: 'Toggle theme' },
-      ja: { expand: '拡大表示', in: '拡大', out: '縮小', reset: '縮尺をリセット', close: '閉じる', diagram: 'ダイアグラム', mode: 'テーマ切り替え' }, // lang-ok: viewer UI labels
+      zh: { expand: '展开查看图表', close: '关闭', diagram: '图表查看' }, // lang-ok: viewer UI labels
+      en: { expand: 'Expand diagram', close: 'Close', diagram: 'Diagram Viewer' },
+      ja: { expand: '拡大表示', close: '閉じる', diagram: 'ダイアグラム' }, // lang-ok: viewer UI labels
     };
     const t = I18N[lang] || I18N.zh;
 
@@ -42,6 +42,7 @@
     lb.setAttribute('hidden', '');
     lb.setAttribute('aria-modal', 'true');
     lb.setAttribute('role', 'dialog');
+    lb.setAttribute('aria-label', t.diagram);
     lb.innerHTML = `
       <div class="am-lightbox-backdrop"></div>
       <div class="am-lightbox-header">
@@ -50,17 +51,11 @@
           <span class="am-lightbox-title-text"></span>
         </div>
         <div class="am-lightbox-actions">
-          <button class="am-lightbox-mode-btn" data-action="toggle-mode" title="${t.mode}" aria-label="${t.mode}">🌓</button>
           <button class="am-lightbox-close" data-action="close" title="${t.close}" aria-label="${t.close}">✕</button>
         </div>
       </div>
       <div class="am-lightbox-stage">
         <div class="am-lightbox-canvas am-diagram"></div>
-      </div>
-      <div class="am-lightbox-bar">
-        <button class="am-lightbox-btn" data-action="zoom-out" title="${t.out}" aria-label="${t.out}">-</button>
-        <button class="am-lightbox-scale" data-action="zoom-reset" title="${t.reset}" aria-label="${t.reset}">100%</button>
-        <button class="am-lightbox-btn" data-action="zoom-in" title="${t.in}" aria-label="${t.in}">+</button>
       </div>
     `;
     document.body.append(lb);
@@ -69,19 +64,14 @@
     const titleText = lb.querySelector('.am-lightbox-title-text');
     const stage = lb.querySelector('.am-lightbox-stage');
     const canvas = lb.querySelector('.am-lightbox-canvas');
-    const scaleBtn = lb.querySelector('.am-lightbox-scale');
-    const zoomInBtn = lb.querySelector('[data-action="zoom-in"]');
-    const zoomOutBtn = lb.querySelector('[data-action="zoom-out"]');
-    const modeBtn = lb.querySelector('.am-lightbox-mode-btn');
     const closeBtn = lb.querySelector('.am-lightbox-close');
 
     let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
-    let isDragging = false, didDrag = false, startX = 0, startY = 0, origX = 0, origY = 0;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
     let lastTrigger = null;
 
     const apply = () => {
       canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
-      scaleBtn.textContent = `${Math.round(scale * 100)}%`;
     };
 
     const zoomTo = (newScale, pivotX, pivotY) => {
@@ -104,6 +94,35 @@
       if (titleText) titleText.textContent = panelTitle;
 
       const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
       const vb = svg.viewBox?.baseVal;
       curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
       curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
@@ -137,14 +156,15 @@
     stage.addEventListener('wheel', (e) => {
       e.preventDefault();
       const rect = stage.getBoundingClientRect();
-      const factor = e.deltaY < 0 ? 1.15 : (1 / 1.15);
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
       zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
     }, { passive: false });
 
     stage.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0) return;
+      if (e.button !== 0 || isDragging) return;
       isDragging = true;
-      didDrag = false;
+      activePointerId = e.pointerId;
       startX = e.clientX;
       startY = e.clientY;
       origX = x;
@@ -154,18 +174,16 @@
     });
 
     stage.addEventListener('pointermove', (e) => {
-      if (!isDragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      if (Math.hypot(dx, dy) > 4) didDrag = true;
-      x = origX + dx;
-      y = origY + dy;
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
       apply();
     });
 
     const endDrag = (e) => {
-      if (!isDragging) return;
+      if (!isDragging || e.pointerId !== activePointerId) return;
       isDragging = false;
+      activePointerId = null;
       stage.classList.remove('am-panning');
       try { stage.releasePointerCapture(e.pointerId); } catch {}
     };
@@ -180,37 +198,25 @@
       apply();
     });
 
-    scaleBtn.addEventListener('click', () => {
-      const rect = stage.getBoundingClientRect();
-      scale = (Math.abs(scale - fitScale) < 0.05 && fitScale < 0.95) ? 1.0 : fitScale;
-      x = (rect.width - curVw * scale) / 2;
-      y = (rect.height - curVh * scale) / 2;
-      apply();
-    });
-
-    zoomInBtn.addEventListener('click', () => {
-      const rect = stage.getBoundingClientRect();
-      zoomTo(scale * 1.25, rect.width / 2, rect.height / 2);
-    });
-
-    zoomOutBtn.addEventListener('click', () => {
-      const rect = stage.getBoundingClientRect();
-      zoomTo(scale / 1.25, rect.width / 2, rect.height / 2);
-    });
-
-    modeBtn?.addEventListener('click', () => {
-      const modes = ['auto', 'light', 'dark'];
-      const cur = root.getAttribute('data-mode') || 'auto';
-      const next = modes[(modes.indexOf(cur) + 1) % modes.length];
-      root.setAttribute('data-mode', next);
-      const modeSelect = document.querySelector('select[data-am="mode"]');
-      if (modeSelect) modeSelect.value = next;
-    });
-
     closeBtn.addEventListener('click', close);
     backdrop.addEventListener('click', close);
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     });
 
     const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
