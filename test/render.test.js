@@ -1,5 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 import { renderDoc, RenderError } from '../src/render.js';
 import { ParseError } from '../src/parse.js';
 import { getTheme } from '../src/themes/registry.js';
@@ -221,3 +223,323 @@ test('table: headers of right-aligned / centered columns follow align instead of
   assert.match(html, /\.am-md th\[align="right"\] \{ text-align: right; \}/);
   assert.match(html, /\.am-md th\[align="center"\] \{ text-align: center; \}/);
 });
+
+test('render: diagram lightbox and pan-zoom viewer has complete styles, runtime, print rules and zero external deps', () => {
+  const src = `---
+title: Diagram test
+---
+## Flow
+\`\`\`flow LR
+(Client) -> (Gateway): request
+(Gateway) -> (Service): forward
+\`\`\`
+
+## Sequence
+\`\`\`sequence
+Alice -> Bob: hello
+Bob --> Alice: reply
+\`\`\`
+`;
+  const { html } = renderDoc(src);
+  assert.match(html, /\.am-diagram-expand\b/);
+  assert.match(html, /\.am-lightbox\b/);
+  assert.match(html, /\.am-lightbox-stage\b/);
+  assert.doesNotMatch(html, /\.am-lightbox-bar\b/);
+  assert.doesNotMatch(html, /\.am-lightbox-scale\b/);
+  assert.doesNotMatch(html, /<script[^>]+src=/);
+  assert.doesNotMatch(html, /<link[^>]+href=/);
+  assert.match(html, /@media print\s*\{[^}]*\.am-diagram-expand/);
+  assert.match(html, /@media print\s*\{[^}]*\.am-lightbox/);
+  assert.match(html, /display:\s*none\s*!important/);
+  assert.match(html, /am-diagram-expand/);
+  assert.match(html, /am-lightbox-stage/);
+  assert.match(html, /setPointerCapture/);
+});
+
+test('render: diagram lightbox behavior — expand opens dialog, Esc, close button and backdrop close it', () => {
+  const code = readFileSync(new URL('../src/runtime/page.js', import.meta.url), 'utf8');
+
+  class MockClassList {
+    constructor(el) { this.el = el; }
+    add(c) {
+      const list = this.values();
+      if (!list.includes(c)) list.push(c);
+      this.el.setAttribute('class', list.join(' '));
+    }
+    remove(c) {
+      const list = this.values().filter((x) => x !== c);
+      this.el.setAttribute('class', list.join(' '));
+    }
+    contains(c) { return this.values().includes(c); }
+    values() { return (this.el.getAttribute('class') || '').trim().split(/\s+/).filter(Boolean); }
+  }
+
+  class MockElement {
+    constructor(tagName = 'div', doc) {
+      this.tagName = tagName.toUpperCase();
+      this.ownerDocument = doc;
+      this.children = [];
+      this.parentElement = null;
+      this.attributes = new Map();
+      this.listeners = new Map();
+      this.style = {};
+      this.classList = new MockClassList(this);
+      this._textContent = '';
+    }
+    get className() { return this.getAttribute('class') || ''; }
+    set className(val) { this.setAttribute('class', val); }
+    get id() { return this.getAttribute('id') || ''; }
+    set id(val) { this.setAttribute('id', val); }
+    get textContent() {
+      if (this._textContent) return this._textContent;
+      return this.children.map((c) => c.textContent).join('');
+    }
+    set textContent(val) {
+      this.children = [];
+      this._textContent = val;
+    }
+    getAttribute(name) { return this.attributes.has(name) ? this.attributes.get(name) : null; }
+    setAttribute(name, val) { this.attributes.set(name, String(val)); }
+    removeAttribute(name) { this.attributes.delete(name); }
+    hasAttribute(name) { return this.attributes.has(name); }
+    addEventListener(ev, fn) {
+      if (!this.listeners.has(ev)) this.listeners.set(ev, []);
+      this.listeners.get(ev).push(fn);
+    }
+    removeEventListener(ev, fn) {
+      const list = this.listeners.get(ev);
+      if (list) this.listeners.set(ev, list.filter((f) => f !== fn));
+    }
+    dispatchEvent(event) {
+      event.target = this;
+      for (const fn of this.listeners.get(event.type) || []) fn(event);
+      return true;
+    }
+    click() {
+      this.dispatchEvent({ type: 'click', target: this, preventDefault() {}, stopPropagation() {} });
+    }
+    append(...nodes) {
+      for (const n of nodes) {
+        if (typeof n === 'string') continue;
+        n.parentElement = this;
+        this.children.push(n);
+      }
+    }
+    prepend(...nodes) {
+      for (const n of nodes) {
+        n.parentElement = this;
+        this.children.unshift(n);
+      }
+    }
+    getBoundingClientRect() {
+      return { left: 0, top: 0, width: 800, height: 600, right: 800, bottom: 600 };
+    }
+    focus() {
+      if (this.ownerDocument) this.ownerDocument.activeElement = this;
+    }
+    closest(sel) {
+      let cur = this;
+      while (cur) {
+        if (cur.matches(sel)) return cur;
+        cur = cur.parentElement;
+      }
+      return null;
+    }
+    matches(sel) {
+      if (sel.includes(':not(')) {
+        const [base, notPart] = sel.split(':not(');
+        const inner = notPart.replace(/\)$/, '');
+        return (base ? this.matches(base) : true) && !this.matches(inner);
+      }
+      if (sel === '*') return true;
+      if (sel.startsWith('.')) return this.classList.contains(sel.slice(1));
+      if (sel.startsWith('#')) return this.id === sel.slice(1);
+      if (sel.startsWith('[')) {
+        const m = sel.match(/\[([a-zA-Z0-9_-]+)(?:([*~|^$]?=)"?([^"]*)"?)?\]/);
+        if (m) {
+          const val = this.getAttribute(m[1]);
+          if (val === null) return false;
+          const op = m[2];
+          const expected = m[3];
+          if (!op) return true;
+          if (op === '=') return val === expected;
+          if (op === '*=') return val.includes(expected);
+          if (op === '^=') return val.startsWith(expected);
+          if (op === '$=') return val.endsWith(expected);
+        }
+      }
+      return this.tagName.toLowerCase() === sel.toLowerCase();
+    }
+    querySelector(sel) { return this.querySelectorAll(sel)[0] || null; }
+    querySelectorAll(sel) {
+      if (sel.includes(',')) {
+        const subSelectors = sel.split(',').map((s) => s.trim());
+        const set = new Set();
+        for (const sub of subSelectors) {
+          for (const el of this.querySelectorAll(sub)) set.add(el);
+        }
+        return [...set];
+      }
+      const parts = sel.trim().split(/\s+/);
+      if (parts.length > 1) {
+        let current = [this];
+        for (const part of parts) {
+          const next = [];
+          for (const el of current) next.push(...el.querySelectorAll(part));
+          current = next;
+        }
+        return current;
+      }
+      const out = [];
+      const walk = (node) => {
+        for (const child of node.children) {
+          if (child.matches(sel)) out.push(child);
+          walk(child);
+        }
+      };
+      walk(this);
+      return out;
+    }
+    cloneNode(deep) {
+      const clone = new MockElement(this.tagName, this.ownerDocument);
+      for (const [k, v] of this.attributes) clone.setAttribute(k, v);
+      if (deep) {
+        for (const child of this.children) clone.append(child.cloneNode(true));
+      }
+      return clone;
+    }
+    setPointerCapture() {}
+    releasePointerCapture() {}
+    set innerHTML(html) {
+      this.children = [];
+      if (!html) return;
+      const re = /<([a-z0-9_-]+)([^>]*)>(?:([\s\S]*?)<\/\1>)?|<([a-z0-9_-]+)([^>]*)\/>/gi;
+      let match;
+      while ((match = re.exec(html)) !== null) {
+        const tag = match[1] || match[4];
+        const rawAttrs = match[2] || match[5] || '';
+        const content = match[3] || '';
+        const child = new MockElement(tag, this.ownerDocument);
+        const attrRe = /([a-z0-9_-]+)(?:="([^"]*)")?/gi;
+        let amatch;
+        while ((amatch = attrRe.exec(rawAttrs)) !== null) {
+          child.setAttribute(amatch[1], amatch[2] !== undefined ? amatch[2] : '');
+        }
+        if (content) child.innerHTML = content;
+        this.append(child);
+      }
+    }
+  }
+
+  const doc = {
+    activeElement: null,
+    body: null,
+    documentElement: null,
+    createElement(tag) { return new MockElement(tag, doc); },
+    querySelector(sel) { return doc.documentElement.querySelector(sel); },
+    querySelectorAll(sel) { return doc.documentElement.querySelectorAll(sel); },
+  };
+  doc.documentElement = new MockElement('html', doc);
+  doc.body = new MockElement('body', doc);
+  doc.documentElement.append(doc.body);
+
+  const win = {
+    listeners: new Map(),
+    addEventListener(ev, fn) {
+      if (!win.listeners.has(ev)) win.listeners.set(ev, []);
+      win.listeners.get(ev).push(fn);
+    },
+    removeEventListener(ev, fn) {
+      const list = win.listeners.get(ev);
+      if (list) win.listeners.set(ev, list.filter((f) => f !== fn));
+    },
+    dispatchEvent(event) {
+      for (const fn of win.listeners.get(event.type) || []) fn(event);
+      return true;
+    },
+  };
+
+  const panel = doc.createElement('div');
+  panel.className = 'am-panel';
+  const panelHead = doc.createElement('div');
+  panelHead.className = 'am-panel-head';
+  const h2 = doc.createElement('h2');
+  h2.textContent = 'Architecture Flow';
+  panelHead.append(h2);
+  panel.append(panelHead);
+
+  const diag = doc.createElement('div');
+  diag.className = 'am-diagram';
+  const svg = doc.createElement('svg');
+  svg.setAttribute('viewBox', '0 0 400 200');
+  const marker = doc.createElement('marker');
+  marker.id = 'arrow';
+  const path = doc.createElement('path');
+  path.setAttribute('marker-end', 'url(#arrow)');
+  svg.append(marker);
+  svg.append(path);
+  diag.append(svg);
+  panel.append(diag);
+  doc.body.append(panel);
+
+  const sandbox = { document: doc, window: win, root: doc.documentElement, console, parseFloat, Math };
+  vm.runInNewContext(code, sandbox);
+
+  const expandBtn = diag.querySelector('.am-diagram-expand');
+  assert.ok(expandBtn, 'expand button was appended to diagram');
+  const lb = doc.body.querySelector('.am-lightbox');
+  assert.ok(lb, 'lightbox was appended to body');
+  assert.equal(lb.hasAttribute('hidden'), true, 'lightbox starts hidden');
+
+  // 1. Click expand -> opens lightbox and clones SVG with deduplicated marker IDs
+  expandBtn.click();
+  assert.equal(lb.hasAttribute('hidden'), false, 'lightbox opens after clicking expand');
+  assert.equal(doc.activeElement?.className, 'am-lightbox-close', 'focus moves to close button');
+  const clonedSvg = lb.querySelector('.am-lightbox-canvas svg');
+  assert.ok(clonedSvg, 'svg is cloned into lightbox canvas');
+  const clonedMarker = clonedSvg.querySelector('[id*="-lb-"]');
+  assert.ok(clonedMarker, 'marker ID was deduplicated to avoid collisions');
+  assert.match(clonedSvg.querySelector('path').getAttribute('marker-end'), /url\(#arrow-lb-\d+\)/);
+
+  // 2. Wheel zoom scales continuously based on deltaY
+  const stage = lb.querySelector('.am-lightbox-stage');
+  const canvas = lb.querySelector('.am-lightbox-canvas');
+  const initTransform = canvas.style.transform;
+  stage.dispatchEvent({ type: 'wheel', deltaY: 80, deltaMode: 0, clientX: 400, clientY: 300, preventDefault() {} });
+  const zoomedOutTransform = canvas.style.transform;
+  assert.notEqual(initTransform, zoomedOutTransform, 'canvas scale changes on wheel');
+
+  // 3. Pointer drag pans canvas, second pointer is ignored
+  stage.dispatchEvent({ type: 'pointerdown', button: 0, pointerId: 1, clientX: 100, clientY: 100 });
+  assert.ok(stage.classList.contains('am-panning'), 'panning class added during drag');
+  stage.dispatchEvent({ type: 'pointerdown', button: 0, pointerId: 2, clientX: 200, clientY: 200 });
+  stage.dispatchEvent({ type: 'pointermove', pointerId: 1, clientX: 130, clientY: 140 });
+  assert.match(canvas.style.transform, /translate3d\(.*px,.*px, 0\)/);
+  stage.dispatchEvent({ type: 'pointerup', pointerId: 1 });
+  assert.equal(stage.classList.contains('am-panning'), false, 'panning class removed after pointerup');
+
+  // 4. Focus trap keeps Tab inside modal
+  const closeBtn = lb.querySelector('.am-lightbox-close');
+  closeBtn.focus();
+  let defaultPrevented = false;
+  lb.dispatchEvent({ type: 'keydown', key: 'Tab', shiftKey: false, preventDefault() { defaultPrevented = true; } });
+  assert.equal(defaultPrevented, true, 'Tab default is prevented when focus would escape');
+
+  // 5. Press Escape -> closes lightbox
+  win.dispatchEvent({ type: 'keydown', key: 'Escape' });
+  assert.equal(lb.hasAttribute('hidden'), true, 'lightbox closes on Escape');
+
+  // 6. Click expand again, then close button -> closes
+  expandBtn.click();
+  assert.equal(lb.hasAttribute('hidden'), false);
+  closeBtn.click();
+  assert.equal(lb.hasAttribute('hidden'), true, 'lightbox closes on close button click');
+
+  // 7. Click expand again, then backdrop -> closes
+  expandBtn.click();
+  assert.equal(lb.hasAttribute('hidden'), false);
+  const backdrop = lb.querySelector('.am-lightbox-backdrop');
+  backdrop.click();
+  assert.equal(lb.hasAttribute('hidden'), true, 'lightbox closes on backdrop click');
+});
+
