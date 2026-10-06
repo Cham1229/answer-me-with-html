@@ -223,7 +223,7 @@ code, pre, kbd { font-family: var(--font-mono); }
 .am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
 
 /* ── Diagrams (flow / sequence) ───────────────── */
-.am-diagram { position: relative; margin: 0; overflow-x: auto; text-align: center; }
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
 /* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
 .am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
 .am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
@@ -243,9 +243,10 @@ code, pre, kbd { font-family: var(--font-mono); }
 .am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
 
 .am-diagram-expand {
-  position: absolute; top: 8px; right: 8px; z-index: 2;
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; padding: 0;
+  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways. */
+  position: sticky; left: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 8px 8px -36px auto;
   color: var(--ink-2); background: var(--paper);
   border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
   cursor: pointer; opacity: 0.72;

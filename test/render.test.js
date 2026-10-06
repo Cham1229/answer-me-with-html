@@ -325,6 +325,12 @@ test('render: diagram lightbox behavior — expand opens dialog, Esc, close butt
         this.children.push(n);
       }
     }
+    prepend(...nodes) {
+      for (const n of nodes) {
+        n.parentElement = this;
+        this.children.unshift(n);
+      }
+    }
     getBoundingClientRect() {
       return { left: 0, top: 0, width: 800, height: 600, right: 800, bottom: 600 };
     }

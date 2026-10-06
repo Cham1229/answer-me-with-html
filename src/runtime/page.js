@@ -85,7 +85,7 @@
     };
 
     const open = (diag, trigger) => {
-      const svg = diag.querySelector('svg');
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
       if (!svg) return;
       lastTrigger = trigger;
 
@@ -228,7 +228,7 @@
       btn.setAttribute('aria-label', t.expand);
       btn.innerHTML = expandSvg;
       btn.addEventListener('click', () => open(diag, btn));
-      diag.append(btn);
+      diag.prepend(btn);
     });
   }
 })();
