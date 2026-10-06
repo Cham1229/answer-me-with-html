@@ -238,6 +238,7 @@ The CLI does the rest. It picks the template, places the panels, applies the the
 - **Fixes its own mistakes:** When a draft has an error, the CLI returns the line number, the component and a correct example. The agent fixes it in one try.
 - **Three themes:** `blueprint` looks like an engineering drawing, `shadcn` uses clean cards, and `paper` is set for long reading. By default the CLI picks paper for long text and blueprint for diagrams. All have light and dark modes, and you can add your own.
 - **One file, no dependencies:** Each page is a single `.html` with no CDN links or web fonts. It opens offline and is easy to share.
+- **Languages:** Simplified Chinese, Traditional Chinese, English and Japanese are fully supported: page buttons, theme names, fonts and the video player. Any other language gets the right `lang` attribute and English buttons. Write `lang: zh-Hant` (or `zh-TW`) for Traditional Chinese, or `lang: fr` for French; see the [reference](docs/reference.md#languages).
 - **Writing check:** Drafts are checked against rules adapted from ASD-STE100: long sentences, wordy phrases, passive voice. It only warns unless you ask for strict mode.
 - **Keeps its source:** Every page embeds the Markdown that made it. Click "Copy source" to get it back.
 
@@ -281,6 +282,7 @@ Answer me with HTML turns the parts a machine can check into an English and Chin
 - **Chinese vocabulary:** Common typos (登陆 → 登录), vague quantities (尽快, 若干, 大概, 多次), 以上 / 以下 / 以内 after a number (the endpoint is ambiguous), and one-meaning-one-word choices (单击 → 点击, 键入 → 输入, 入参 → 参数). Only the entries that are almost never wrong, taken from [Simplified Technical Chinese](https://github.com/mzopedia/simplified-technical-chinese), a controlled Chinese modelled on the STE method.
 - **Style:** Flags English passive voice, three or more 的 in one sentence, and stock phrases such as 赋能 and 闭环.
 - **Japanese:** A draft with kana is treated as Japanese: the page buttons are in Japanese and the page gets `lang="ja"`. Only the length rules apply, with the Chinese character limits. Write `lang: ja` in the draft to force it.
+- **Other languages:** Any other language gets only the length rules: sentences in words (characters for Chinese and Japanese text), paragraphs in sentences. The English and Chinese word lists and the passive-voice rule do not run on it.
 
 Set the strictness with `/answer-me-with-html:config style strict`, or per page with `style:` in the draft.
 

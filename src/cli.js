@@ -20,6 +20,7 @@ import { runUpdateCheck } from './update.js';
 import { amHome, readConfig, setConfig, resetConfig, configChoices, CONFIG_KEYS, ConfigError } from './config.js';
 import { replacePanel, PatchError } from './patch.js';
 import { readPage } from './page.js';
+import { languageIds } from './languages/registry.js';
 
 const MAX_LISTED_WARNINGS = 20;
 
@@ -260,7 +261,7 @@ Pick it like a built-in theme: theme: notes in the draft, --theme notes, or am c
   "video": { "tokens": { "light": { "--v-stage": "#fffdf8" } }, "css": "& .amv-title { font-weight: 500; }" }
 }
 
-- label: the name on the page's theme button: a string, or an object with zh / en / ja strings.
+- label: the name on the page's theme button: a string, or an object with ${languageIds().join(' / ')} strings.
 - tokens: light and dark must each set every color: ${COLOR_TOKENS.join(' ')}.
   common holds values shared by both; --radius --shadow --bw --head-font --font-sans --font-mono are optional.
 - Fonts: name installed fonts only; the default font stack is added as the fallback. No font files are embedded.
@@ -338,9 +339,9 @@ async function cmdPatch(htmlArg, fromArg, opts, ctx) {
       const voice = opts.voice ?? (page.voiced ? page.voice ?? config.values.voice : 'off');
       if (!validVoice(voice, fail)) return 2;
       // Video pages also keep the original page's theme, mode and STE strictness (e.g. 3b1b / --style off); this command's arguments win.
-      result = await buildVideo(patched, voice, { ...opts, theme: overrides.theme, mode: overrides.mode, style: overrides.style }, config, ctx);
+      result = await buildVideo(patched, voice, { ...opts, theme: overrides.theme, mode: overrides.mode, style: overrides.style, previousLanguage: page.lang }, config, ctx);
     } else {
-      result = renderDoc(patched, overrides, { theme, mode, style }, { themes: ctx.themes });
+      result = renderDoc(patched, overrides, { theme, mode, style }, { themes: ctx.themes, previousLanguage: page.lang });
     }
   } catch (e) {
     if (e instanceof TtsError) {
@@ -385,6 +386,7 @@ async function buildVideo(src, voice, opts, config, { fail, env, io, themes }) {
     cacheDir: join(amHome(env), 'cache', 'tts'),
     defaults: { style: config.values.style, theme: config.values.theme, mode: config.values.mode },
     overrides: { style: opts.style, theme: opts.theme, mode: opts.mode },
+    previousLanguage: opts.previousLanguage,
     onProgress: (msg) => fail(`  ${msg}`),
     themes,
   });

@@ -7,12 +7,13 @@ import { renderDoc } from '../src/render.js';
 import { renderVideo } from '../src/video/render.js';
 
 // One label per language, taken from the toolbar button (page) and the play button (video).
-const COPY = { zh: '复制源稿', en: 'Copy source', ja: '原稿をコピー' }; // lang-ok: the page labels under test
-const PLAY = { zh: '播放', en: 'Play', ja: '再生' }; // lang-ok: the player labels under test
+const COPY = { zh: '复制源稿', 'zh-Hant': '複製源稿', en: 'Copy source', ja: '原稿をコピー' }; // lang-ok: the page labels under test
+// The pause label tells Simplified from Traditional (the play label is the same word in both).
+const PAUSE = { zh: '暂停', 'zh-Hant': '暫停', en: 'Pause', ja: '一時停止' }; // lang-ok: the player labels under test
 
 const htmlLangOf = (html) => html.match(/<html lang="([^"]*)"/)?.[1];
 const pageLabels = (html) => Object.keys(COPY).filter((k) => html.includes(`>${COPY[k]}</button>`));
-const playerLabels = (html) => Object.keys(PLAY).filter((k) => html.includes(`>${PLAY[k]}<`) || html.includes(`"${PLAY[k]}"`));
+const playerLabels = (html) => Object.keys(PAUSE).filter((k) => html.includes(`data-pause="${PAUSE[k]}"`));
 
 const ZH_BODY = '## A 概要\n这是一段用来测试语言的中文内容。\n'; // lang-ok: Chinese draft text under test
 const draft = (lang, body = ZH_BODY) => `${lang === undefined ? '' : `---\nlang: ${lang}\n---\n`}${body}`;
@@ -20,6 +21,7 @@ const page = (lang, body) => renderDoc(draft(lang, body));
 
 // Declared language: [declared tag, <html lang> written, language of the labels].
 // A tag is never rewritten, except that a bare "zh" keeps the "zh-CN" it has always been written as.
+// Traditional Chinese (a Hant script tag or a Taiwan, Hong Kong or Macao region) has its own labels and never borrows the Simplified ones.
 // A language without labels gets English labels, never another language's.
 const DECLARED = [
   ['zh', 'zh-CN', 'zh'],
@@ -32,10 +34,12 @@ const DECLARED = [
   ['EN-gb', 'en-GB', 'en'],
   ['ja', 'ja', 'ja'],
   ['ja-JP', 'ja-JP', 'ja'],
-  ['zh-tw', 'zh-TW', 'en'],
-  ['zh_TW', 'zh-TW', 'en'],
-  ['ZH-hant', 'zh-Hant', 'en'],
-  ['zh-HK', 'zh-HK', 'en'],
+  ['zh-tw', 'zh-TW', 'zh-Hant'],
+  ['zh_TW', 'zh-TW', 'zh-Hant'],
+  ['ZH-hant', 'zh-Hant', 'zh-Hant'],
+  ['zh-Hant-TW', 'zh-Hant-TW', 'zh-Hant'],
+  ['zh-HK', 'zh-HK', 'zh-Hant'],
+  ['zh-MO', 'zh-MO', 'zh-Hant'],
   ['fr', 'fr', 'en'],
   ['ko', 'ko', 'en'],
   ['ar', 'ar', 'en'],
@@ -55,6 +59,9 @@ test('page language: the theme picker names themes in the label language', () =>
   assert.match(page('fr').html, /<option value="blueprint"[^>]*>Blueprint<\/option>/, 'fr gets English theme names');
   assert.match(page('zh').html, /<option value="blueprint"[^>]*>图纸<\/option>/); // lang-ok: Chinese theme name under test
   assert.match(page('ja').html, /<option value="blueprint"[^>]*>図面<\/option>/); // lang-ok: Japanese theme name under test
+  assert.match(page('zh-tw').html, /<option value="blueprint"[^>]*>圖紙<\/option>/); // lang-ok: Traditional Chinese theme name under test
+  assert.match(page('zh-tw').html, /<option value="paper"[^>]*>紙張<\/option>/); // lang-ok: Traditional Chinese theme name under test
+  assert.match(page('zh-tw').html, /<option value="shadcn"[^>]*>卡片<\/option>/); // lang-ok: Traditional Chinese theme name under test
 });
 
 // Undeclared drafts: the language comes from the text.
@@ -67,6 +74,22 @@ const DETECTED = [
   ['English with one kana', '## A Overview\na long english sentence with one あ\n', 'en', 'en'], // lang-ok: draft text under test
   ['Chinese quoting one katakana title', '## A 概要\n这部动画叫《ワンピース》，讲的是海贼的故事，主角想成为海贼王。\n', 'zh-CN', 'zh'], // lang-ok: draft text under test
   ['Japanese with a high kana share', '## A 概要\n基本的には具体的で効果的な手順を説明します。\n', 'ja', 'ja'], // lang-ok: draft text under test
+  // Chinese is Simplified unless the text has characters that exist in only one form and most of them are Traditional.
+  ['Traditional Chinese', '## A 概要\n這是一段用來測試語言的繁體中文內容。\n', 'zh-Hant', 'zh-Hant'], // lang-ok: draft text under test
+  ['one Traditional-only character', '## A 握手過程\n過程\n', 'zh-Hant', 'zh-Hant'], // lang-ok: draft text under test
+  ['Chinese made only of characters both forms share', '## A 三次握手\n人在山中。\n', 'zh-CN', 'zh'], // lang-ok: draft text under test
+  ['Simplified Chinese quoting one Traditional word', '## A 概要\n这是简体中文的内容，里面引用了一个詞。\n', 'zh-CN', 'zh'], // lang-ok: draft text under test
+  ['Chinese with English terms', '## A API 概要\n使用 REST API 调用服务端接口。\n', 'zh-CN', 'zh'], // lang-ok: draft text under test
+  // Other scripts are tagged with the most common language of the script, and have no labels of their own.
+  ['Korean', '## A 개요\n이것은 한국어로 쓴 짧은 설명입니다.\n', 'ko', 'en'], // lang-ok: draft text under test
+  ['Korean with a Hanja word', '## A 개요\n이것은 한국어로 쓴 짧은 설명이며 漢字 한 단어가 있습니다.\n', 'ko', 'en'], // lang-ok: draft text under test
+  ['Russian', '## A Обзор\nЭто короткое описание на русском языке.\n', 'ru', 'en'],
+  ['Arabic', '## A نظرة عامة\nهذا وصف قصير باللغة العربية.\n', 'ar', 'en'],
+  ['Hebrew', '## A סקירה\nזהו תיאור קצר בעברית.\n', 'he', 'en'],
+  ['Thai', '## A ภาพรวม\nนี่คือคำอธิบายสั้นๆ ภาษาไทย\n', 'th', 'en'],
+  ['Greek', '## A Επισκόπηση\nΑυτή είναι μια σύντομη περιγραφή στα ελληνικά.\n', 'el', 'en'],
+  // Latin text cannot be told apart by script: it stays English. The skill tells the agent to declare the language.
+  ['French (Latin script)', '## A Aperçu\nCeci est une courte description en français.\n', 'en', 'en'],
 ];
 
 for (const [name, body, written, labels] of DETECTED) {
@@ -93,11 +116,28 @@ test('page language: an empty, undetermined or malformed declaration is ignored 
   assert.equal(htmlLangOf(en), 'en');
 });
 
+// A patched page keeps the language it had: the CLI hands the old page's language to the render as the previous language.
+// It is not a declaration by the author, so it never changes the rules of the writing check.
+test('page language: without a declaration the previous language of the page is kept; a declaration wins', () => {
+  const shared = '## A 三次握手\n人在山中。\n'; // lang-ok: draft text under test
+  assert.equal(htmlLangOf(renderDoc(shared).html), 'zh-CN');
+  const kept = renderDoc(shared, {}, {}, { previousLanguage: 'zh-Hant' });
+  assert.equal(htmlLangOf(kept.html), 'zh-Hant');
+  assert.deepEqual(pageLabels(kept.html), ['zh-Hant']);
+  assert.equal(kept.language.declared, false);
+  const declared = renderDoc(`---\nlang: ja\n---\n${shared}`, {}, {}, { previousLanguage: 'zh-Hant' });
+  assert.equal(htmlLangOf(declared.html), 'ja');
+  assert.equal(declared.language.declared, true);
+  assert.equal(htmlLangOf(renderDoc(shared, {}, {}, { previousLanguage: 'not a tag!!' }).html), 'zh-CN', 'a bad previous language is ignored');
+});
+
 test('page language: the result reports script, direction and whether the language has labels', () => {
   const read = (declared) => page(declared).language;
   assert.deepEqual([read('zh').script, read('zh-tw').script, read('ar').script, read('fr').script], ['Hans', 'Hant', 'Arab', 'Latn']);
   assert.deepEqual([read('ar').dir, read('he').dir, read('zh').dir, read('ja').dir, read('fr').dir], ['rtl', 'rtl', 'ltr', 'ltr', 'ltr']);
   assert.deepEqual([read('zh').supported, read('en-US').supported, read('ja').supported], [true, true, true]);
+  assert.deepEqual([read('zh').declared, read('fr').declared, page(undefined).language.declared], [true, true, false]);
+  assert.deepEqual([read('zh-tw').supported, read('zh-Hant').supported, read('zh-HK').supported], [true, true, true]);
   assert.deepEqual([read('fr').supported, read('ko').supported], [false, false]);
 });
 
@@ -108,7 +148,7 @@ test('page language: right-to-left languages do not emit a dir attribute yet (mi
 // The video player reads the same language.
 const VIDEO = (lang) => `${lang === undefined ? '' : `---\nlang: ${lang}\n---\n`}## S\n\`\`\`flow\nA -> B\n\`\`\`\n> beat\n`;
 
-for (const [declared, written, labels] of [['zh', 'zh-CN', 'zh'], ['ja', 'ja', 'ja'], ['en', 'en', 'en'], ['zh-tw', 'zh-TW', 'en'], ['fr', 'fr', 'en']]) {
+for (const [declared, written, labels] of [['zh', 'zh-CN', 'zh'], ['ja', 'ja', 'ja'], ['en', 'en', 'en'], ['zh-tw', 'zh-TW', 'zh-Hant'], ['zh-Hant', 'zh-Hant', 'zh-Hant'], ['fr', 'fr', 'en']]) {
   test(`video language: "lang: ${declared}" is written as lang="${written}" with ${labels} player labels`, async () => {
     const { html, language } = await renderVideo(VIDEO(declared));
     assert.equal(htmlLangOf(html), written);

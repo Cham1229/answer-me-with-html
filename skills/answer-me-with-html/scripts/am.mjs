@@ -6,7 +6,7 @@ import { parseArgs } from "node:util";
 import { readFileSync as readFileSync5, writeFileSync as writeFileSync5, mkdirSync as mkdirSync4, existsSync as existsSync5 } from "node:fs";
 
 // src/assets.js
-var VERSION = "0.4.11";
+var VERSION = "0.4.12";
 var BASE_CSS = '/* Answer me with HTML base \u2014 uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */\n*, *::before, *::after { box-sizing: border-box; }\nhtml, body { margin: 0; padding: 0; }\nbody {\n  background: var(--bg); color: var(--ink);\n  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;\n  -webkit-font-smoothing: antialiased;\n}\ncode, pre, kbd { font-family: var(--font-mono); }\n\n/* \u2500\u2500 Toolbar \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-toolbar {\n  position: fixed; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;\n}\n.am-btn {\n  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);\n  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;\n}\n.am-btn:hover { border-color: var(--ink-3); }\n.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }\n/* Theme and mode lists: a label and a native select inside one button-like box */\n.am-pick {\n  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);\n  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 0 4px 0 10px;\n}\n.am-pick:hover { border-color: var(--ink-3); }\n.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }\n.am-pick select {\n  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;\n}\n.am-pick option { color: var(--ink); background: var(--paper); }\n\n/* \u2500\u2500 Header \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-head { margin: 0 0 20px; padding-right: 300px; }\n.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }\n.am-sub { margin: 4px 0 0; color: var(--ink-2); }\n.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }\n.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-right: 6px; }\n.am-intro { margin-top: 12px; max-width: 80ch; }\n\n/* \u2500\u2500 sheet template \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }\n.am-frame { position: relative; }\n.am-grid {\n  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));\n  gap: 20px; align-items: start;\n}\n.am-ruler { display: none; }\n.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }\n.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }\n.am-ruler--top { top: 0; }\n.am-ruler--bottom { bottom: 0; }\n.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }\n.am-ruler--left { left: 0; }\n.am-ruler--right { right: 0; }\n.am-ruler--top span + span, .am-ruler--bottom span + span { border-left: 1px solid var(--line); }\n.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }\n\n/* \u2500\u2500 Panels \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-panel {\n  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);\n  box-shadow: var(--shadow); min-width: 0; overflow: hidden;\n}\n.am-panel-head {\n  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;\n}\n.am-panel-id {\n  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;\n  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;\n}\n.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }\n.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: right; }\n.am-panel-body { padding: 14px 16px 16px; }\n.am-panel-body > * + * { margin-top: 12px; }\n\n/* \u2500\u2500 Markdown body \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-md > :first-child { margin-top: 0; }\n.am-md > :last-child { margin-bottom: 0; }\n.am-md p { margin: 0 0 8px; }\n.am-md ul, .am-md ol { margin: 0 0 8px; padding-left: 20px; }\n.am-md li + li { margin-top: 3px; }\n.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }\n.am-md a { color: var(--accent); }\n.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-left: 3px solid var(--line-2); color: var(--ink-2); }\n.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }\n.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }\n.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }\n.am-md th {\n  text-align: left; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;\n  padding: 6px 10px; border-bottom: 1px solid var(--line-2);\n}\n/* th { text-align: left } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */\n.am-md th[align="right"] { text-align: right; }\n.am-md th[align="center"] { text-align: center; }\n.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }\n.am-md tbody tr:nth-child(even) td { background: var(--fill); }\n.am-table-wrap { overflow-x: auto; }\n.am-code {\n  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);\n  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;\n}\n\n/* \u2500\u2500 Status badges ok / no / warn \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-status { white-space: nowrap; font-weight: 500; }\n.am-status--ok { color: var(--ok); }\n.am-status--no { color: var(--err); }\n.am-status--warn { color: var(--warn); }\n.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }\n\n/* \u2500\u2500 callout \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-callout {\n  border: 1px solid var(--line-2); border-left: 3px solid var(--accent); background: var(--accent-bg);\n  padding: 10px 14px; border-radius: var(--radius);\n}\n.am-callout--ok { border-left-color: var(--ok); background: var(--ok-bg); }\n.am-callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }\n.am-callout--err { border-left-color: var(--err); background: var(--err-bg); }\n.am-callout-title { font-weight: 600; margin-bottom: 4px; }\n\n/* \u2500\u2500 kv title block \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-kv {\n  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;\n  border-top: var(--bw) solid var(--line); border-left: var(--bw) solid var(--line);\n}\n.am-kv-cell { border-right: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }\n.am-kv-cell--wide { grid-column: 1 / -1; }\n.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }\n.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }\n.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }\n\n/* \u2500\u2500 timeline \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-timeline { list-style: none; margin: 0; padding: 0; }\n.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }\n.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }\n.am-timeline--h li::before {\n  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);\n}\n.am-timeline--h li:first-child::before { left: 50%; }\n.am-timeline--h li:last-child::before { right: 50%; }\n.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }\n.am-tl-dot {\n  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;\n  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);\n}\n.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }\n.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }\n.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }\n.am-timeline--v li { position: relative; padding: 0 0 14px 22px; }\n.am-timeline--v li::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: -6px; border-left: var(--bw) solid var(--line-2); }\n.am-timeline--v li:last-child::before { display: none; }\n.am-timeline--v .am-tl-dot { position: absolute; left: 0; top: 4px; margin: 0; }\n.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-right: 8px; }\n.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }\n.am-timeline--v .am-tl-text { margin-top: 2px; }\n\n/* \u2500\u2500 annot sentence notes \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }\n.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }\n.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }\n.am-annot-scroll { overflow-x: auto; }\n.am-annot-line {\n  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);\n  padding-bottom: calc(var(--rows, 0) * 17px + 14px);\n}\n.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }\n.am-annot-line--wrap .am-seg { white-space: nowrap; }\n.am-seg { position: relative; }\n.am-seg::after {\n  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;\n  border: 1px solid var(--accent); border-top: 0;\n}\n.am-seg-n {\n  position: absolute; left: 0; top: calc(100% + 8px + var(--row, 0) * 17px);\n  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;\n}\n.am-seg--err { color: var(--err); }\n.am-seg--err::after { border-color: var(--err); }\n.am-seg--err .am-seg-n { color: var(--err); }\n.am-annot-caption { font-size: 12px; color: var(--ink-2); }\n\n/* \u2500\u2500 limits bars \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-lim + .am-lim { margin-top: 14px; }\n.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }\n.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }\n.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }\n.am-lim-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-bg); border-right: 1px solid var(--accent); }\n.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }\n.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-right-color: var(--err); }\n.am-lim.is-over .am-lim-val { color: var(--err); }\n.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }\n.am-lim-ticks span { position: absolute; transform: translateX(-50%); }\n.am-lim-ticks span:first-child { transform: none; }\n.am-lim-note { font-size: 11px; color: var(--ink-2); margin-left: 6px; }\n\n/* \u2500\u2500 tree \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-tree { font-size: 13px; }\n.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }\n.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }\n.am-tree-root--solo { padding-bottom: 12px; }\n.am-tree-root--solo::after { display: none; }\n.am-tree-box {\n  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;\n  border-radius: var(--radius); font-weight: 600;\n}\n.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }\n.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }\n.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }\n.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }\n.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }\n.am-tree-col:first-child::before { left: 50%; }\n.am-tree-col:last-child::before { right: 50%; }\n.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }\n.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }\n.am-tree-col > .am-tree-list { margin: 8px 0 0 14px; }\n.am-tree-list ul { margin-left: 16px; }\n.am-tree-list li { position: relative; padding: 3px 0 3px 18px; }\n.am-tree-list li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }\n.am-tree-list li::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1px solid var(--ink-3); }\n.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }\n.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-right: 4px; }\n.am-tree code { font: 12px var(--font-mono); }\n.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }\n.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }\n\n/* \u2500\u2500 Diagrams (flow / sequence) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-diagram { margin: 0; overflow-x: auto; text-align: center; }\n/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */\n.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }\n.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }\n.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }\n.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }\n.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }\n.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }\n.am-edge--dashed { stroke-dasharray: 5 4; }\n.am-arrow { fill: var(--ink-2, #4b5260); }\n.am-edge-label rect { fill: var(--paper, #ffffff); }\n.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }\n.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }\n.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }\n.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }\n.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }\n.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }\n.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }\n\n.am-diagram-expand {\n  /* In flow and sticky: it sits at the right edge and stays in view when the diagram scrolls sideways. */\n  position: sticky; left: calc(100% - 36px); z-index: 2;\n  display: flex; align-items: center; justify-content: center;\n  width: 28px; height: 28px; padding: 0; margin: 8px 8px -36px auto;\n  color: var(--ink-2); background: var(--paper);\n  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);\n  cursor: pointer; opacity: 0.72;\n  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;\n}\n.am-diagram:hover .am-diagram-expand,\n.am-diagram-expand:focus-visible { opacity: 1; }\n.am-diagram-expand:hover {\n  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);\n}\n.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }\n\n/* \u2500\u2500 Diagram Lightbox and Pan-Zoom Viewer \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-lightbox {\n  position: fixed; inset: 0; z-index: 1000;\n  display: flex; flex-direction: column;\n  touch-action: none;\n}\n.am-lightbox[hidden] { display: none !important; }\n\n.am-lightbox-backdrop {\n  position: absolute; inset: 0;\n  background: rgba(0, 0, 0, 0.72);\n  backdrop-filter: blur(6px);\n  -webkit-backdrop-filter: blur(6px);\n}\n\n.am-lightbox-header {\n  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;\n  display: flex; align-items: center; justify-content: space-between;\n  z-index: 10; pointer-events: none;\n}\n.am-lightbox-title {\n  display: inline-flex; align-items: center; gap: 8px;\n  color: rgba(255, 255, 255, 0.92);\n  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;\n  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);\n  pointer-events: auto;\n  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;\n}\n.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }\n.am-lightbox-actions {\n  display: flex; align-items: center; gap: 8px; pointer-events: auto;\n}\n.am-lightbox-close {\n  width: 32px; height: 32px;\n  background: var(--paper);\n  border: var(--bw, 1px) solid var(--line-2);\n  border-radius: 50%;\n  color: var(--ink);\n  font-size: 15px; line-height: 1;\n  cursor: pointer;\n  display: flex; align-items: center; justify-content: center;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);\n  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;\n}\n.am-lightbox-close:hover {\n  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);\n}\n.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }\n\n.am-lightbox-stage {\n  position: absolute;\n  top: 54px; bottom: 20px; left: 24px; right: 24px;\n  background: var(--paper);\n  border: var(--bw, 1px) solid var(--line-2);\n  border-radius: max(var(--radius), 14px);\n  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);\n  overflow: hidden;\n  cursor: grab;\n  user-select: none;\n  -webkit-user-select: none;\n}\n.am-lightbox-stage.am-panning { cursor: grabbing; }\n\n.am-lightbox-canvas {\n  position: absolute; left: 0; top: 0;\n  transform-origin: 0 0;\n  will-change: transform;\n  pointer-events: none;\n}\n.am-lightbox-canvas svg {\n  max-width: none !important;\n  max-height: none !important;\n  display: block;\n  font-family: var(--font-sans, sans-serif);\n}\n\n/* \u2500\u2500 doc template \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }\n.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }\n.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }\n.am-toc { position: sticky; top: 24px; font-size: 13px; }\n.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-2); }\n.am-toc a:hover { color: var(--ink); border-left-color: var(--accent); }\n.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }\n\n/* \u2500\u2500 Responsive and print \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */\n@media (max-width: 1100px) {\n  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n  .am-grid > .am-panel { grid-column: auto !important; }\n  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }\n}\n@media (max-width: 760px) {\n  .am-sheet, .am-doc { padding: 56px 12px 24px; }\n  .am-head { padding-right: 0; }\n  .am-grid { grid-template-columns: minmax(0, 1fr); }\n  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }\n  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }\n  .am-toc { position: static; }\n  .am-timeline--h { grid-template-columns: minmax(0, 1fr); }\n  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }\n  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. */\n  .am-md th, .am-md td { min-width: 6em; }\n  .am-diagram svg { max-width: none; }\n  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }\n  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }\n}\n.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }\n\n@media print {\n  .am-toolbar, .am-diagram-expand, .am-lightbox { display: none !important; }\n  body { background: var(--paper); }\n  .am-panel { break-inside: avoid; box-shadow: none; }\n}\n.am-panel--bare { border: 0; background: transparent; box-shadow: none; }\n.am-panel--bare > .am-panel-body { padding: 0; }\n.am-panel--bare .am-kv { background: var(--paper); }\n';
 var RUNTIME_JS = `(() => {
   const root = document.documentElement;
@@ -742,15 +742,114 @@ var VIDEO_JS = "(() => {\n  const D = JSON.parse(document.getElementById('amv-da
 import { join as join7, resolve, dirname as dirname2, basename as basename2 } from "node:path";
 import { spawn as spawn4 } from "node:child_process";
 
+// src/languages/zh.js
+var zh_default = {
+  id: "zh",
+  language: "zh",
+  script: "Hans",
+  ui: {
+    theme: "\u4E3B\u9898",
+    modeLabel: "\u660E\u6697",
+    mode: { auto: "\u8DDF\u968F\u7CFB\u7EDF", light: "\u4EAE", dark: "\u6697" },
+    copy: "\u590D\u5236\u6E90\u7A3F",
+    done: "\u5DF2\u590D\u5236 \u2713",
+    toc: "\u76EE\u5F55",
+    flow: "\u6D41\u7A0B\u56FE",
+    sequence: "\u65F6\u5E8F\u56FE",
+    colon: "\uFF1A",
+    sep: "\u3001"
+  },
+  videoUi: { play: "\u64AD\u653E", pause: "\u6682\u505C", chapters: "\u7AE0\u8282" }
+};
+
+// src/languages/zh-Hant.js
+var zh_Hant_default = {
+  id: "zh-Hant",
+  language: "zh",
+  script: "Hant",
+  langs: ["zh-Hant", "zh-TW", "zh-HK", "zh-MO"],
+  fonts: {
+    sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif',
+    serif: '"Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC"'
+  },
+  ui: {
+    theme: "\u4E3B\u984C",
+    modeLabel: "\u660E\u6697",
+    mode: { auto: "\u8DDF\u96A8\u7CFB\u7D71", light: "\u6DFA\u8272", dark: "\u6DF1\u8272" },
+    copy: "\u8907\u88FD\u6E90\u7A3F",
+    done: "\u5DF2\u8907\u88FD \u2713",
+    toc: "\u76EE\u9304",
+    flow: "\u6D41\u7A0B\u5716",
+    sequence: "\u6642\u5E8F\u5716",
+    colon: "\uFF1A",
+    sep: "\u3001"
+  },
+  videoUi: { play: "\u64AD\u653E", pause: "\u66AB\u505C", chapters: "\u7AE0\u7BC0" }
+};
+
+// src/languages/en.js
+var en_default = {
+  id: "en",
+  language: "en",
+  ui: {
+    theme: "Theme",
+    modeLabel: "Mode",
+    mode: { auto: "Auto", light: "Light", dark: "Dark" },
+    copy: "Copy source",
+    done: "Copied \u2713",
+    toc: "Contents",
+    flow: "Flowchart",
+    sequence: "Sequence diagram",
+    colon: ": ",
+    sep: ", "
+  },
+  videoUi: { play: "Play", pause: "Pause", chapters: "Chapters" }
+};
+
+// src/languages/ja.js
+var ja_default = {
+  id: "ja",
+  language: "ja",
+  langs: ["ja"],
+  fonts: {
+    sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif',
+    serif: '"Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC"'
+  },
+  ui: {
+    theme: "\u30C6\u30FC\u30DE",
+    modeLabel: "\u8868\u793A",
+    mode: { auto: "\u81EA\u52D5", light: "\u30E9\u30A4\u30C8", dark: "\u30C0\u30FC\u30AF" },
+    copy: "\u539F\u7A3F\u3092\u30B3\u30D4\u30FC",
+    done: "\u30B3\u30D4\u30FC\u3057\u307E\u3057\u305F \u2713",
+    toc: "\u76EE\u6B21",
+    flow: "\u30D5\u30ED\u30FC\u30C1\u30E3\u30FC\u30C8",
+    sequence: "\u30B7\u30FC\u30B1\u30F3\u30B9\u56F3",
+    colon: "\uFF1A",
+    sep: "\u3001"
+  },
+  videoUi: { play: "\u518D\u751F", pause: "\u4E00\u6642\u505C\u6B62", chapters: "\u7AE0" }
+};
+
+// src/languages/registry.js
+var LANGUAGES = Object.freeze([zh_default, zh_Hant_default, en_default, ja_default]);
+var FALLBACK = en_default;
+var languageIds = () => LANGUAGES.map((l3) => l3.id);
+function findLanguage(language, script) {
+  return LANGUAGES.find((l3) => l3.language === language && (!l3.script || l3.script === script));
+}
+
 // src/themes/fonts.js
 var SANS = '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif';
 var MONO = 'ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace';
+var fontLanguages = () => LANGUAGES.filter((l3) => l3.fonts);
+var langSelector = (language, base, rest) => language.langs.map((tag) => `${base}:lang(${tag})${rest}`).join(", ");
+var serifByLanguage = (variable, head) => fontLanguages().map((l3) => `${langSelector(l3, "&", "[data-mode]")} { ${variable}: ${head}, ${l3.fonts.serif}, serif; }`).join("\n");
 
 // src/themes/blueprint.js
 var blueprint_default = {
   name: "blueprint",
   summary: "Blueprint drawing",
-  label: { zh: "\u56FE\u7EB8", en: "Blueprint", ja: "\u56F3\u9762" },
+  label: { zh: "\u56FE\u7EB8", "zh-Hant": "\u5716\u7D19", en: "Blueprint", ja: "\u56F3\u9762" },
   // lang-ok: viewer-facing theme labels
   scope: ["page", "video"],
   tokens: {
@@ -832,7 +931,7 @@ var blueprint_default = {
 var shadcn_default = {
   name: "shadcn",
   summary: "shadcn cards",
-  label: { zh: "\u5361\u7247", en: "Cards", ja: "\u30AB\u30FC\u30C9" },
+  label: { zh: "\u5361\u7247", "zh-Hant": "\u5361\u7247", en: "Cards", ja: "\u30AB\u30FC\u30C9" },
   // lang-ok: viewer-facing theme labels
   scope: ["page", "video"],
   tokens: {
@@ -889,11 +988,11 @@ var shadcn_default = {
 
 // src/themes/paper.js
 var SERIF = '"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif';
-var JA_SERIF = '"Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif';
+var LANGUAGE_SERIF_HEAD = '"Iowan Old Style", Palatino, Georgia';
 var paper_default = {
   name: "paper",
   summary: "Paper, for long reading",
-  label: { zh: "\u7EB8\u5F20", en: "Paper", ja: "\u7D19" },
+  label: { zh: "\u7EB8\u5F20", "zh-Hant": "\u7D19\u5F35", en: "Paper", ja: "\u7D19" },
   // lang-ok: viewer-facing theme labels
   scope: ["page"],
   tokens: {
@@ -939,7 +1038,7 @@ var paper_default = {
       "--head-fg": "#15130f"
     }
   },
-  css: `&[lang="ja"][data-mode] { --font-serif: ${JA_SERIF}; }
+  css: `${serifByLanguage("--font-serif", LANGUAGE_SERIF_HEAD)}
 & .am-head h1, & .am-panel-head h2, & .am-md, & .am-intro, & .am-callout { font-family: var(--font-serif); }
 & .am-head h1 { font-weight: 600; letter-spacing: 0; }
 & .am-md p, & .am-md li, & .am-md blockquote, & .am-intro { font-size: 15.5px; line-height: 1.75; }
@@ -948,7 +1047,7 @@ var paper_default = {
 };
 
 // src/themes/3b1b.js
-var JA_SERIF2 = '"CMU Serif", "Latin Modern Roman", "Iowan Old Style", "Palatino", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif';
+var TITLE_HEAD = '"CMU Serif", "Latin Modern Roman", "Iowan Old Style", "Palatino"';
 var b1b_default = {
   name: "3b1b",
   summary: "3Blue1Brown dark",
@@ -989,7 +1088,7 @@ var b1b_default = {
         "--v-glow": "drop-shadow(0 0 6px rgba(247, 217, 111, 0.55))"
       }
     },
-    css: `&[lang="ja"][data-mode] { --v-title-font: ${JA_SERIF2}; }
+    css: `${serifByLanguage("--v-title-font", TITLE_HEAD)}
 & .amv-scene-head { left: 96px; top: 56px; border: 0; background: none; align-items: baseline; gap: 22px; }
 & .amv-scene-n { background: none; color: var(--line); padding: 0; min-width: 0; font: 500 30px var(--font-mono); }
 & .amv-scene-title { padding: 0; font-weight: 400; font-size: 46px; }
@@ -1043,72 +1142,6 @@ function contrast(fg, bg, base = [255, 255, 255, 1]) {
   const back = over(bg, base);
   const [x2, y2] = [luminance(over(fg, back)), luminance(back)];
   return (Math.max(x2, y2) + 0.05) / (Math.min(x2, y2) + 0.05);
-}
-
-// src/languages/zh.js
-var zh_default = {
-  id: "zh",
-  language: "zh",
-  script: "Hans",
-  ui: {
-    theme: "\u4E3B\u9898",
-    modeLabel: "\u660E\u6697",
-    mode: { auto: "\u8DDF\u968F\u7CFB\u7EDF", light: "\u4EAE", dark: "\u6697" },
-    copy: "\u590D\u5236\u6E90\u7A3F",
-    done: "\u5DF2\u590D\u5236 \u2713",
-    toc: "\u76EE\u5F55",
-    flow: "\u6D41\u7A0B\u56FE",
-    sequence: "\u65F6\u5E8F\u56FE",
-    colon: "\uFF1A",
-    sep: "\u3001"
-  },
-  videoUi: { play: "\u64AD\u653E", pause: "\u6682\u505C", chapters: "\u7AE0\u8282" }
-};
-
-// src/languages/en.js
-var en_default = {
-  id: "en",
-  language: "en",
-  ui: {
-    theme: "Theme",
-    modeLabel: "Mode",
-    mode: { auto: "Auto", light: "Light", dark: "Dark" },
-    copy: "Copy source",
-    done: "Copied \u2713",
-    toc: "Contents",
-    flow: "Flowchart",
-    sequence: "Sequence diagram",
-    colon: ": ",
-    sep: ", "
-  },
-  videoUi: { play: "Play", pause: "Pause", chapters: "Chapters" }
-};
-
-// src/languages/ja.js
-var ja_default = {
-  id: "ja",
-  language: "ja",
-  ui: {
-    theme: "\u30C6\u30FC\u30DE",
-    modeLabel: "\u8868\u793A",
-    mode: { auto: "\u81EA\u52D5", light: "\u30E9\u30A4\u30C8", dark: "\u30C0\u30FC\u30AF" },
-    copy: "\u539F\u7A3F\u3092\u30B3\u30D4\u30FC",
-    done: "\u30B3\u30D4\u30FC\u3057\u307E\u3057\u305F \u2713",
-    toc: "\u76EE\u6B21",
-    flow: "\u30D5\u30ED\u30FC\u30C1\u30E3\u30FC\u30C8",
-    sequence: "\u30B7\u30FC\u30B1\u30F3\u30B9\u56F3",
-    colon: "\uFF1A",
-    sep: "\u3001"
-  },
-  videoUi: { play: "\u518D\u751F", pause: "\u4E00\u6642\u505C\u6B62", chapters: "\u7AE0" }
-};
-
-// src/languages/registry.js
-var LANGUAGES = Object.freeze([zh_default, en_default, ja_default]);
-var FALLBACK = en_default;
-var languageIds = () => LANGUAGES.map((l3) => l3.id);
-function findLanguage(language, script) {
-  return LANGUAGES.find((l3) => l3.language === language && (!l3.script || l3.script === script));
 }
 
 // src/themes/check.js
@@ -5578,7 +5611,6 @@ ${panels.map((p) => panelHtml(p, { grid: false })).join("\n")}
 var TEMPLATES = { sheet, doc };
 
 // src/themes/index.js
-var JA_SANS = '-apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif';
 var block = (selector, vars) => `${selector} {
 ${Object.entries(vars).map(([k2, v]) => `  ${k2}: ${v};`).join("\n")}
 }`;
@@ -5594,12 +5626,12 @@ ${block(`${sel}[data-mode="auto"]`, dark)}
 var pageSel = (t) => `html[data-theme="${t.name}"]`;
 var videoSel = (t) => `html[data-video][data-theme="${t.name}"]`;
 var scoped = (css, sel) => css.replace(/&/g, sel);
-var JA_FONT_CSS = block('html[lang="ja"][data-theme][data-mode]', { "--font-sans": JA_SANS });
-var ownJaFont = (t) => block(`html[lang="ja"][data-theme="${t.name}"][data-mode]`, { "--font-sans": t.tokens.common["--font-sans"] });
+var languageFontCss = () => fontLanguages().map((l3) => block(langSelector(l3, "html", "[data-theme][data-mode]"), { "--font-sans": l3.fonts.sans }));
+var ownLanguageFont = (t) => fontLanguages().map((l3) => block(langSelector(l3, "html", `[data-theme="${t.name}"][data-mode]`), { "--font-sans": t.tokens.common["--font-sans"] }));
 function pageCss(list = themes("page")) {
   const decorations = list.filter((t) => t.css).map((t) => scoped(t.css, pageSel(t)));
-  const jaFonts = list.filter((t) => t.ownFont).map(ownJaFont);
-  return [list.map((t) => tokenCss(pageSel(t), t.tokens)).join("\n\n"), JA_FONT_CSS, ...jaFonts, BASE_CSS, ...decorations].join("\n\n");
+  const ownFonts = list.filter((t) => t.ownFont).flatMap(ownLanguageFont);
+  return [list.map((t) => tokenCss(pageSel(t), t.tokens)).join("\n\n"), ...languageFontCss(), ...ownFonts, BASE_CSS, ...decorations].join("\n\n");
 }
 function videoCss(list = themes("video")) {
   const parts = list.filter((t) => t.video).flatMap((t) => [
@@ -5712,22 +5744,40 @@ function sentenceLength(sentence) {
   const words = sentence.match(/[A-Za-z0-9][\w'’-]*/g)?.length ?? 0;
   return cjk >= 4 || cjk > words ? { lang: "zh", count: cjk + words } : { lang: "en", count: words };
 }
+var NO_SPACES = new RegExp("\\p{Script=Thai}", "u");
+var CJK_TEXT = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/gu;
+var thaiWords;
+function neutralLength(sentence) {
+  const han = sentence.match(CJK_TEXT)?.length ?? 0;
+  const rest = sentence.replace(CJK_TEXT, " ");
+  thaiWords ??= new Intl.Segmenter("th", { granularity: "word" });
+  const words = NO_SPACES.test(rest) ? [...thaiWords.segment(rest)].filter((s) => s.isWordLike).length : rest.match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu)?.length ?? 0;
+  return han >= 4 || han > words ? { lang: "zh", count: han + words } : { lang: "en", count: words };
+}
+var RULE_LANGUAGES = /* @__PURE__ */ new Set(["zh", "en", "ja"]);
+function ruleFamily(language) {
+  if (!language) return "auto";
+  const base = language.tag.split("-")[0];
+  if (!RULE_LANGUAGES.has(base)) return "neutral";
+  return language.declared ? base : "auto";
+}
 function formatWarning(w) {
   return `L${w.line} [${w.rule}] ${w.message}${w.suggestion ? ` \u2192 ${w.suggestion}` : ""}`;
 }
-function lintDoc(doc2) {
+function lintDoc(doc2, language) {
   const warnings = [];
+  const family = ruleFamily(language);
   const blocks = [...doc2.intro, ...doc2.panels.flatMap((p) => p.blocks)];
   for (const b of blocks) {
-    if (b.type === "md") lintMarkdown(b.text, b.line, warnings);
-    else if (b.lang === "callout") lintMarkdown(b.text, b.line + 1, warnings);
+    if (b.type === "md") lintMarkdown(b.text, b.line, warnings, family);
+    else if (b.lang === "callout") lintMarkdown(b.text, b.line + 1, warnings, family);
   }
   return warnings;
 }
 function clean(text) {
   return text.replace(/~~[^~]*~~/g, "").replace(/`[^`]*`/g, "").replace(/!\[[^\]]*\]\([^)]*\)/g, "").replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/<[^>]+>/g, "").replace(/[*_]{1,3}/g, "");
 }
-function lintMarkdown(text, startLine, out) {
+function lintMarkdown(text, startLine, out, family) {
   let para = null;
   const flush = () => {
     if (para && para.count > MAX_SENTENCES) {
@@ -5750,48 +5800,51 @@ function lintMarkdown(text, startLine, out) {
       if (/^\|?[\s:|-]+\|?$/.test(t)) return;
       const cells = t.replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
       if (cells.some((c) => /^(no|✗|✘)(\s|$)/.test(c))) return;
-      cells.forEach((c) => checkUnit(clean(c.replace(/^(ok|warn|✓|✔|⚠)(\s|$)/, "")), line, "descriptive", out));
+      cells.forEach((c) => checkUnit(clean(c.replace(/^(ok|warn|✓|✔|⚠)(\s|$)/, "")), line, "descriptive", out, family));
       return;
     }
     const list = t.match(/^(?:([-*+])|(\d+)[.)])\s+(.*)$/);
     if (list) {
       flush();
-      checkUnit(clean(list[3]), line, list[2] ? "procedural" : "descriptive", out);
+      checkUnit(clean(list[3]), line, list[2] ? "procedural" : "descriptive", out, family);
       return;
     }
     const body = clean(t.replace(/^>\s*/, ""));
-    const n = checkUnit(body, line, "descriptive", out);
+    const n = checkUnit(body, line, "descriptive", out, family);
     if (!para) para = { line, count: 0 };
     para.count += n;
   });
   flush();
 }
-function checkUnit(text, line, kind, out) {
+function checkUnit(text, line, kind, out, family) {
   const sentences = splitSentences(text);
-  const ja = isJapanese(text);
+  const zhFamily = family === "auto" || family === "zh";
+  const ja = family === "ja" || zhFamily && isJapanese(text);
+  const chineseRules = zhFamily && !ja;
+  const englishRules = family !== "neutral";
   for (const s of sentences) {
-    const { lang, count: count2 } = sentenceLength(s);
+    const { lang, count: count2 } = family === "neutral" ? neutralLength(s) : sentenceLength(s);
     const limit = LIMITS[lang][kind];
     if (count2 > limit) {
       const unit = lang === "zh" ? "characters" : "words";
       const preview = s.length > 24 ? `${s.slice(0, 24)}\u2026` : s;
       out.push({ line, rule: "sentence-length", message: `${kind === "procedural" ? "step" : "sentence"} has ${count2} ${unit} (max ${limit}): "${preview}"` });
     }
-    if (lang === "en" && PASSIVE.test(s)) {
+    if (englishRules && lang === "en" && PASSIVE.test(s)) {
       out.push({ line, rule: "passive", message: `possible passive voice: "${s.match(PASSIVE)[0]}"`, suggestion: "use active voice" });
     }
   }
   const lexical = [
-    ...EN_RE.flatMap(({ re: re3, suggestion }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `not recommended: "${m[0]}"`, suggestion }))),
-    ...(ja ? [] : ZH_LIGHT_VERBS).flatMap(({ re: re3, label }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `light verb "${m[0]}" (${label})`, suggestion: `use "${m[1]}"` }))),
-    ...(ja ? [] : ZH_WORDS).flatMap(({ re: re3, suggestion }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `not recommended: "${m[0]}"`, suggestion })))
+    ...(englishRules ? EN_RE : []).flatMap(({ re: re3, suggestion }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `not recommended: "${m[0]}"`, suggestion }))),
+    ...(chineseRules ? ZH_LIGHT_VERBS : []).flatMap(({ re: re3, label }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `light verb "${m[0]}" (${label})`, suggestion: `use "${m[1]}"` }))),
+    ...(chineseRules ? ZH_WORDS : []).flatMap(({ re: re3, suggestion }) => [...text.matchAll(re3)].map((m) => ({ index: m.index, rule: "word", message: `not recommended: "${m[0]}"`, suggestion })))
   ];
   out.push(...lexical.sort((a, b) => a.index - b.index).map(({ index, ...w }) => ({ line, ...w })));
   for (const s of sentences) {
-    if (isJapanese(s)) continue;
+    if (!zhFamily || isJapanese(s)) continue;
     if ((s.match(/的/g) ?? []).length >= 3) out.push({ line, rule: "de-chain", message: `chained "\u7684": ${s}`, suggestion: 'split the sentence or remove extra "\u7684"' });
   }
-  for (const c of ja ? [] : ZH_CLICHES) {
+  for (const c of chineseRules ? ZH_CLICHES : []) {
     if (text.includes(c)) out.push({ line, rule: "cliche", message: `clich\xE9 "${c}"`, suggestion: "delete it or state a concrete fact" });
   }
   return sentences.length;
@@ -5826,6 +5879,7 @@ function readPage(html) {
     theme: attr("data-theme"),
     mode: attr("data-mode"),
     style: attr("data-style"),
+    lang: attr("lang"),
     voice: attr("data-voice"),
     voiced: video && before.endsWith("</audio>") && before.lastIndexOf(AUDIO_OPEN) > before.lastIndexOf("<textarea")
   };
@@ -5834,17 +5888,55 @@ function unescapeHtml(s) {
   return s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
 }
 
+// src/han-forms.js
+var PAIRS = "\u8FD9\u9019 \u4E2A\u500B \u4EEC\u5011 \u8BF4\u8AAA \u56FD\u570B \u4E3A\u70BA \u6765\u4F86 \u65F6\u6642 \u4F1A\u6703 \u8FC7\u904E \u5BF9\u5C0D \u5B66\u5B78 \u8FD8\u9084 \u6CA1\u6C92 \u6837\u6A23 \u5F00\u958B \u95E8\u9580 \u95EE\u554F \u95F4\u9593 \u70B9\u9EDE \u73B0\u73FE \u79CD\u7A2E \u7ECF\u7D93 \u52A8\u52D5 \u5B9E\u5BE6 \u673A\u6A5F \u5173\u95DC \u4E1A\u696D \u4E0E\u8207 \u65E0\u7121 \u7535\u96FB \u4E66\u66F8 \u9A6C\u99AC \u8F66\u8ECA \u89C1\u898B \u4E70\u8CB7 \u5356\u8CE3 \u8BFB\u8B80 \u8BED\u8A9E \u8BDD\u8A71 \u8BF7\u8ACB \u8BA9\u8B93 \u8BA4\u8A8D \u5E94\u61C9 \u5F53\u7576 \u603B\u7E3D \u5C06\u5C07 \u4F53\u9AD4 \u534E\u83EF \u58F0\u8072 \u542C\u807D \u89C2\u89C0 \u89C9\u89BA \u8BB0\u8A18 \u8BBE\u8A2D \u8BA1\u8A08 \u8BBA\u8AD6 \u8BAE\u8B70 \u8BB8\u8A31 \u8BC1\u8B49 \u8BC6\u8B58 \u8C03\u8ABF \u8BD5\u8A66 \u8BE5\u8A72 \u8BE6\u8A73 \u8BEF\u8AA4 \u8C08\u8AC7 \u8C22\u8B1D \u8C01\u8AB0 \u8BFE\u8AB2 \u8D1F\u8CA0 \u8D23\u8CAC \u8D35\u8CB4 \u8D44\u8CC7 \u8D39\u8CBB \u8D5B\u8CFD \u8D22\u8CA1 \u8D2D\u8CFC \u8D27\u8CA8 \u8D38\u8CBF \u8D28\u8CEA \u94B1\u9322 \u94F6\u9280 \u94C1\u9435 \u7F51\u7DB2 \u9875\u9801 \u7EA7\u7D1A \u7EBF\u7DDA \u7C7B\u985E \u6570\u6578 \u636E\u64DA \u5E93\u5EAB \u6237\u6236 \u52A1\u52D9 \u533A\u5340 \u4E1C\u6771 \u4E50\u6A02 \u4EA7\u7522 \u4EB2\u89AA \u513F\u5152 \u529E\u8FA6 \u5174\u8208 \u519B\u8ECD \u519C\u8FB2 \u51B5\u6CC1 \u5218\u5289 \u521B\u5275 \u5267\u5287 \u5355\u55AE \u53CC\u96D9 \u53F7\u865F \u5458\u54E1 \u56ED\u5712 \u56F4\u570D \u56FE\u5716 \u5706\u5713 \u573A\u5834 \u5757\u584A \u574F\u58DE \u5904\u8655 \u5907\u5099 \u5934\u982D \u5939\u593E \u594B\u596E \u5987\u5A66 \u5B59\u5B6B \u5B81\u5BE7 \u5B9D\u5BF6 \u5BA1\u5BE9 \u5C42\u5C64 \u5C5E\u5C6C \u5C81\u6B72 \u5E08\u5E2B \u5E26\u5E36 \u5E2E\u5E6B \u5E7F\u5EE3 \u5F02\u7570 \u5F20\u5F35 \u5F3A\u5F37 \u5F55\u9304 \u5F52\u6B78 \u5F7B\u5FB9 \u5F84\u5F91 \u60AC\u61F8 \u60CA\u9A5A \u6218\u6230 \u62A4\u8B77 \u62A5\u5831 \u62E9\u64C7 \u62C5\u64D4 \u62E5\u64C1 \u62DF\u64EC \u6362\u63DB \u635F\u640D \u654C\u6575 \u65AD\u65B7 \u65E7\u820A \u663E\u986F \u6653\u66C9 \u6682\u66AB \u672F\u8853 \u6742\u96DC \u6781\u6975 \u6784\u69CB \u6807\u6A19 \u680F\u6B04 \u6811\u6A39 \u6863\u6A94 \u6865\u6A4B \u68C0\u6AA2 \u697C\u6A13 \u6B22\u6B61 \u6BD5\u7562 \u6C14\u6C23 \u6C49\u6F22 \u6D4E\u6FDF \u6D4F\u700F \u6D4B\u6E2C \u6E7E\u7063 \u6EE1\u6EFF \u706D\u6EC5 \u706F\u71C8 \u7231\u611B \u72B6\u72C0 \u72EC\u7368 \u73AF\u74B0 \u753B\u756B \u7597\u7642 \u76D8\u76E4 \u7801\u78BC \u786E\u78BA \u79BB\u96E2 \u79EF\u7A4D \u79F0\u7A31 \u7A77\u7AAE \u7ADE\u7AF6 \u7B14\u7B46 \u7B80\u7C21 \u7CAE\u7CE7 \u7D27\u7DCA \u7EA2\u7D05 \u7EA6\u7D04 \u7EAA\u7D00 \u7EAF\u7D14 \u7EB8\u7D19 \u7EC4\u7D44 \u7EC6\u7D30 \u7EC7\u7E54 \u7EC8\u7D42 \u7ED3\u7D50 \u7ED9\u7D66 \u7EDC\u7D61 \u7EDF\u7D71 \u7EE7\u7E7C \u7EED\u7E8C \u7EF4\u7DAD \u7EFC\u7D9C \u7EFF\u7DA0 \u7F13\u7DE9 \u7F16\u7DE8 \u7F57\u7F85 \u4E60\u7FD2 \u8054\u806F \u804C\u8077 \u8111\u8166 \u8138\u81C9 \u8282\u7BC0 \u8425\u71DF \u84DD\u85CD \u8651\u616E \u867D\u96D6 \u8865\u88DC \u88C5\u88DD \u89C8\u89BD \u89C4\u898F \u89C6\u8996 \u89E6\u89F8 \u8BA2\u8A02 \u8BA8\u8A0E \u8BAD\u8A13 \u8BB2\u8B1B \u8BBF\u8A2A \u8BC4\u8A55 \u8BCD\u8A5E \u8BD1\u8B6F \u8BC9\u8A34 \u8F93\u8F38 \u8F91\u8F2F \u8FB9\u908A \u8FBE\u9054 \u8FC1\u9077 \u8FD0\u904B \u8FDC\u9060 \u8FDE\u9023 \u8FDB\u9032 \u9009\u9078 \u9012\u905E \u9002\u9069 \u903B\u908F \u9057\u907A \u90AE\u90F5 \u94FA\u92EA \u94FE\u93C8 \u9500\u92B7 \u9501\u9396 \u9519\u932F \u952E\u9375 \u955C\u93E1 \u957F\u9577 \u95EA\u9583 \u95ED\u9589 \u95FB\u805E \u9605\u95B1 \u961F\u968A \u9636\u968E \u9645\u969B \u9690\u96B1 \u96BE\u96E3 \u9759\u975C \u9876\u9802 \u9879\u9805 \u987A\u9806 \u987B\u9808 \u9898\u984C \u989D\u984D \u98CE\u98A8 \u98DE\u98DB \u996D\u98EF \u9986\u9928 \u9A8C\u9A57 \u9A97\u9A19 \u9C7C\u9B5A \u9E1F\u9CE5 \u9E21\u96DE \u9EA6\u9EA5 \u9F50\u9F4A \u9F7F\u9F52 \u9F99\u9F8D".split(" ");
+var SIMPLIFIED_ONLY = PAIRS.map((pair) => [...pair][0]).join("");
+var TRADITIONAL_ONLY = PAIRS.map((pair) => [...pair][1]).join("");
+
 // src/language.js
 var CJK_PER_LATIN = 3;
-function detectLang(text) {
-  let cjk = 0;
-  let latin = 0;
-  for (const ch of String(text)) {
-    if (isCJK(ch)) cjk++;
-    else if (/[a-z]/i.test(ch)) latin++;
+var SCRIPT_LANGUAGES = [
+  [new RegExp("\\p{Script=Thai}", "u"), "th"],
+  [new RegExp("\\p{Script=Hebrew}", "u"), "he"],
+  [new RegExp("\\p{Script=Greek}", "u"), "el"],
+  [new RegExp("\\p{Script=Arabic}", "u"), "ar"],
+  [new RegExp("\\p{Script=Cyrillic}", "u"), "ru"]
+];
+var HANGUL = new RegExp("\\p{Script=Hangul}", "u");
+var SIMPLIFIED = new Set(SIMPLIFIED_ONLY);
+var TRADITIONAL = new Set(TRADITIONAL_ONLY);
+function hanLanguage(text) {
+  let simplified = 0;
+  let traditional = 0;
+  for (const ch of text) {
+    if (SIMPLIFIED.has(ch)) simplified++;
+    else if (TRADITIONAL.has(ch)) traditional++;
   }
-  if (cjk * CJK_PER_LATIN < latin) return "en";
-  return isJapanese(text) ? "ja" : "zh";
+  return traditional > simplified ? "zh-Hant" : "zh";
+}
+function detectLang(text) {
+  const draft = String(text);
+  let cjk = 0;
+  let hangul = 0;
+  let latin = 0;
+  const others = /* @__PURE__ */ new Map();
+  for (const ch of draft) {
+    if (isCJK(ch)) {
+      cjk++;
+      if (HANGUL.test(ch)) hangul++;
+    } else if (/[a-z]/i.test(ch)) {
+      latin++;
+    } else {
+      const script = SCRIPT_LANGUAGES.find(([re3]) => re3.test(ch));
+      if (script) others.set(script[1], (others.get(script[1]) ?? 0) + 1);
+    }
+  }
+  const otherTotal = [...others.values()].reduce((sum2, n) => sum2 + n, 0);
+  if ((cjk + otherTotal) * CJK_PER_LATIN < latin) return "en";
+  const [topTag, topCount] = [...others].sort((a, b) => b[1] - a[1])[0] ?? [null, 0];
+  if (topCount > cjk) return topTag;
+  if (hangul * 2 > cjk) return "ko";
+  return isJapanese(draft) ? "ja" : hanLanguage(draft);
 }
 function canonicalTag(value) {
   if (typeof value !== "string") return null;
@@ -5858,17 +5950,20 @@ function canonicalTag(value) {
     return null;
   }
 }
+var baseLanguage = (tag) => new Intl.Locale(tag).language;
 function directionOf(locale) {
   const info = typeof locale.getTextInfo === "function" ? locale.getTextInfo() : locale.textInfo;
   return info?.direction === "rtl" ? "rtl" : "ltr";
 }
-function resolveLanguage({ declared, text = "" }) {
-  const tag = canonicalTag(declared) ?? detectLang(text);
+function resolveLanguage({ declared, previous, text = "" }) {
+  const declaredTag = canonicalTag(declared);
+  const tag = declaredTag ?? canonicalTag(previous) ?? detectLang(text);
   const locale = new Intl.Locale(tag).maximize();
   const entry = findLanguage(locale.language, locale.script);
   const labels = entry ?? FALLBACK;
   return Object.freeze({
     tag,
+    declared: declaredTag !== null,
     htmlLang: tag === "zh" ? "zh-CN" : tag,
     script: locale.script,
     dir: directionOf(locale),
@@ -5896,7 +5991,7 @@ var LintError = class extends Error {
     this.warnings = warnings;
   }
 };
-function renderDoc(source, overrides = {}, defaults2 = {}, { themes: themes2 = BUILTIN } = {}) {
+function renderDoc(source, overrides = {}, defaults2 = {}, { themes: themes2 = BUILTIN, previousLanguage } = {}) {
   const choices = { theme: themes2.choices("page") };
   const parsed = parseDoc(source, { defaults: defaults2, choices });
   const meta = applyOverrides(parsed.meta, overrides, { ...CHOICES, ...choices });
@@ -5904,10 +5999,10 @@ function renderDoc(source, overrides = {}, defaults2 = {}, { themes: themes2 = B
   const problem = themes2.problem(meta.theme, "page");
   if (problem) throw new ParseError(problem, 0);
   const doc2 = { ...parsed, meta: meta.theme === AUTO ? { ...meta, theme: pickTheme({ scope: "page", template: meta.template, visuals: hasVisuals(parsed) }) } : meta };
-  const warnings = doc2.meta.style === "off" ? [] : lintDoc(doc2);
+  const language = resolveLanguage({ declared: doc2.meta.lang, previous: previousLanguage, text: source });
+  const warnings = doc2.meta.style === "off" ? [] : lintDoc(doc2, language);
   if (doc2.meta.style === "strict" && warnings.length) throw new LintError(warnings);
   const stats = { panels: doc2.panels.length, components: {} };
-  const language = resolveLanguage({ declared: doc2.meta.lang, text: source });
   const ui = language.ui;
   const ctx = { seq: 0, stats, ui };
   const introHtml = renderBlocks(doc2.intro, ctx);
@@ -6213,8 +6308,9 @@ function systemVoice(platform, which) {
       voice: "system",
       id: `say:${voices.zh}:${voices.en}:${voices.ja}`,
       concurrency: 4,
-      synth: (text) => withTemp(async (file) => {
-        const v = voices[detectLang(text)];
+      usesLanguage: true,
+      synth: (text, { language } = {}) => withTemp(async (file) => {
+        const v = voices[language];
         await run("say", [...v ? ["-v", v] : [], "-o", file, "--file-format=WAVE", `--data-format=LEI16@${SAMPLE_RATE}`, "-f", textFile(file, text)]);
         return readWav(readFileSync2(file));
       })
@@ -6226,8 +6322,9 @@ function systemVoice(platform, which) {
       voice: "system",
       id: "espeak-ng",
       concurrency: 4,
-      synth: (text) => withTemp(async (file) => {
-        await run("espeak-ng", ["-v", { zh: "cmn", ja: "ja" }[detectLang(text)] ?? "en-us", "-w", file, "-f", textFile(file, text)]);
+      usesLanguage: true,
+      synth: (text, { language } = {}) => withTemp(async (file) => {
+        await run("espeak-ng", ["-v", { zh: "cmn", ja: "ja" }[language] ?? "en-us", "-w", file, "-f", textFile(file, text)]);
         return readWav(readFileSync2(file));
       })
     };
@@ -6303,21 +6400,23 @@ function resample(input) {
   }
   return out;
 }
-async function synthAll(texts, provider, { cacheDir } = {}) {
+async function synthAll(texts, provider, { cacheDir, languageOf } = {}) {
   if (cacheDir) mkdirSync(cacheDir, { recursive: true });
   const results = new Array(texts.length);
   let next = 0;
   const worker = async () => {
     while (next < texts.length) {
       const i = next++;
-      const file = cacheDir && join2(cacheDir, `${createHash("sha1").update(`${provider.id}
+      const language = provider.usesLanguage ? languageOf?.(texts[i]) : void 0;
+      const file = cacheDir && join2(cacheDir, `${createHash("sha1").update(`${provider.id}${language ? `
+${language}` : ""}
 ${texts[i]}`).digest("hex")}.pcm`);
       const cached = file && readCache(file);
       if (cached) {
         results[i] = cached;
         continue;
       }
-      results[i] = trimSilence(await provider.synth(texts[i]));
+      results[i] = trimSilence(await provider.synth(texts[i], { language }));
       if (file) writeCache(file, results[i]);
     }
   };
@@ -6372,30 +6471,31 @@ function wav(samples) {
 }
 
 // src/video/render.js
-async function renderVideo(source, { provider = null, cacheDir, defaults: defaults2 = {}, overrides = {}, onProgress, themes: themes2 = BUILTIN } = {}) {
+async function renderVideo(source, { provider = null, cacheDir, defaults: defaults2 = {}, overrides = {}, onProgress, themes: themes2 = BUILTIN, previousLanguage } = {}) {
   const themeChoices = themes2.choices("video");
   const video = parseVideo(source, { defaults: defaults2, themeChoices });
   const picked = applyOverrides(video.meta, overrides, { ...CHOICES, theme: themeChoices });
   const problem = themes2.problem(picked.theme, "video");
   if (problem) throw new ParseError(problem, 0);
   const meta = picked.theme === AUTO ? { ...picked, theme: pickTheme({ scope: "video" }) } : picked;
-  const warnings = meta.style === "off" ? [] : lintDoc(video.doc).filter((w) => w.rule !== "paragraph-length");
+  const language = resolveLanguage({ declared: meta.lang, previous: previousLanguage, text: source });
+  const warnings = meta.style === "off" ? [] : lintDoc(video.doc, language).filter((w) => w.rule !== "paragraph-length");
   if (meta.style === "strict" && warnings.length) throw new LintError(warnings);
   const beats = allBeats(video);
-  const { clips, durations } = await voiceBeats(beats, provider, cacheDir, onProgress);
+  const languageOf = (text) => baseLanguage(language.declared ? language.tag : detectLang(text));
+  const { clips, durations } = await voiceBeats(beats, provider, cacheDir, onProgress, languageOf);
   const timeline = buildTimeline(video, durations);
   const flat = [...timeline.title.beats, ...timeline.scenes.flatMap((s) => s.beats)];
   const wav2 = clips ? mixTrack(clips, flat.map((b) => b.start), timeline.duration) : null;
   const stats = { panels: video.scenes.length, components: {} };
-  const language = resolveLanguage({ declared: meta.lang, text: source });
   const scenesHtml = renderScenes(video, meta, timeline, { seq: 0, stats, ui: language.ui });
   const html = shell2({ meta, language, scenesHtml, data: playerData(video, meta, timeline), wav: wav2, voice: wav2 ? provider.voice : void 0, source, embedded: themes2.embedFor(meta.theme, "video") });
   return { html, wav: wav2, warnings, stats, meta, language, duration: timeline.duration, beats: beats.length };
 }
-async function voiceBeats(beats, provider, cacheDir, onProgress) {
+async function voiceBeats(beats, provider, cacheDir, onProgress, languageOf) {
   if (!provider) return { clips: null, durations: beats.map((b) => estimateSeconds(b.text)) };
   onProgress?.(`Voice-over: ${provider.name}, ${beats.length} line${beats.length === 1 ? "" : "s"}`);
-  const clips = await synthAll(beats.map((b) => b.text), provider, { cacheDir });
+  const clips = await synthAll(beats.map((b) => b.text), provider, { cacheDir, languageOf });
   return { clips, durations: clips.map((c) => c.length / SAMPLE_RATE) };
 }
 function playerData(video, meta, timeline) {
@@ -7261,7 +7361,7 @@ Pick it like a built-in theme: theme: notes in the draft, --theme notes, or am c
   "video": { "tokens": { "light": { "--v-stage": "#fffdf8" } }, "css": "& .amv-title { font-weight: 500; }" }
 }
 
-- label: the name on the page's theme button: a string, or an object with zh / en / ja strings.
+- label: the name on the page's theme button: a string, or an object with ${languageIds().join(" / ")} strings.
 - tokens: light and dark must each set every color: ${COLOR_TOKENS.join(" ")}.
   common holds values shared by both; --radius --shadow --bw --head-font --font-sans --font-mono are optional.
 - Fonts: name installed fonts only; the default font stack is added as the fallback. No font files are embedded.
@@ -7332,9 +7432,9 @@ async function cmdPatch(htmlArg, fromArg, opts, ctx) {
     if (video) {
       const voice = opts.voice ?? (page.voiced ? page.voice ?? config.values.voice : "off");
       if (!validVoice(voice, fail)) return 2;
-      result = await buildVideo(patched, voice, { ...opts, theme: overrides.theme, mode: overrides.mode, style: overrides.style }, config, ctx);
+      result = await buildVideo(patched, voice, { ...opts, theme: overrides.theme, mode: overrides.mode, style: overrides.style, previousLanguage: page.lang }, config, ctx);
     } else {
-      result = renderDoc(patched, overrides, { theme, mode, style }, { themes: ctx.themes });
+      result = renderDoc(patched, overrides, { theme, mode, style }, { themes: ctx.themes, previousLanguage: page.lang });
     }
   } catch (e) {
     if (e instanceof TtsError) {
@@ -7376,6 +7476,7 @@ async function buildVideo(src, voice, opts, config, { fail, env, io, themes: the
     cacheDir: join7(amHome(env), "cache", "tts"),
     defaults: { style: config.values.style, theme: config.values.theme, mode: config.values.mode },
     overrides: { style: opts.style, theme: opts.theme, mode: opts.mode },
+    previousLanguage: opts.previousLanguage,
     onProgress: (msg) => fail(`  ${msg}`),
     themes: themes2
   });
