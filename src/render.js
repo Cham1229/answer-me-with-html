@@ -9,7 +9,7 @@ import { BUILTIN, AUTO, pickTheme } from './themes/registry.js';
 import { lintDoc } from './lint/ste.js';
 import { esc } from './svg/text.js';
 import { VERSION, RUNTIME_JS } from './assets.js';
-import { rootTag, sourceTag } from './page.js';
+import { rootTag, rootCarrierAttrs, sourceTag } from './page.js';
 import { resolveLanguage } from './language.js';
 import { inlineImages, ImageError, IMAGE_EXAMPLE } from './images.js';
 import { renderCode, CodeError, CODE_EXAMPLE } from './code.js';
@@ -129,8 +129,9 @@ function shell({ meta, language, body, source, embedded }) {
   const { ui, labelKey } = language;
   const pick = (name, label, values, current) => `<label class="am-pick">${esc(label)}<select data-am="${name}">${values
     .map(([value, text]) => `<option value="${esc(value)}"${value === current ? ' selected' : ''}>${esc(text)}</option>`).join('')}</select></label>`;
+  const root = { lang: language.htmlLang, theme: meta.theme, mode: meta.mode, style: meta.style };
   return `<!doctype html>
-${rootTag({ lang: language.htmlLang, theme: meta.theme, mode: meta.mode, style: meta.style })}
+${rootTag(root)}
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -141,7 +142,7 @@ ${pageCss(embedded)}
 </style>
 </head>
 <body>
-<div class="am-toolbar">
+<div class="am-toolbar"${rootCarrierAttrs(root)}>
 ${pick('theme', ui.theme, embedded.map((t) => [t.name, t.label[labelKey]]), meta.theme)}
 ${pick('mode', ui.modeLabel, Object.entries(ui.mode), meta.mode)}
 <button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="${esc(JSON.stringify({ ...ui.reply, done: ui.done }))}">${esc(ui.reply.button)}</button>
