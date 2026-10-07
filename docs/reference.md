@@ -29,6 +29,23 @@ A -> B: label
 
 Full syntax for a component: `am help <component>`.
 
+## Code blocks
+
+Quote code that exists in the project instead of typing it:
+
+````markdown
+```ts src=server/routes.ts lines=18-30 hl=22
+```
+````
+
+- Any fence whose language is not a component is a code block, with a header and a Copy button.
+- `src=` reads the file and `lines=18-30` picks the lines, numbered as in the file. Leave the block empty. The path is read from the current folder, and only files inside it are quoted.
+- `hl=22` or `hl=20-22,25` highlights lines. For code you type, `title="limits.ts · sketch"` names it and `start=38` numbers it from line 38.
+- A block longer than 40 lines gets a warning; more than 200 lines is an error. Files that hold keys by convention (`.env`, `*.pem`, `id_rsa`, `.ssh/`, `.git/` …) and files with anything that looks like a key or a token are refused. The rules follow html-plan's.
+- The render lists every file it embedded. The page keeps the path; `am patch` reads the file again, or keeps the page's copy when the file has moved.
+
+Full syntax: `am help code`.
+
 ## Images
 
 For something a diagram cannot show, such as a real screen, use an image that already exists as a file:
