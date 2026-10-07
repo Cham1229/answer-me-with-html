@@ -49,44 +49,15 @@
   }
 
   // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
-  const diagrams = document.querySelectorAll('.am-diagram');
-  if (diagrams.length) {
-    const lang = (root.getAttribute('lang') || 'zh').slice(0, 2);
-    const I18N = {
-      zh: { expand: '展开查看图表', close: '关闭', diagram: '图表查看' }, // lang-ok: viewer UI labels
-      en: { expand: 'Expand diagram', close: 'Close', diagram: 'Diagram Viewer' },
-      ja: { expand: '拡大表示', close: '閉じる', diagram: 'ダイアグラム' }, // lang-ok: viewer UI labels
-    };
-    const t = I18N[lang] || I18N.zh;
-
-    const lb = document.createElement('div');
-    lb.className = 'am-lightbox';
-    lb.setAttribute('hidden', '');
-    lb.setAttribute('aria-modal', 'true');
-    lb.setAttribute('role', 'dialog');
-    lb.setAttribute('aria-label', t.diagram);
-    lb.innerHTML = `
-      <div class="am-lightbox-backdrop"></div>
-      <div class="am-lightbox-header">
-        <div class="am-lightbox-title">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-          <span class="am-lightbox-title-text"></span>
-        </div>
-        <div class="am-lightbox-actions">
-          <button class="am-lightbox-close" data-action="close" title="${t.close}" aria-label="${t.close}">✕</button>
-        </div>
-      </div>
-      <div class="am-lightbox-stage">
-        <div class="am-lightbox-canvas am-diagram"></div>
-      </div>
-    `;
-    document.body.append(lb);
-
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
     const backdrop = lb.querySelector('.am-lightbox-backdrop');
     const titleText = lb.querySelector('.am-lightbox-title-text');
     const stage = lb.querySelector('.am-lightbox-stage');
     const canvas = lb.querySelector('.am-lightbox-canvas');
     const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
 
     let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
     let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
@@ -112,7 +83,7 @@
       lastTrigger = trigger;
 
       const panel = diag.closest('.am-panel');
-      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || t.diagram;
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
       if (titleText) titleText.textContent = panelTitle;
 
       const clone = svg.cloneNode(true);
@@ -246,8 +217,8 @@
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'am-diagram-expand';
-      btn.title = t.expand;
-      btn.setAttribute('aria-label', t.expand);
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
       btn.innerHTML = expandSvg;
       btn.addEventListener('click', () => open(diag, btn));
       diag.prepend(btn);

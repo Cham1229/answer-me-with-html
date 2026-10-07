@@ -21,6 +21,7 @@ export default {
       typed: '以 ">" 開頭的行是讀者輸入的文字。',
     },
     toc: '目錄', flow: '流程圖', sequence: '時序圖', colon: '：', sep: '、',
+    expand: '展開查看圖表', close: '關閉', diagram: '圖表檢視',
   },
   videoUi: { play: '播放', pause: '暫停', chapters: '章節' },
 };

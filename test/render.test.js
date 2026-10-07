@@ -267,6 +267,34 @@ Bob --> Alice: reply
   assert.match(html, /setPointerCapture/);
 });
 
+test('render: diagram viewer labels follow the resolved page language and fallback', () => {
+  const diagDraft = (lang) => `${lang ? `---\nlang: ${lang}\n---\n` : ''}## Diagram\n\`\`\`flow\nA -> B\n\`\`\`\n`;
+
+  const zh = renderDoc(diagDraft('zh-CN')).html;
+  assert.match(zh, /<div class="am-lightbox"[^>]*aria-label="图表查看"[^>]*data-expand="展开查看图表"/);
+  assert.match(zh, /class="am-lightbox-close"[^>]*title="关闭"[^>]*aria-label="关闭"/);
+
+  const hant = renderDoc(diagDraft('zh-TW')).html;
+  assert.match(hant, /<div class="am-lightbox"[^>]*aria-label="圖表檢視"[^>]*data-expand="展開查看圖表"/);
+  assert.match(hant, /class="am-lightbox-close"[^>]*title="關閉"[^>]*aria-label="關閉"/);
+
+  const ja = renderDoc(diagDraft('ja')).html;
+  assert.match(ja, /<div class="am-lightbox"[^>]*aria-label="ダイアグラム"[^>]*data-expand="拡大表示"/);
+  assert.match(ja, /class="am-lightbox-close"[^>]*title="閉じる"[^>]*aria-label="閉じる"/);
+
+  const en = renderDoc(diagDraft('en')).html;
+  assert.match(en, /<div class="am-lightbox"[^>]*aria-label="Diagram viewer"[^>]*data-expand="Expand diagram"/);
+  assert.match(en, /class="am-lightbox-close"[^>]*title="Close"[^>]*aria-label="Close"/);
+
+  const fr = renderDoc(diagDraft('fr')).html;
+  assert.match(fr, /<div class="am-lightbox"[^>]*aria-label="Diagram viewer"[^>]*data-expand="Expand diagram"/);
+  assert.match(fr, /class="am-lightbox-close"[^>]*title="Close"[^>]*aria-label="Close"/);
+
+  const noDiag = renderDoc('## Plain\nNo diagrams here.\n').html;
+  assert.doesNotMatch(noDiag, /<div class="am-lightbox"/);
+});
+
+
 test('render: diagram lightbox behavior — expand opens dialog, Esc, close button and backdrop close it', () => {
   const code = readFileSync(new URL('../src/runtime/page.js', import.meta.url), 'utf8');
 
@@ -493,13 +521,36 @@ test('render: diagram lightbox behavior — expand opens dialog, Esc, close butt
   panel.append(diag);
   doc.body.append(panel);
 
+  const lb = doc.createElement('div');
+  lb.className = 'am-lightbox';
+  lb.setAttribute('hidden', '');
+  lb.setAttribute('aria-modal', 'true');
+  lb.setAttribute('role', 'dialog');
+  lb.setAttribute('aria-label', 'Diagram viewer');
+  lb.setAttribute('data-expand', 'Expand diagram');
+  lb.innerHTML = `
+    <div class="am-lightbox-backdrop"></div>
+    <div class="am-lightbox-header">
+      <div class="am-lightbox-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+        <span class="am-lightbox-title-text"></span>
+      </div>
+      <div class="am-lightbox-actions">
+        <button class="am-lightbox-close" data-action="close" title="Close" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="am-lightbox-stage">
+      <div class="am-lightbox-canvas am-diagram"></div>
+    </div>
+  `;
+  doc.body.append(lb);
+
   const sandbox = { document: doc, window: win, root: doc.documentElement, console, parseFloat, Math };
   vm.runInNewContext(code, sandbox);
 
   const expandBtn = diag.querySelector('.am-diagram-expand');
   assert.ok(expandBtn, 'expand button was appended to diagram');
-  const lb = doc.body.querySelector('.am-lightbox');
-  assert.ok(lb, 'lightbox was appended to body');
+  assert.equal(lb.querySelector('.am-lightbox-canvas .am-diagram-expand'), null, 'canvas has no expand button');
   assert.equal(lb.hasAttribute('hidden'), true, 'lightbox starts hidden');
 
   // 1. Click expand -> opens lightbox and clones SVG with deduplicated marker IDs
@@ -553,4 +604,3 @@ test('render: diagram lightbox behavior — expand opens dialog, Esc, close butt
   backdrop.click();
   assert.equal(lb.hasAttribute('hidden'), true, 'lightbox closes on backdrop click');
 });
-

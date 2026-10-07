@@ -589,7 +589,9 @@ test('e2e: diagram expand button opens lightbox and Escape closes it', { skip: S
   await open(tcp.file, DESKTOP);
   await waitFor(SETTLED, 'tcp to lay out');
 
-  assert.ok(await evaluate('document.querySelectorAll(".am-diagram-expand").length') > 0, 'diagram expand button rendered');
+  const diagramCount = await evaluate('document.querySelectorAll(".am-grid .am-diagram, .am-doc .am-diagram").length');
+  assert.equal(await evaluate('document.querySelectorAll(".am-diagram-expand").length'), diagramCount, 'exactly one expand button per diagram');
+  assert.equal(await evaluate('document.querySelector(".am-lightbox-canvas .am-diagram-expand")'), null, 'canvas has no expand button');
   assert.equal(await evaluate('document.querySelector(".am-lightbox").hasAttribute("hidden")'), true, 'lightbox starts hidden');
 
   await evaluate('document.querySelector(".am-diagram-expand").click()');

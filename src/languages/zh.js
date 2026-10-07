@@ -16,6 +16,7 @@ export default {
       typed: '以 ">" 开头的行是读者输入的文字。',
     },
     toc: '目录', flow: '流程图', sequence: '时序图', colon: '：', sep: '、',
+    expand: '展开查看图表', close: '关闭', diagram: '图表查看',
   },
   videoUi: { play: '播放', pause: '暂停', chapters: '章节' },
 };

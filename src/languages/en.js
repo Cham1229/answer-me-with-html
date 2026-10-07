@@ -14,6 +14,7 @@ export default {
       typed: 'Lines that start with ">" are text the reader typed.',
     },
     toc: 'Contents', flow: 'Flowchart', sequence: 'Sequence diagram', colon: ': ', sep: ', ',
+    expand: 'Expand diagram', close: 'Close', diagram: 'Diagram viewer',
   },
   videoUi: { play: 'Play', pause: 'Pause', chapters: 'Chapters' },
 };

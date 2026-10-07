@@ -39,3 +39,11 @@ test('languages: a language that sets fonts also names the language ranges the f
     assert.equal(typeof entry.fonts.serif, 'string');
   }
 });
+
+test('languages: includes diagram viewer labels (expand, close, diagram)', () => {
+  for (const entry of LANGUAGES) {
+    assert.equal(typeof entry.ui.expand, 'string', `${entry.id} missing ui.expand`);
+    assert.equal(typeof entry.ui.close, 'string', `${entry.id} missing ui.close`);
+    assert.equal(typeof entry.ui.diagram, 'string', `${entry.id} missing ui.diagram`);
+  }
+});

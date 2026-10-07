@@ -22,6 +22,7 @@ export default {
       typed: '「>」で始まる行は読者が入力した文字です。',
     },
     toc: '目次', flow: 'フローチャート', sequence: 'シーケンス図', colon: '：', sep: '、',
+    expand: '拡大表示', close: '閉じる', diagram: 'ダイアグラム',
   },
   videoUi: { play: '再生', pause: '一時停止', chapters: '章' },
 };
